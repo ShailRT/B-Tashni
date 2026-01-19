@@ -1,0 +1,43 @@
+export const products = [
+  {
+    id: 1,
+    name: "GRAPHIC OVERSIZED TEE",
+    price: "$58",
+    image: "/products/tee1.png",
+    category: "NEW",
+    scent: "NEW ARRIVAL",
+    description:
+      "Heavyweight cotton oversized tee featuring abstract back print.",
+    color: "Washed Black",
+  },
+  {
+    id: 2,
+    name: "ESSENTIAL HOODIE",
+    price: "$120",
+    image: "/products/hoodie1.png",
+    category: "BESTSELLERS",
+    scent: "BEST SELLER",
+    description: "Premium french terry hoodie in sand.",
+    color: "Sand",
+  },
+  {
+    id: 3,
+    name: "CYBER SHADES",
+    price: "$150",
+    image: "/products/sunglasses1.png",
+    category: "ACCESSORIES",
+    scent: "LIMITED",
+    description: "Neon orange futuristic sunglasses.",
+    color: "Neon Orange",
+  },
+  {
+    id: 4,
+    name: "VINTAGE ZIP-UP",
+    price: "$110",
+    image: "/products/zipup1.png",
+    category: "CLOTHING",
+    scent: "",
+    description: "Distressed zip-up hoodie for everyday wear.",
+    color: "Slate Grey",
+  },
+];
