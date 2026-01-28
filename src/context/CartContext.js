@@ -66,7 +66,10 @@ export function CartProvider({ children }) {
   );
 
   const cartTotal = (Array.isArray(cart) ? cart : []).reduce((total, item) => {
-    const price = parseFloat(item.price.replace("$", ""));
+    const priceString = String(item.price);
+    // Remove "INR", spaces, commas to get raw number string (e.g. "4500.00")
+    const cleanPriceString = priceString.replace(/[^0-9.]/g, "");
+    const price = parseFloat(cleanPriceString);
     return total + (isNaN(price) ? 0 : price) * item.quantity;
   }, 0);
 

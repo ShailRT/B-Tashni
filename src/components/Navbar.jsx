@@ -5,12 +5,18 @@ import { Search, ShoppingBag, User, Menu } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
+import { usePathname } from "next/navigation";
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { cartCount, setIsCartOpen } = useCart();
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
 
   const [currentAnnouncement, setCurrentAnnouncement] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+
+  // ... (keep existing announcement logic)
 
   const ANNOUNCEMENTS = [
     "FREE SHIPPING ON ALL DOMESTIC ORDERS",
@@ -24,7 +30,7 @@ export default function Navbar() {
       setTimeout(() => {
         setCurrentAnnouncement((prev) => (prev + 1) % ANNOUNCEMENTS.length);
         setIsAnimating(false);
-      }, 700); // Match this with the CSS duration
+      }, 700);
     }, 4000);
     return () => clearInterval(interval);
   }, [ANNOUNCEMENTS.length]);
@@ -41,21 +47,9 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+        isScrolled || !isHomePage
           ? "bg-white text-[#2d2a26] shadow-sm"
           : "bg-transparent text-[#2d2a26] lg:text-white"
-      } ${
-        /* Note: Text color on Hero needs to be white, but on other pages or scrolled it is black.
-           Our Hero text is white. Navbar is transparent.
-           However, on the collection page, the background is white. 
-           So transparent navbar on white background = invisible white text.
-           This is a design issue.
-           For now, let's just make it always black on scroll, and white on top ONLY if we are on home. 
-           But easier fix: "mix-blend-difference" or just use a dark navbar.
-           Let's stick to the current logic but be aware.
-           The original code had `text-white`. I will keep it for now but maybe I should check if we are on home page?
-           */
-        ""
       }`}
     >
       <div className="bg-black text-white text-[10px] font-bold text-center tracking-widest uppercase w-full overflow-hidden h-8 relative z-50">
@@ -77,8 +71,8 @@ export default function Navbar() {
 
       <div
         className={`container mx-auto px-6 flex items-center justify-between transition-all duration-300 ${
-          isScrolled ? "py-4" : "py-6"
-        } ${!isScrolled ? "text-white mix-blend-difference" : ""}`}
+          isScrolled || !isHomePage ? "py-4" : "py-6"
+        } ${!isScrolled && isHomePage ? "text-white mix-blend-difference" : ""}`}
       >
         {/* using mix-blend-difference to make it visible on both dark and light if possible, or just simplistic approach: text-black always? 
           Original was text-white on top. Let's keep it. 
@@ -97,19 +91,19 @@ export default function Navbar() {
         {/* Center: Navigation Links (Desktop) */}
         <div className="hidden lg:flex items-center gap-8 text-sm font-medium tracking-wide-custom">
           {[
-            "NEW",
-            "BESTSELLERS",
-            "SHAPEWEAR",
-            "UNDERWEAR",
-            "LOUNGE",
-            "CLOTHING",
+            { label: "NEW", href: "/product/ripped-effect-jumper" }, // Direct link for demo
+            { label: "BESTSELLERS", href: "/collections/bestsellers" },
+            { label: "SHAPEWEAR", href: "/collections/shapewear" },
+            { label: "UNDERWEAR", href: "/collections/underwear" },
+            { label: "LOUNGE", href: "/collections/lounge" },
+            { label: "CLOTHING", href: "/collections/clothing" },
           ].map((item) => (
             <Link
-              key={item}
-              href={`/collections/${item.toLowerCase()}`}
+              key={item.label}
+              href={item.href}
               className="hover:opacity-75 transition-opacity"
             >
-              {item}
+              {item.label}
             </Link>
           ))}
         </div>
