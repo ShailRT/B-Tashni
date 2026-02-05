@@ -20,7 +20,8 @@ h4,
 h5,
 h6 {
   font-family:
-    var(--font-inter), sans-serif; /* Skims uses a grotesque, not condensed for everything. Let's stick to Inter for now unless requested specific Oswald headers */
+    var(--font-inter), sans-serif;
+  /* Skims uses a grotesque, not condensed for everything. Let's stick to Inter for now unless requested specific Oswald headers */
 }
 
 /* Creating a utility for the specific Skims headline look if needed, but trending cats uses standard sans */
@@ -41,6 +42,7 @@ h6 {
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -55,6 +57,7 @@ h6 {
     transform: translateY(100%);
     opacity: 0;
   }
+
   100% {
     transform: translateY(0);
     opacity: 1;
@@ -70,6 +73,7 @@ h6 {
   0% {
     transform: translateX(0%);
   }
+
   100% {
     transform: translateX(-100%);
   }
@@ -79,6 +83,7 @@ h6 {
   0% {
     transform: translateX(100%);
   }
+
   100% {
     transform: translateX(0%);
   }
@@ -90,4 +95,22 @@ h6 {
 
 .animate-marquee2 {
   animation: marquee2 40s linear infinite;
+}
+
+/* Center Clerk Modal */
+.cl-modalContent {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  /* min-height: 100vh !important;
+  width: 100% !important; */
+}
+
+.cl-rootBox {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.cl-modalBackdrop {
+  align-items: center !important;
 }

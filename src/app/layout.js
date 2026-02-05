@@ -1,8 +1,7 @@
 import { Inter, Oswald } from "next/font/google"; // Import Oswald
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { CartProvider } from "@/context/CartContext";
-import CartSidebar from "@/components/CartSidebar";
+import LayoutWrapper from "@/components/LayoutWrapper";
+import { ClerkProvider } from '@clerk/nextjs'
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -17,12 +16,26 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.variable} ${oswald.variable} font-sans`}>
-        <CartProvider>
-          <Navbar />
-          <CartSidebar />
-          {children}
-          <Footer />
-        </CartProvider>
+        <ClerkProvider
+          appearance={{
+            variables: { colorPrimary: '#000000' },
+            elements: {
+              modalContent: {
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: 'auto',
+                width: 'auto',
+              },
+            }
+          }}
+        >
+          <CartProvider>
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+          </CartProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
