@@ -5,7 +5,7 @@ export default function SecondaryBanner() {
         {/* Background Image */}
         <img
           src="https://skims-sanity.imgix.net/images/hfqi0zm0/production/2075a33d721beb760410c1579374b8bcf6d9a559-4096x1760.webp?auto=format&q=95&ixlib=react-9.10.0"
-          alt="Just in at SKIMS"
+          alt="Just in at B-Tashni"
           className="w-full h-full object-cover object-center"
         />
         {/* Content - Bottom Left to match Skims style */}
@@ -13,7 +13,7 @@ export default function SecondaryBanner() {
         {/* Slight overlay for text readability if needed */}
         <div className="absolute bottom-6 left-5 md:bottom-12 md:left-10 text-white z-10">
           <h2 className="text-3xl md:text-5xl font-bold uppercase mb-2 tracking-tight">
-            Just in at Skims
+            Just in at B-Tashni
           </h2>
           <p className="text-base md:text-xl mb-4 font-normal">
             Fresh cotton styles that fit every season

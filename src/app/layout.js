@@ -8,8 +8,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" }); // Configure Oswald
 
 export const metadata = {
-  title: "SKIMS | Solutions For Every Body",
-  description: "Shop the new collection of shapewear, lounge, and underwear.",
+  title: "B-Tashni | Elegance in Every Thread",
+  description: "Discover the latest collection of premium apparel from B-Tashni.",
 };
 
 export default function RootLayout({ children }) {

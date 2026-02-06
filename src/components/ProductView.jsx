@@ -131,37 +131,43 @@ export default function ProductView({ product }) {
         </div>
       </div>
 
-      {/* Matches Section if available */}
+      {/* Matches Section */}
       {product.matchWith && product.matchWith.length > 0 && (
-        <div className="px-5 lg:px-12 mt-32 mb-10 max-w-[1920px] mx-auto">
-          <h3 className="text-[13px] font-bold uppercase tracking-wider mb-6">
-            Match With
-          </h3>
-          <div className="grid grid-cols-2 lg:grid-cols-6 gap-2">
-            {product.matchWith.map((item, i) => (
-              <a
-                href={`/product/${item.slug}`}
-                key={i}
-                className="flex flex-col gap-2 cursor-pointer group"
-              >
-                <div className="relative aspect-[3/4.5] overflow-hidden bg-gray-100">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-[10px] uppercase font-light">
-                    {item.name}
-                  </p>
-                  <p className="text-[10px] text-gray-500 font-light">
-                    {item.price}
-                  </p>
-                </div>
-              </a>
-            ))}
+        <div className="px-5 lg:px-12 mt-32 mb-20 max-w-[1920px] mx-auto border-t border-black/5 pt-20">
+          <div className="flex flex-col gap-10">
+            <h2 className="text-[12px] font-bold uppercase tracking-[0.25em] text-black/80">
+              Match With
+            </h2>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-x-4 gap-y-12">
+              {product.matchWith.map((item, i) => (
+                <a
+                  href={`/product/${item.slug}`}
+                  key={i}
+                  className="flex flex-col gap-4 cursor-pointer group"
+                >
+                  <div className="relative aspect-[3/4.5] overflow-hidden bg-[#f7f7f7]">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 px-0.5">
+                    <p className="text-[11px] lg:text-[12px] uppercase font-light tracking-tight leading-tight group-hover:underline underline-offset-[6px] decoration-black/20 transition-all">
+                      {item.name}
+                    </p>
+                    <p className="text-[10px] text-gray-500 font-light tracking-widest">
+                      {item.price}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       )}

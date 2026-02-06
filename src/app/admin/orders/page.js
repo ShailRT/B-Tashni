@@ -5,13 +5,13 @@ import Link from 'next/link';
 
 export default function OrdersPage() {
     const orders = [
-        { id: 'OD-1234', customer: 'Liam Johnson', date: '2024-02-04', amount: '$250.00', status: 'Success', items: 3 },
-        { id: 'OD-1235', customer: 'Olivia Smith', date: '2024-02-03', amount: '$120.50', status: 'Processing', items: 1 },
-        { id: 'OD-1236', customer: 'Noah Williams', date: '2024-02-03', amount: '$450.00', status: 'Failed', items: 5 },
-        { id: 'OD-1237', customer: 'Emma Brown', date: '2024-02-02', amount: '$60.00', status: 'Success', items: 2 },
-        { id: 'OD-1238', customer: 'James Jones', date: '2024-02-02', amount: '$320.00', status: 'Success', items: 4 },
-        { id: 'OD-1239', customer: 'Sophia Garcia', date: '2024-02-01', amount: '$85.00', status: 'Pending', items: 1 },
-        { id: 'OD-1240', customer: 'Lucas Miller', date: '2024-02-01', amount: '$150.00', status: 'Success', items: 2 },
+        { id: 'OD-1234', customer: 'Liam Johnson', date: '2024-02-04', amount: '₹250.00', status: 'Success', items: 3 },
+        { id: 'OD-1235', customer: 'Olivia Smith', date: '2024-02-03', amount: '₹120.50', status: 'Processing', items: 1 },
+        { id: 'OD-1236', customer: 'Noah Williams', date: '2024-02-03', amount: '₹450.00', status: 'Failed', items: 5 },
+        { id: 'OD-1237', customer: 'Emma Brown', date: '2024-02-02', amount: '₹60.00', status: 'Success', items: 2 },
+        { id: 'OD-1238', customer: 'James Jones', date: '2024-02-02', amount: '₹320.00', status: 'Success', items: 4 },
+        { id: 'OD-1239', customer: 'Sophia Garcia', date: '2024-02-01', amount: '₹85.00', status: 'Pending', items: 1 },
+        { id: 'OD-1240', customer: 'Lucas Miller', date: '2024-02-01', amount: '₹150.00', status: 'Success', items: 2 },
     ];
 
     return (

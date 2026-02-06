@@ -23,18 +23,27 @@ export const products = [
     },
     matchWith: [
       {
-        slug: "wide-leg-jeans",
-        name: "WIDE LEG JEANS",
-        image:
-          "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1973&auto=format&fit=crop",
-        price: "2,990.00 INR",
+        slug: "boxy-tshirt",
+        name: "BOXY FIT FADED SLOGAN T-SHIRT",
+        image: "https://static.zara.net/assets/public/077b/87cb/b3ba40ebbfe0/1c246cfcc494/04248611710-f1/04248611710-f1.jpg?ts=1769507835294",
+        price: "2,350.00 INR",
       },
       {
-        slug: "leather-boots",
-        name: "LEATHER BOOTS",
-        image:
-          "https://images.unsplash.com/photo-1542280756-74c2f5511915?q=80&w=2000&auto=format&fit=crop",
-        price: "7,990.00 INR",
+        slug: "striped-trousers",
+        name: "LIMITED EDITION STRIPED FLARE SUIT TROUSERS",
+        image: "https://static.zara.net/assets/public/7d80/617b/9be14e31a24d/f108d3d3d5ce/01063431605-f1/01063431605-f1.jpg?ts=1769027895961",
+        price: "5,950.00 INR",
+      },
+      {
+        slug: "beaded-necklace",
+        name: "BEADED STONE NECKLACE AARON LEVINE X ZARA",
+        image: "https://static.zara.net/assets/public/5a99/1d91/5ad24b66a59f/8d4f8e0463cb/03715200700-f1/03715200700-f1.jpg?ts=1769023430284",
+        price: "2,350.00 INR",
+      }, {
+        slug: "boxy-tshirt",
+        name: "BOXY FIT FADED SLOGAN T-SHIRT",
+        image: "https://static.zara.net/assets/public/83a5/a3b8/1fa4436ab444/25228b921bc4/06318418700-f1/06318418700-f1.jpg?ts=1769699474232",
+        price: "2,350.00 INR",
       },
     ],
   },
@@ -49,8 +58,6 @@ export const products = [
     sizes: ["32", "34", "36", "38", "40"],
     images: [
       "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1973&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1584370848010-d7cc637703ef?q=80&w=1974&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1582562124811-28ec3290647e?q=80&w=1974&auto=format&fit=crop",
     ],
     composition: {
       outerShell: "100% cotton",
@@ -60,12 +67,73 @@ export const products = [
       {
         slug: "ripped-effect-jumper",
         name: "RIPPED EFFECT JUMPER",
-        image:
-          "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=2070&auto=format&fit=crop",
-        price: "3,590.00 INR",
+        image: "https://static.zara.net/assets/public/945c/d53d/637e48c8ac93/74c682976cd1/03166400681-e1/03166400681-e1.jpg?ts=1768903698978&w=2400",
+        price: "4,350.00 INR",
       },
+      {
+        slug: "boxy-tshirt",
+        name: "BOXY FIT FADED SLOGAN T-SHIRT",
+        image: "https://static.zara.net/photos///2024/I/0/2/p/6224/455/250/2/w/850/6224455250_1_1_1.jpg",
+        price: "2,350.00 INR",
+      }
     ],
   },
+  {
+    id: "boxy-tshirt",
+    title: "BOXY FIT FADED SLOGAN T-SHIRT",
+    price: "2,350.00 INR",
+    reference: "6224/455/250",
+    description: "Boxy fit t-shirt made of heavy weight cotton. Round neck and short sleeves. Faded effect and slogan detail on the front.",
+    color: "Dark Grey",
+    sizes: ["S", "M", "L", "XL"],
+    images: [
+      "https://static.zara.net/photos///2024/I/0/2/p/6224/455/250/2/w/2400/6224455250_1_1_1.jpg",
+      "https://static.zara.net/photos///2024/I/0/2/p/6224/455/250/2/w/2400/6224455250_2_1_1.jpg",
+    ],
+    composition: {
+      outerShell: "100% cotton",
+      care: "Machine wash cold.",
+    },
+    matchWith: [
+      {
+        slug: "ripped-effect-jumper",
+        name: "RIPPED EFFECT JUMPER",
+        image: "https://static.zara.net/assets/public/945c/d53d/637e48c8ac93/74c682976cd1/03166400681-e1/03166400681-e1.jpg?ts=1768903698978&w=2400",
+        price: "4,350.00 INR",
+      },
+      {
+        slug: "striped-trousers",
+        name: "LIMITED EDITION STRIPED FLARE SUIT TROUSERS",
+        image: "https://static.zara.net/photos///2024/I/0/2/p/4164/601/802/2/w/850/4164601802_1_1_1.jpg",
+        price: "5,950.00 INR",
+      }
+    ],
+  },
+  {
+    id: "striped-trousers",
+    title: "LIMITED EDITION STRIPED FLARE SUIT TROUSERS",
+    price: "5,950.00 INR",
+    reference: "4164/601/802",
+    description: "High-waist regular fit trousers. Flare hem. Front zip and button closure. Striped pattern.",
+    color: "Black / Grey",
+    sizes: ["36", "38", "40", "42"],
+    images: [
+      "https://static.zara.net/photos///2024/I/0/2/p/4164/601/802/2/w/2400/4164601802_1_1_1.jpg",
+      "https://static.zara.net/photos///2024/I/0/2/p/4164/601/802/2/w/2400/4164601802_2_1_1.jpg",
+    ],
+    composition: {
+      outerShell: "70% polyester, 30% viscose",
+      care: "Dry clean only.",
+    },
+    matchWith: [
+      {
+        slug: "ripped-effect-jumper",
+        name: "RIPPED EFFECT JUMPER",
+        image: "https://static.zara.net/assets/public/945c/d53d/637e48c8ac93/74c682976cd1/03166400681-e1/03166400681-e1.jpg?ts=1768903698978&w=2400",
+        price: "4,350.00 INR",
+      }
+    ],
+  }
 ];
 
 export function getProductBySlug(slug) {

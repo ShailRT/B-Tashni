@@ -26,13 +26,13 @@ export default function OrderDetailsPage() {
             country: 'USA'
         },
         items: [
-            { id: 1, name: 'Premium Cotton T-Shirt', quantity: 2, price: '$45.00', total: '$90.00' },
-            { id: 2, name: 'Slim Fit Jeans', quantity: 1, price: '$120.00', total: '$120.00' },
+            { id: 1, name: 'Premium Cotton T-Shirt', quantity: 2, price: '₹45.00', total: '₹90.00' },
+            { id: 2, name: 'Slim Fit Jeans', quantity: 1, price: '₹120.00', total: '₹120.00' },
         ],
-        subtotal: '$210.00',
-        shipping: '$15.00',
-        tax: '$25.00',
-        total: '$250.00'
+        subtotal: '₹210.00',
+        shipping: '₹15.00',
+        tax: '₹25.00',
+        total: '₹250.00'
     };
 
     return (
@@ -57,8 +57,8 @@ export default function OrderDetailsPage() {
                         <option>Success</option>
                         <option>Failed</option>
                     </select>
-                    <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
-                        <Save className="-ml-1 mr-2 h-4 w-4" />
+                    <button className="inline-flex items-center w-36 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700">
+                        <Save className="-ml-1 mr-2 h-6 w-6" />
                         Save Changes
                     </button>
                 </div>

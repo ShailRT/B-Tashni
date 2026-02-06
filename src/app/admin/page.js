@@ -14,7 +14,7 @@ export default function AdminDashboard() {
     const stats = [
         {
             title: 'Total Revenue',
-            value: '$45,231.89',
+            value: '₹45,231.89',
             change: '+20.1% from last month',
             trend: 'up',
             icon: DollarSign,
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
             id: "OD-1234",
             user: "Liam Johnson",
             email: "liam@example.com",
-            amount: "$250.00",
+            amount: "₹250.00",
             status: "Success",
             date: "2024-02-04"
         },
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
             id: "OD-1235",
             user: "Olivia Smith",
             email: "olivia@example.com",
-            amount: "$120.50",
+            amount: "₹120.50",
             status: "Processing",
             date: "2024-02-03"
         },
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
             id: "OD-1236",
             user: "Noah Williams",
             email: "noah@example.com",
-            amount: "$450.00",
+            amount: "₹450.00",
             status: "Failed",
             date: "2024-02-03"
         },
@@ -75,7 +75,7 @@ export default function AdminDashboard() {
             id: "OD-1237",
             user: "Emma Brown",
             email: "emma@example.com",
-            amount: "$60.00",
+            amount: "₹60.00",
             status: "Success",
             date: "2024-02-02"
         },
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
             id: "OD-1238",
             user: "James Jones",
             email: "james@example.com",
-            amount: "$320.00",
+            amount: "₹320.00",
             status: "Success",
             date: "2024-02-02"
         }
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
                             <div className="flex items-center justify-between space-y-0 pb-2">
                                 <p className="text-sm font-medium text-gray-500">{stat.title}</p>
                                 <div className={`p-2 rounded-full ${stat.color} bg-opacity-10 text-opacity-100`}>
-                                    <Icon className={`h-4 w-4 ${stat.color.replace('bg-', 'text-')}`} />
+                                    <Icon className={`h-4 w-4 text-black`} />
                                 </div>
                             </div>
                             <div className="mt-2">

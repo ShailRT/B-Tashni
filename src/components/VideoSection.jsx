@@ -4,28 +4,28 @@ const videos = [
   {
     id: 1,
     title: "SPORTS BRAS",
-    subtitle: "NIKE SKIMS",
+    subtitle: "B-TASHNI",
     videoUrl:
       "https://skims.imgix.net/videos/c/o/v/e3f5015232904c5296620036ae2b78ef.mp4?fm=mp4&video-bitrate=3M&video-thumbnail=auto",
   },
   {
     id: 2,
     title: "TOPS",
-    subtitle: "NIKE SKIMS",
+    subtitle: "B-TASHNI",
     videoUrl:
       "https://skims.imgix.net/videos/c/o/v/d521b6c3e9564b8e80101df77ab18950.mp4?fm=mp4&video-bitrate=3M&video-thumbnail=auto",
   },
   {
     id: 3,
     title: "LEGGINGS",
-    subtitle: "NIKE SKIMS",
+    subtitle: "B-TASHNI",
     videoUrl:
       "https://skims.imgix.net/videos/c/o/v/29d03ecc6d7f41f29f850190229253ff.mp4?fm=mp4&video-bitrate=3M&video-thumbnail=auto",
   },
   {
     id: 4,
     title: "ACCESSORIES",
-    subtitle: "NIKE SKIMS",
+    subtitle: "B-TASHNI",
     videoUrl:
       "https://skims.imgix.net/videos/c/o/v/5ed3c5c36f0446b89583d30c81093ae4.mp4?fm=mp4&video-bitrate=3M&video-thumbnail=auto",
   },

@@ -7,14 +7,14 @@ import { useState } from 'react';
 export default function ProductsPage() {
     const [products] = useState([
         { id: 'ripped-effect-jumper', name: 'RIPPED-EFFECT JUMPER', category: 'Apparel', price: '₹4,350.00', stock: 50, status: 'In Stock', imageUrl: "https://static.zara.net/assets/public/945c/d53d/637e48c8ac93/74c682976cd1/03166400681-e1/03166400681-e1.jpg?ts=1768903698978&w=2400" },
-        { id: 1, name: 'Premium Cotton T-Shirt', category: 'Apparel', price: '$45.00', stock: 120, status: 'In Stock', image: 'bg-blue-100' },
-        { id: 2, name: 'Slim Fit Jeans', category: 'Apparel', price: '$120.00', stock: 45, status: 'Low Stock', image: 'bg-indigo-100' },
-        { id: 3, name: 'Wireless Headphones', category: 'Electronics', price: '$250.00', stock: 0, status: 'Out of Stock', image: 'bg-purple-100' },
-        { id: 4, name: 'Leather Wallet', category: 'Accessories', price: '$65.00', stock: 80, status: 'In Stock', image: 'bg-orange-100' },
-        { id: 5, name: 'Running Shoes', category: 'Footwear', price: '$110.00', stock: 32, status: 'Low Stock', image: 'bg-green-100' },
-        { id: 6, name: 'Smart Watch', category: 'Electronics', price: '$350.00', stock: 15, status: 'In Stock', image: 'bg-teal-100' },
-        { id: 7, name: 'Ceramic Mug', category: 'Home', price: '$25.00', stock: 200, status: 'In Stock', image: 'bg-red-100' },
-        { id: 8, name: 'Backpack', category: 'Accessories', price: '$85.00', stock: 55, status: 'In Stock', image: 'bg-yellow-100' },
+        { id: 1, name: 'Premium Cotton T-Shirt', category: 'Apparel', price: '₹45.00', stock: 120, status: 'In Stock', image: 'bg-blue-100' },
+        { id: 2, name: 'Slim Fit Jeans', category: 'Apparel', price: '₹120.00', stock: 45, status: 'Low Stock', image: 'bg-indigo-100' },
+        { id: 3, name: 'Wireless Headphones', category: 'Electronics', price: '₹250.00', stock: 0, status: 'Out of Stock', image: 'bg-purple-100' },
+        { id: 4, name: 'Leather Wallet', category: 'Accessories', price: '₹65.00', stock: 80, status: 'In Stock', image: 'bg-orange-100' },
+        { id: 5, name: 'Running Shoes', category: 'Footwear', price: '₹110.00', stock: 32, status: 'Low Stock', image: 'bg-green-100' },
+        { id: 6, name: 'Smart Watch', category: 'Electronics', price: '₹350.00', stock: 15, status: 'In Stock', image: 'bg-teal-100' },
+        { id: 7, name: 'Ceramic Mug', category: 'Home', price: '₹25.00', stock: 200, status: 'In Stock', image: 'bg-red-100' },
+        { id: 8, name: 'Backpack', category: 'Accessories', price: '₹85.00', stock: 55, status: 'In Stock', image: 'bg-yellow-100' },
     ]);
 
     return (

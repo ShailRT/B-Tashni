@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 import { usePathname } from "next/navigation";
+import UserOrders from "./UserOrders";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -69,7 +70,7 @@ export default function Navbar() {
       </div>
 
       <div
-        className={`container mx-auto px-6 flex items-center justify-between transition-all duration-300 ${isScrolled || !isHomePage ? "py-4" : "py-6"
+        className={`container mx-auto px-6 flex items-end justify-between transition-all duration-300 ${isScrolled || !isHomePage ? "py-4" : "py-6"
           } ${!isScrolled && isHomePage ? "text-white mix-blend-difference" : ""}`}
       >
         {/* using mix-blend-difference to make it visible on both dark and light if possible, or just simplistic approach: text-black always? 
@@ -78,16 +79,18 @@ export default function Navbar() {
         {/* Left: Mobile Menu & Logo */}
         <div className="flex items-center gap-4">
           <Menu className="w-6 h-6 lg:hidden cursor-pointer" />
-          <Link
-            href="/"
-            className="text-2xl font-black uppercase tracking-tighter"
-          >
-            SKIMS
+          <Link href="/" className="flex items-center">
+            <img
+              src="/logo.png"
+              alt="B-Tashni"
+              className={`h-6 lg:h-7 w-auto object-contain transition-all duration-300 ${!isScrolled && isHomePage ? "brightness-0 invert" : ""
+                }`}
+            />
           </Link>
         </div>
 
         {/* Center: Navigation Links (Desktop) */}
-        <div className="hidden lg:flex items-center gap-8 text-sm font-medium tracking-wide-custom">
+        <div className={`hidden lg:flex items-center gap-8 text-sm  tracking-wide-custom ${isHomePage && "font-bold"}`}>
           {[
             { label: "NEW", href: "/product/ripped-effect-jumper" }, // Direct link for demo
             { label: "BESTSELLERS", href: "/collections/bestsellers" },
@@ -108,20 +111,28 @@ export default function Navbar() {
 
         {/* Right: Utility Icons */}
         <div className="flex items-center gap-6">
-          <Search className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />
+          <Search strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />
           <SignedOut>
             <SignInButton mode="modal">
-              <User className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />
+              <User strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />
             </SignInButton>
           </SignedOut>
           <SignedIn>
-            <UserButton />
+            <UserButton>
+              <UserButton.UserProfilePage
+                label="Orders"
+                url="orders"
+                labelIcon={<ShoppingBag className="w-4 h-4" />}
+              >
+                <UserOrders />
+              </UserButton.UserProfilePage>
+            </UserButton>
           </SignedIn>
           <div
             className="relative cursor-pointer hover:opacity-75 transition-opacity"
             onClick={() => setIsCartOpen(true)}
           >
-            <ShoppingBag className="w-5 h-5" />
+            <ShoppingBag strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-3.5 h-3.5 flex items-center justify-center rounded-full">
                 {cartCount}
