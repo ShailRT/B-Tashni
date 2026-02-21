@@ -1,11 +1,66 @@
 'use client';
 
-import { ArrowLeft, Save, Package, Upload } from 'lucide-react';
+import { ArrowLeft, Save, Package, Upload, Loader2, X, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { createProductAction } from '@/app/actions/products';
 
 export default function CreateProductPage() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [selectedVideo, setSelectedVideo] = useState(null);
+
+    const imageInputRef = useRef(null);
+    const videoInputRef = useRef(null);
+
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length > 0) {
+            setSelectedImages(prev => [...prev, ...files]);
+        }
+    };
+
+    const handleVideoChange = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedVideo(file);
+        }
+    };
+
+    const removeImage = (index) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        const formData = new FormData(e.currentTarget);
+
+        // Mocking imageUrls because we don't have a real upload service yet.
+        // In a real app, you'd upload the files from 'selectedImages' to S3/Cloudinary first.
+        const mockImageUrls = selectedImages.length > 0
+            ? selectedImages.map(() => 'https://images.unsplash.com/photo-1523381235212-d70207b7485f?auto=format&fit=crop&q=80&w=2000')
+            : ['https://images.unsplash.com/photo-1523381235212-d70207b7485f?auto=format&fit=crop&q=80&w=2000'];
+
+        formData.append('imageUrls', JSON.stringify(mockImageUrls));
+
+        const result = await createProductAction(formData);
+
+        if (result.success) {
+            router.push('/admin/products');
+        } else {
+            setError(result.error);
+            setLoading(false);
+        }
+    }
+
     return (
-        <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                     <Link href="/admin/products" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
@@ -13,6 +68,7 @@ export default function CreateProductPage() {
                     </Link>
                     <h1 className="text-2xl font-bold tracking-tight text-gray-900">Add New Product</h1>
                 </div>
+                {error && <div className="text-red-500 text-sm font-medium">{error}</div>}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -29,6 +85,8 @@ export default function CreateProductPage() {
                                 <input
                                     type="text"
                                     id="product-name"
+                                    name="name"
+                                    required
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="e.g. Premium Cotton T-Shirt"
                                 />
@@ -38,6 +96,7 @@ export default function CreateProductPage() {
                                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
                                 <textarea
                                     id="description"
+                                    name="description"
                                     rows={4}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="Product description..."
@@ -54,6 +113,9 @@ export default function CreateProductPage() {
                                         <input
                                             type="number"
                                             id="price"
+                                            name="price"
+                                            required
+                                            step="0.01"
                                             className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md py-2 border"
                                             placeholder="0.00"
                                         />
@@ -68,6 +130,8 @@ export default function CreateProductPage() {
                                     <input
                                         type="number"
                                         id="stock"
+                                        name="stock"
+                                        required
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         placeholder="0"
                                     />
@@ -88,13 +152,14 @@ export default function CreateProductPage() {
                                 <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
                                 <select
                                     id="category"
+                                    name="category"
                                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                                 >
-                                    <option>Apparel</option>
-                                    <option>Electronics</option>
-                                    <option>Footwear</option>
-                                    <option>Accessories</option>
-                                    <option>Home</option>
+                                    <option value="Apparel">Apparel</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Footwear">Footwear</option>
+                                    <option value="Accessories">Accessories</option>
+                                    <option value="Home">Home</option>
                                 </select>
                             </div>
 
@@ -102,11 +167,12 @@ export default function CreateProductPage() {
                                 <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                                 <select
                                     id="status"
+                                    name="status"
                                     className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                                 >
-                                    <option>Draft</option>
-                                    <option>Active</option>
-                                    <option>Archived</option>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Archived">Archived</option>
                                 </select>
                             </div>
 
@@ -115,6 +181,7 @@ export default function CreateProductPage() {
                                 <input
                                     type="text"
                                     id="sku"
+                                    name="sku"
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="SKU-12345"
                                 />
@@ -126,10 +193,83 @@ export default function CreateProductPage() {
                         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
                             <h3 className="font-semibold text-gray-900">Product Images</h3>
                         </div>
-                        <div className="p-6">
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-48">
+                        <div className="p-6 space-y-4">
+                            <input
+                                type="file"
+                                ref={imageInputRef}
+                                onChange={handleImageChange}
+                                multiple
+                                accept="image/*"
+                                className="hidden"
+                            />
+                            <div
+                                onClick={() => imageInputRef.current?.click()}
+                                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-48"
+                            >
                                 <Upload className="h-8 w-8 text-gray-400 mb-2" />
                                 <span className="text-sm text-gray-500">Click to upload image</span>
+                            </div>
+
+                            {selectedImages.length > 0 && (
+                                <div className="grid grid-cols-3 gap-2 mt-4">
+                                    {selectedImages.map((file, idx) => {
+                                        const url = URL.createObjectURL(file);
+                                        return (
+                                            <div key={idx} className="aspect-square relative bg-gray-100 rounded-lg group overflow-hidden border border-gray-200">
+                                                <img
+                                                    src={url}
+                                                    alt="preview"
+                                                    className="w-full h-full object-cover"
+                                                    onLoad={() => URL.revokeObjectURL(url)}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(idx)}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-[10px] text-white truncate px-1 py-0.5">
+                                                    {file.name}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                            <h3 className="font-semibold text-gray-900">Product Video</h3>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label htmlFor="video-url" className="block text-sm font-medium text-gray-700">Video URL</label>
+                                <input
+                                    type="text"
+                                    id="video-url"
+                                    name="videoUrl"
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="https://..."
+                                />
+                            </div>
+                            <input
+                                type="file"
+                                ref={videoInputRef}
+                                onChange={handleVideoChange}
+                                accept="video/*"
+                                className="hidden"
+                            />
+                            <div
+                                onClick={() => videoInputRef.current?.click()}
+                                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-32"
+                            >
+                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                                <span className="text-sm text-gray-500">
+                                    {selectedVideo ? selectedVideo.name : 'Click to upload video'}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -137,15 +277,31 @@ export default function CreateProductPage() {
 
                 {/* Footer Actions */}
                 <div className="lg:col-span-3 flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                    <Link href="/admin/products" className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <Link
+                        href="/admin/products"
+                        className={`inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
                         Cancel
                     </Link>
-                    <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <Save className="-ml-1 mr-2 h-4 w-4" />
-                        Create Product
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? (
+                            <>
+                                <Loader2 className="-ml-1 mr-2 h-4 w-4 animate-spin" />
+                                Creating...
+                            </>
+                        ) : (
+                            <>
+                                <Save className="-ml-1 mr-2 h-4 w-4" />
+                                Create Product
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
     );
 }

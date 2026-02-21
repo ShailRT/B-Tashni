@@ -7,14 +7,19 @@ export default function ProductView({ product }) {
   const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState(null);
 
+  const title = product.name || product.title;
+  const images = product.imageUrls || product.images || [];
+  const price = product.price;
+  const id = product.id;
+
   const handleAddToCart = () => {
     if (!selectedSize) return;
     addToCart({
-      id: `${product.id}-${selectedSize}`,
-      originalId: product.id,
-      name: product.title,
-      price: product.price,
-      image: product.images[0],
+      id: `${id}-${selectedSize}`,
+      originalId: id,
+      name: title,
+      price: price,
+      image: images[0],
       color: product.color,
       selectedSize: selectedSize,
       handle: product.id,
@@ -31,14 +36,26 @@ export default function ProductView({ product }) {
         {/* Left Column: Image Gallery */}
         {/* On Desktop: Vertical scroll of images, occupying ~67% width */}
         <div className="w-full lg:w-[67%] flex flex-col gap-1 px-0 pb-8">
-          {product.images.map((img, idx) => (
+          {product.videoUrl && (
+            <div className="relative w-full aspect-[3/4] lg:aspect-[3.5/5]">
+              <video
+                src={product.videoUrl}
+                className="w-full h-full object-cover object-center"
+                autoPlay
+                loop
+                muted
+                playsInline
+              />
+            </div>
+          )}
+          {images.map((img, idx) => (
             <div
               key={idx}
               className="relative w-full aspect-[3/4] lg:aspect-[3.5/5]"
             >
               <Image
                 src={img}
-                alt={`${product.title} - view ${idx + 1}`}
+                alt={`${title} - view ${idx + 1}`}
                 fill
                 className="object-cover object-center"
                 sizes="(max-width: 1024px) 100vw, 70vw"
@@ -55,14 +72,14 @@ export default function ProductView({ product }) {
             <div className="flex flex-col gap-1">
               <div className="flex justify-between items-start">
                 <h1 className="text-[18px] font-light uppercase tracking-tight leading-none">
-                  {product.title}
+                  {title}
                 </h1>
                 {/* Save Icon helper could go here */}
               </div>
 
               <div className="flex flex-col gap-0.5 mt-2">
                 <p className="text-[11px] font-light uppercase tracking-wide">
-                  {product.price}
+                  ₹{typeof price === 'number' ? price.toLocaleString() : price}
                 </p>
                 <p className="text-[9px] text-gray-500 uppercase tracking-widest">
                   MRP incl. of all taxes

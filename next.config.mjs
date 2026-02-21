@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "static.zara.net",
       },
+      {
+        protocol: "https",
+        hostname: "img.clerk.com",
+      },
     ],
   },
 };

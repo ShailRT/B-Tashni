@@ -12,6 +12,8 @@ export const metadata = {
   description: "Discover the latest collection of premium apparel from B-Tashni.",
 };
 
+import UserSync from "@/components/UserSync";
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -30,6 +32,7 @@ export default function RootLayout({ children }) {
             }
           }}
         >
+          <UserSync />
           <CartProvider>
             <LayoutWrapper>
               {children}
