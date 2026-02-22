@@ -5,6 +5,7 @@ import { Search, ShoppingBag, User, Menu } from "lucide-react";
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useSearch } from "@/context/SearchContext";
 
 import { usePathname } from "next/navigation";
 import UserOrders from "./UserOrders";
@@ -12,6 +13,7 @@ import UserOrders from "./UserOrders";
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { cartCount, setIsCartOpen } = useCart();
+  const { setIsSearchOpen } = useSearch();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
 
@@ -111,7 +113,7 @@ export default function Navbar() {
 
         {/* Right: Utility Icons */}
         <div className="flex items-center gap-6">
-          <Search strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />
+          <Search strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" onClick={() => setIsSearchOpen(true)} />
           <SignedOut>
             <SignInButton mode="modal">
               <User strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />

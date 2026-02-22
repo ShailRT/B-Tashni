@@ -69,16 +69,14 @@ export async function isUserAdmin(id) {
 // ==================== PRODUCT OPERATIONS ====================
 
 /**
- * Get all active products with pagination
+ * Get all active products with pagination and category filtering
  */
-/**
- * Get all active products with pagination
- */
-export async function getProducts({ page = 1, limit = 12 }) {
+export async function getProducts({ page = 1, limit = 12, category = null } = {}) {
     const skip = (page - 1) * limit;
 
     const where = {
         isActive: true,
+        ...(category && { category: category }),
     };
 
     const [products, total] = await Promise.all([
@@ -103,8 +101,9 @@ export async function getProducts({ page = 1, limit = 12 }) {
  * Get single product by slug
  */
 export async function getProductBySlug(slug) {
+    if (!slug) return null;
     return await prisma.product.findUnique({
-        where: { slug },
+        where: { slug: String(slug) },
     });
 }
 
@@ -120,6 +119,7 @@ export async function createProduct(data) {
             price: parseFloat(data.price),
             compareAtPrice: data.compareAtPrice ? parseFloat(data.compareAtPrice) : null,
             category: data.category,
+            sizes: data.sizes || [],
             stock: parseInt(data.stock),
             imageUrls: data.imageUrls,
             videoUrl: data.videoUrl,
@@ -163,6 +163,7 @@ export async function updateProduct(id, data) {
             price: parseFloat(data.price),
             compareAtPrice: data.compareAtPrice ? parseFloat(data.compareAtPrice) : null,
             category: data.category,
+            sizes: data.sizes || [],
             stock: parseInt(data.stock),
             imageUrls: data.imageUrls,
             videoUrl: data.videoUrl,
@@ -215,16 +216,35 @@ export async function getProductsAdmin({ page = 1, limit = 50, search = '' } = {
 /**
  * Search products
  */
-export async function searchProducts(query) {
-    return await prisma.product.findMany({
-        where: {
-            isActive: true,
+export async function searchProducts(query, filters = {}) {
+    const { category, minPrice, maxPrice, sort } = filters;
+
+    const where = {
+        isActive: true,
+        ...(query ? {
             OR: [
                 { name: { contains: query, mode: 'insensitive' } },
                 { description: { contains: query, mode: 'insensitive' } },
             ],
-        },
-        take: 20,
+        } : {}),
+        ...(category ? { category } : {}),
+        ...(minPrice || maxPrice ? {
+            price: {
+                ...(minPrice ? { gte: parseFloat(minPrice) } : {}),
+                ...(maxPrice ? { lte: parseFloat(maxPrice) } : {}),
+            }
+        } : {})
+    };
+
+    let orderBy = {};
+    if (sort === 'price_asc') orderBy = { price: 'asc' };
+    else if (sort === 'price_desc') orderBy = { price: 'desc' };
+    else if (sort === 'newest') orderBy = { createdAt: 'desc' };
+
+    return await prisma.product.findMany({
+        where,
+        orderBy: Object.keys(orderBy).length > 0 ? orderBy : undefined,
+        take: 50,
     });
 }
 
@@ -248,9 +268,12 @@ export async function createOrder(userId, orderData) {
                 totalAmount: orderData.totalAmount,
                 shippingAddress: orderData.shippingAddress,
                 billingAddress: orderData.billingAddress,
+                razorpayOrderId: orderData.razorpayOrderId,
+                razorpayPaymentId: orderData.razorpayPaymentId,
+                paymentMethod: orderData.paymentMethod,
                 items: {
                     create: orderData.items.map((item) => ({
-                        productId: item.productId,
+                        productId: item.originalId || item.productId, // Use originalId if available, otherwise productId
                         quantity: item.quantity,
                         price: item.price,
                     })),
@@ -306,20 +329,6 @@ export async function getUserOrders(userId, { page = 1, limit = 10 } = {}) {
     };
 }
 
-/**
- * Get order by ID
- */
-export async function getOrderById(orderId) {
-    return await prisma.order.findUnique({
-        where: { id: orderId },
-        include: {
-            user: true,
-            items: {
-                include: { product: true },
-            },
-        },
-    });
-}
 
 /**
  * Update order status (admin only)
@@ -330,6 +339,66 @@ export async function updateOrderStatus(orderId, status, trackingNumber = null) 
         data: {
             status,
             ...(trackingNumber && { trackingNumber }),
+        },
+    });
+}
+
+/**
+ * Update order status based on ID
+ */
+export async function updateOrderStatusById(orderId, status) {
+    return await prisma.order.update({
+        where: { id: orderId },
+        data: { status },
+    });
+}
+
+/**
+ * Update order with refund information
+ */
+export async function updateOrderRefund(orderId, refundData) {
+    const { refundId, refundStatus, status } = refundData;
+    return await prisma.order.update({
+        where: { id: orderId },
+        data: {
+            refundId,
+            refundStatus,
+            paymentStatus: refundStatus === 'FULL' ? 'REFUNDED' : 'PAID',
+            status: status || undefined,
+        },
+    });
+}
+
+
+/**
+ * Get order by ID
+ */
+export async function getOrderById(id) {
+    return await prisma.order.findUnique({
+        where: { id },
+        include: {
+            user: true,
+            items: {
+                include: { product: true },
+            },
+        },
+    });
+}
+
+/**
+ * Update order status based on Razorpay Order ID
+ * @param {string} razorpayOrderId - Razorpay Order ID
+ * @param {object} updateData - Data to update (status, paymentId, etc)
+ */
+export async function updateOrderStatusByRazorpayId(razorpayOrderId, updateData) {
+    const { status, paymentId } = updateData;
+
+    return await prisma.order.update({
+        where: { razorpayOrderId },
+        data: {
+            paymentStatus: status, // status here is PAID from webhook
+            ...(paymentId && { razorpayPaymentId: paymentId }),
+            ...(status === 'PAID' && { status: 'PROCESSING' }), // Move from PENDING to PROCESSING if paid
         },
     });
 }
@@ -358,6 +427,7 @@ export async function getAllOrders({ page = 1, limit = 20, status = null } = {})
         prisma.order.count({ where }),
     ]);
 
+    console.log(`getAllOrders: status=${status}, found=${orders.length}, total=${total}`);
     return {
         orders,
         total,
@@ -365,6 +435,7 @@ export async function getAllOrders({ page = 1, limit = 20, status = null } = {})
         currentPage: page,
     };
 }
+
 
 // ==================== ANALYTICS & STATS ====================
 

@@ -24,7 +24,7 @@ export default function ProductGrid({ items, title = "Trending Now" }) {
             >
               <div className="relative aspect-3/4 w-full bg-gray-100 mb-4 overflow-hidden">
                 <img
-                  src={product.image || product.images?.[0]}
+                  src={product.image || product.imageUrls?.[0] || product.images?.[0] || 'https://via.placeholder.com/300x400'}
                   alt={product.name || product.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
@@ -36,7 +36,14 @@ export default function ProductGrid({ items, title = "Trending Now" }) {
                 <button
                   onClick={(e) => {
                     e.preventDefault(); // prevent navigation
-                    addToCart(product);
+                    addToCart({
+                      id: product.id,
+                      originalId: product.id,
+                      name: product.name || product.title,
+                      price: product.price,
+                      image: product.imageUrls?.[0] || product.images?.[0] || product.image,
+                      slug: product.slug,
+                    });
                   }}
                   className="absolute bottom-0 left-0 right-0 bg-white/90 py-3 text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-black hover:text-white"
                 >
@@ -48,7 +55,7 @@ export default function ProductGrid({ items, title = "Trending Now" }) {
                 <h4 className="text-xs font-bold uppercase tracking-wide">
                   {product.name || product.title}
                 </h4>
-                <p className="text-xs text-gray-500">{product.color}</p>
+                <p className="text-xs text-gray-500">{product.category || product.color}</p>
                 <p className="text-xs font-medium">{product.price}</p>
               </div>
             </Link>

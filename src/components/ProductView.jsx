@@ -102,7 +102,7 @@ export default function ProductView({ product }) {
             {/* Size Selector */}
             <div className="border-t border-b border-black/10 py-3 my-1">
               <div className="flex flex-col">
-                {product.sizes.map((size) => (
+                {(product.sizes || ["S", "M", "L", "XL"]).map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}

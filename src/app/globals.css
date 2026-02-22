@@ -114,3 +114,51 @@ h6 {
 .cl-modalBackdrop {
   align-items: center !important;
 }
+
+/* Custom Dual Range Slider Styling */
+.relative {
+  position: relative;
+}
+
+input[type="range"].slider-thumb-active {
+  pointer-events: none;
+}
+
+input[type="range"].slider-thumb-active::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+input[type="range"].slider-thumb-active::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  width: 14px;
+  background-color: #000;
+  border-radius: 50%;
+  border: 1px solid #000;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 14px;
+  width: 14px;
+  background-color: #000;
+  border-radius: 50%;
+  border: 1px solid #000;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}

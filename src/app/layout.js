@@ -1,7 +1,9 @@
 import { Inter, Oswald } from "next/font/google"; // Import Oswald
 import { CartProvider } from "@/context/CartContext";
+import { SearchProvider } from "@/context/SearchContext";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { ClerkProvider } from '@clerk/nextjs'
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -34,11 +36,17 @@ export default function RootLayout({ children }) {
         >
           <UserSync />
           <CartProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
+            <SearchProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </SearchProvider>
           </CartProvider>
         </ClerkProvider>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );

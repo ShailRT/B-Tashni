@@ -67,9 +67,11 @@ export default function ProductDetailsPage() {
 
         // Combine existing and new mock images
         const existingImages = product.imageUrls || [];
-        const mockNewImages = newSelectedImages.map(() => 'https://images.unsplash.com/photo-1523381235212-d70207b7485f?auto=format&fit=crop&q=80&w=2000');
+        formData.append('existingImageUrls', JSON.stringify(existingImages));
 
-        formData.append('imageUrls', JSON.stringify([...existingImages, ...mockNewImages]));
+        newSelectedImages.forEach((file) => {
+            formData.append('images', file);
+        });
         formData.append('slug', product.slug);
 
         const result = await updateProductAction(productId, formData);
@@ -238,6 +240,18 @@ export default function ProductDetailsPage() {
                                     required
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     defaultValue={product.stock}
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="sizes" className="block text-sm font-medium text-gray-700">Sizes (comma separated)</label>
+                                <input
+                                    type="text"
+                                    id="sizes"
+                                    name="sizes"
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    defaultValue={product.sizes ? product.sizes.join(', ') : ''}
+                                    placeholder="S, M, L, XL"
                                 />
                             </div>
                         </div>

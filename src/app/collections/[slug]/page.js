@@ -1,12 +1,15 @@
-import { products } from "@/data/products";
+import { getProducts } from "@/lib/prisma-queries";
 import ProductGrid from "@/components/ProductGrid";
 import { notFound } from "next/navigation";
 
 export default async function CollectionPage({ params }) {
   const { slug } = await params;
 
-  // Filter products
-  const filteredProducts = products.filter((p) => p.categories.includes(slug));
+  // Fetch products from database by category (slug)
+  const { products: filteredProducts } = await getProducts({
+    limit: 50,
+    category: slug.toUpperCase() // Adjust based on how you store categories
+  });
 
   // Optional: validation to check if category is valid (e.g. against a known list)
   // But for now, just checking if we have any products or if the user typed random stuff.

@@ -113,9 +113,18 @@ export default function ProductsPage() {
                                         </span>
                                     </div>
 
-                                    <div className="mt-2 text-xs text-gray-500">
-                                        {product.stock} units in stock
+                                    <div className="mt-2 text-xs text-gray-500 flex justify-between">
+                                        <span>{product.stock} units in stock</span>
                                     </div>
+                                    {product.sizes && product.sizes.length > 0 && (
+                                        <div className="mt-3 flex flex-wrap gap-1">
+                                            {product.sizes.map(size => (
+                                                <span key={size} className="bg-gray-100 text-gray-700 text-[10px] px-1.5 py-0.5 rounded border border-gray-200 uppercase">
+                                                    {size}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );

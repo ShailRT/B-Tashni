@@ -4,6 +4,8 @@ import { useCart } from "@/context/CartContext";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useUser, useSignIn } from "@clerk/nextjs";
+import { initiateCheckout, verifyAndCompleteOrder } from "@/app/actions/checkout";
 
 const FREE_SHIPPING_THRESHOLD = 10000; // INR 10,000 for free shipping
 
@@ -17,13 +19,119 @@ export default function CartSidebar() {
     cartTotal,
   } = useCart();
 
+  const { user, isLoaded: isUserLoaded } = useUser();
   const [mounted, setMounted] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) return null;
+
+  const handleCheckout = async () => {
+    console.log("Checkout initiated...", { isUserLoaded, user: user?.id, cartTotal });
+
+    try {
+      setIsProcessing(true);
+
+      // 0. Check authentication
+      if (!isUserLoaded) {
+        console.log("User auth state is still loading...");
+        return;
+      }
+
+      if (!user) {
+        console.log("No user found, redirecting to sign-in...");
+        // Instead of a plain alert, we actually suggest signing in
+        if (confirm("You need to be signed in to complete your purchase. Would you like to sign in now?")) {
+          window.location.href = "/sign-in?redirect_url=" + encodeURIComponent(window.location.pathname);
+        }
+        return;
+      }
+
+      // 1. Initiate checkout (Creates DB order and Razorpay order)
+      console.log("Sending checkout request to server...");
+      const orderData = {
+        totalAmount: cartTotal,
+        shippingAddress: {}, // TODO: Implement address collection
+        items: cart.map(item => ({
+          productId: item.originalId || item.id,
+          quantity: item.quantity,
+          price: item.priceValue || parseFloat(String(item.price).replace(/[^0-9.]/g, '')),
+        })),
+      };
+
+      const result = await initiateCheckout(orderData);
+      console.log("InitiateCheckout result:", result);
+
+      if (!result.success) {
+        if (result.error === "Unauthorized") {
+          alert("Your session has expired. Please sign in again.");
+          window.location.href = "/sign-in";
+        } else {
+          alert(result.error || "Failed to initiate checkout");
+        }
+        return;
+      }
+
+      // 2. Options for Razorpay Checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: result.amount,
+        currency: result.currency,
+        name: "B-Tashni",
+        description: "Premium Apparel Purchase",
+        order_id: result.orderId,
+        handler: async function (response) {
+          console.log("Razorpay response received:", response);
+          setIsProcessing(true); // Ensure processing stays true during verification
+
+          try {
+            const verificationResult = await verifyAndCompleteOrder({
+              ...response,
+              dbOrderId: result.dbOrderId
+            });
+
+            if (verificationResult.success) {
+              window.location.href = `/order-success?order_id=${result.orderId}&payment_id=${response.razorpay_payment_id}`;
+            } else {
+              alert(verificationResult.error || "Payment verification failed.");
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            alert("An error occurred while verifying your payment.");
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: user.fullName || "",
+          email: user.primaryEmailAddress?.emailAddress || "",
+          contact: ""
+        },
+        theme: {
+          color: "#000000"
+        },
+        magic: true // Enable Magic Checkout
+      };
+
+      console.log("Opening Razorpay popup...");
+      const rzp = new window.Razorpay(options);
+
+      rzp.on('payment.failed', function (response) {
+        console.error("Payment failed:", response.error);
+        alert("Payment failed: " + response.error.description);
+      });
+
+      rzp.open();
+    } catch (error) {
+      console.error("Checkout Final Error:", error);
+      alert(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   // Calculate Free Shipping Progress
   const progress = Math.min((cartTotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
@@ -33,17 +141,15 @@ export default function CartSidebar() {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] transition-opacity duration-300 ${
-          isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] transition-opacity duration-300 ${isCartOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         onClick={() => setIsCartOpen(false)}
       />
 
       {/* Sidebar Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-[480px] bg-white z-[70] shadow-2xl flex flex-col transform transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${
-          isCartOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 h-full w-full max-w-[480px] bg-white z-[70] shadow-2xl flex flex-col transform transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] ${isCartOpen ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="flex flex-col border-b border-gray-100">
@@ -214,10 +320,11 @@ export default function CartSidebar() {
 
           {/* Checkout Button */}
           <button
+            onClick={handleCheckout}
             className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#2d2a26] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={cart.length === 0}
+            disabled={cart.length === 0 || isProcessing}
           >
-            Check out
+            {isProcessing ? "Processing..." : "Check out"}
           </button>
         </div>
       </div>
