@@ -9,9 +9,14 @@ import { syncUserFromClerk } from '../../lib/prisma-queries';
  * Triggered on every page load via UserSync component
  */
 export async function syncCurrentUser() {
-    const user = await currentUser();
-    if (!user) return null;
-    return await syncUserFromClerk(user);
+    try {
+        const user = await currentUser();
+        if (!user) return null;
+        return await syncUserFromClerk(user);
+    } catch (error) {
+        console.error('Error syncing user:', error);
+        return null;
+    }
 }
 
 /**
