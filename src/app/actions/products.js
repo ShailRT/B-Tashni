@@ -5,7 +5,9 @@ import {
     updateProduct,
     deleteProduct,
     getProductsAdmin,
+    getProductBySlug,
     getProductById,
+    getProductsByIds,
     generateUniqueSlug,
     searchProducts,
     getProducts
@@ -14,8 +16,8 @@ import { revalidatePath } from 'next/cache';
 import fs from 'fs';
 import path from 'path';
 
-async function uploadFiles(formData) {
-    const images = formData.getAll('images');
+async function uploadFiles(formData, fieldName = 'images') {
+    const files = formData.getAll(fieldName);
     const uploadedUrls = [];
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
@@ -23,10 +25,10 @@ async function uploadFiles(formData) {
         fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    for (const image of images) {
-        if (image && typeof image === 'object' && image.size > 0) {
-            const buffer = Buffer.from(await image.arrayBuffer());
-            const filename = `${Date.now()}-${image.name.replace(/\s+/g, '-')}`;
+    for (const file of files) {
+        if (file && typeof file === 'object' && file.size > 0) {
+            const buffer = Buffer.from(await file.arrayBuffer());
+            const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
             const filepath = path.join(uploadDir, filename);
             fs.writeFileSync(filepath, buffer);
             uploadedUrls.push(`/uploads/${filename}`);
@@ -65,9 +67,12 @@ export async function createProductAction(formData) {
         const videoUrl = formData.get('videoUrl');
         const sizesStr = formData.get('sizes') || '';
         const sizes = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
-        const imageUrls = await uploadFiles(formData);
-        const isActive = formData.get('status') === 'Active';
 
+        const images = await uploadFiles(formData, 'images');
+        const videos = await uploadFiles(formData, 'video');
+        const finalVideoUrl = videos.length > 0 ? videos[0] : videoUrl;
+
+        const isActive = formData.get('status') === 'Active';
         const slug = await generateUniqueSlug(name);
 
         const product = await createProduct({
@@ -78,8 +83,8 @@ export async function createProductAction(formData) {
             stock,
             category,
             sizes,
-            imageUrls,
-            videoUrl,
+            imageUrls: images,
+            videoUrl: finalVideoUrl,
             isActive
         });
 
@@ -101,9 +106,14 @@ export async function updateProductAction(id, formData) {
         const videoUrl = formData.get('videoUrl');
         const sizesStr = formData.get('sizes') || '';
         const sizes = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
+
         const existingImageUrls = JSON.parse(formData.get('existingImageUrls') || '[]');
-        const uploadedImages = await uploadFiles(formData);
+        const uploadedImages = await uploadFiles(formData, 'images');
         const imageUrls = [...existingImageUrls, ...uploadedImages];
+
+        const uploadedVideos = await uploadFiles(formData, 'video');
+        const finalVideoUrl = uploadedVideos.length > 0 ? uploadedVideos[0] : videoUrl;
+
         const isActive = formData.get('status') === 'Active';
         const slug = formData.get('slug') || await generateUniqueSlug(name);
 
@@ -116,7 +126,7 @@ export async function updateProductAction(id, formData) {
             category,
             sizes,
             imageUrls,
-            videoUrl,
+            videoUrl: finalVideoUrl,
             isActive
         });
 
@@ -155,5 +165,23 @@ export async function getProductByIdAction(id) {
     } catch (error) {
         console.error('Error fetching product:', error);
         return null;
+    }
+}
+
+export async function getProductBySlugAction(slug) {
+    try {
+        return await getProductBySlug(slug);
+    } catch (error) {
+        console.error('Error fetching product by slug:', error);
+        return null;
+    }
+}
+
+export async function getProductsByIdsAction(ids) {
+    try {
+        return await getProductsByIds(ids);
+    } catch (error) {
+        console.error('Error in getProductsByIdsAction:', error);
+        return [];
     }
 }

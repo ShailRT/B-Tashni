@@ -26,19 +26,38 @@ export default function ProductDetailsPage() {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
-            setNewSelectedImages(prev => [...prev, ...files]);
+            const newImages = files.map(file => Object.assign(file, {
+                preview: URL.createObjectURL(file)
+            }));
+            setNewSelectedImages(prev => [...prev, ...newImages]);
         }
     };
 
     const handleVideoChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
-            setNewSelectedVideo(file);
+            if (newSelectedVideo?.preview) {
+                URL.revokeObjectURL(newSelectedVideo.preview);
+            }
+            const videoWithPreview = Object.assign(file, {
+                preview: URL.createObjectURL(file)
+            });
+            setNewSelectedVideo(videoWithPreview);
         }
     };
 
     const removeNewImage = (index) => {
         setNewSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeNewVideo = () => {
+        if (newSelectedVideo?.preview) {
+            URL.revokeObjectURL(newSelectedVideo.preview);
+        }
+        setNewSelectedVideo(null);
+        if (videoInputRef.current) {
+            videoInputRef.current.value = '';
+        }
     };
 
     useEffect(() => {
@@ -54,6 +73,18 @@ export default function ProductDetailsPage() {
         }
         fetchProduct();
     }, [productId]);
+
+    // Cleanup object URLs
+    useEffect(() => {
+        return () => {
+            newSelectedImages.forEach(file => {
+                if (file.preview) URL.revokeObjectURL(file.preview);
+            });
+            if (newSelectedVideo?.preview) {
+                URL.revokeObjectURL(newSelectedVideo.preview);
+            }
+        };
+    }, [newSelectedImages, newSelectedVideo]);
 
     async function handleUpdate(e) {
         e.preventDefault();
@@ -72,6 +103,11 @@ export default function ProductDetailsPage() {
         newSelectedImages.forEach((file) => {
             formData.append('images', file);
         });
+
+        if (newSelectedVideo) {
+            formData.append('video', newSelectedVideo);
+        }
+
         formData.append('slug', product.slug);
 
         const result = await updateProductAction(productId, formData);
@@ -297,14 +333,12 @@ export default function ProductDetailsPage() {
                                     ))}
                                     {/* New Images */}
                                     {newSelectedImages.map((file, idx) => {
-                                        const url = URL.createObjectURL(file);
                                         return (
                                             <div key={`new-${idx}`} className="aspect-square relative bg-gray-100 rounded-lg border border-blue-200 overflow-hidden group">
                                                 <img
-                                                    src={url}
+                                                    src={file.preview}
                                                     alt="preview"
                                                     className="w-full h-full object-cover"
-                                                    onLoad={() => URL.revokeObjectURL(url)}
                                                 />
                                                 <button
                                                     type="button"
@@ -343,15 +377,40 @@ export default function ProductDetailsPage() {
                                     accept="video/*"
                                     className="hidden"
                                 />
-                                <div
-                                    onClick={() => videoInputRef.current?.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-28"
-                                >
-                                    <Upload className="h-6 w-6 text-gray-400 mb-2" />
-                                    <span className="text-sm text-gray-500">
-                                        {newSelectedVideo ? `New: ${newSelectedVideo.name}` : (product.videoUrl ? 'Replace current video' : 'Upload video file')}
-                                    </span>
-                                </div>
+                                {newSelectedVideo ? (
+                                    <div className="relative rounded-lg overflow-hidden border border-blue-200 bg-blue-50 p-2">
+                                        <video
+                                            src={newSelectedVideo.preview}
+                                            className="w-full h-40 object-cover rounded-md"
+                                            controls
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={removeNewVideo}
+                                            className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors z-10"
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                        <div className="mt-2 flex items-center justify-between px-1">
+                                            <p className="text-[10px] text-blue-700 truncate max-w-[150px]">
+                                                New: {newSelectedVideo.name}
+                                            </p>
+                                            <span className="text-[10px] font-bold text-blue-600 uppercase">
+                                                Ready
+                                            </span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div
+                                        onClick={() => videoInputRef.current?.click()}
+                                        className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-28"
+                                    >
+                                        <Upload className="h-6 w-6 text-gray-400 mb-2" />
+                                        <span className="text-sm text-gray-500">
+                                            {product.videoUrl ? 'Replace current video' : 'Upload video file'}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

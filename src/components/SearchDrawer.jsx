@@ -150,7 +150,7 @@ export default function SearchDrawer() {
                                                 {product.name}
                                             </h4>
                                             <p className="text-[11px] font-medium tracking-wide text-gray-500 mt-1">
-                                                {product.price}
+                                                INR {typeof product.price === 'number' ? product.price.toLocaleString('en-IN') : product.price}
                                             </p>
                                         </Link>
                                     ))}
@@ -192,7 +192,7 @@ export default function SearchDrawer() {
                                             </p>
                                         </div>
                                         <div className="text-[12px] font-medium tracking-wide text-[#1c1c1c] shrink-0">
-                                            {product.price}
+                                            INR {typeof product.price === 'number' ? product.price.toLocaleString('en-IN') : product.price}
                                         </div>
                                     </Link>
                                 ))}

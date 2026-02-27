@@ -79,7 +79,7 @@ export default function ProductView({ product }) {
 
               <div className="flex flex-col gap-0.5 mt-2">
                 <p className="text-[11px] font-light uppercase tracking-wide">
-                  ₹{typeof price === 'number' ? price.toLocaleString() : price}
+                  INR {typeof price === 'number' ? price.toLocaleString('en-IN') : price}
                 </p>
                 <p className="text-[9px] text-gray-500 uppercase tracking-widest">
                   MRP incl. of all taxes

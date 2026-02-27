@@ -254,7 +254,7 @@ export default function CartSidebar() {
                         </div>
                       </div>
                       <p className="text-[13px] font-medium tracking-wide text-[#1c1c1c]">
-                        {item.price}
+                        INR {typeof item.price === 'number' ? item.price.toLocaleString('en-IN') : item.price}
                       </p>
                     </div>
 

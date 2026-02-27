@@ -98,6 +98,19 @@ export async function getProducts({ page = 1, limit = 12, category = null } = {}
 }
 
 /**
+ * Get multiple products by their IDs
+ */
+export async function getProductsByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    return await prisma.product.findMany({
+        where: {
+            id: { in: ids },
+            isActive: true
+        }
+    });
+}
+
+/**
  * Get single product by slug
  */
 export async function getProductBySlug(slug) {

@@ -1,27 +1,56 @@
 'use client';
 
-import { Search, Filter, Plus, MoreVertical, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Search, Filter, Plus, MoreVertical, Loader2, Image as ImageIcon, Trash2, ExternalLink, Eye } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { getAdminProductsAction } from '@/app/actions/products';
+import { useState, useEffect, useRef } from 'react';
+import { getAdminProductsAction, deleteProductAction } from '@/app/actions/products';
 
 export default function ProductsPage() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [activeDropdownId, setActiveDropdownId] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+
+    async function fetchProducts() {
+        setLoading(true);
+        const result = await getAdminProductsAction({ search });
+        if (result && result.products) {
+            setProducts(result.products);
+        }
+        setLoading(false);
+    }
 
     useEffect(() => {
-        async function fetchProducts() {
-            setLoading(true);
-            const result = await getAdminProductsAction({ search });
-            if (result && result.products) {
-                setProducts(result.products);
-            }
-            setLoading(false);
-        }
         fetchProducts();
     }, [search]);
+
+    const handleDelete = async (e, id) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!confirm('Are you sure you want to delete this product?')) return;
+
+        setDeletingId(id);
+        const result = await deleteProductAction(id);
+        if (result.success) {
+            setProducts(products.filter(p => p.id !== id));
+        } else {
+            alert(result.error || 'Failed to delete product');
+        }
+        setDeletingId(null);
+        setActiveDropdownId(null);
+    };
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = () => setActiveDropdownId(null);
+        if (activeDropdownId) {
+            document.addEventListener('click', handleClickOutside);
+        }
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [activeDropdownId]);
 
     return (
         <div className="space-y-6">
@@ -98,9 +127,55 @@ export default function ProductsPage() {
                                             </h3>
                                             <p className="mt-1 text-sm text-gray-500">{product.category}</p>
                                         </div>
-                                        <button className="text-gray-400 hover:text-gray-500 z-10 relative">
-                                            <MoreVertical className="h-5 w-5" />
-                                        </button>
+
+                                        <div className="relative">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    setActiveDropdownId(activeDropdownId === product.id ? null : product.id);
+                                                }}
+                                                className="text-gray-400 hover:text-gray-500 z-10 relative p-1 rounded-full hover:bg-gray-100 transition-colors"
+                                            >
+                                                {deletingId === product.id ? (
+                                                    <Loader2 className="h-5 w-5 animate-spin" />
+                                                ) : (
+                                                    <MoreVertical className="h-5 w-5" />
+                                                )}
+                                            </button>
+
+                                            {activeDropdownId === product.id && (
+                                                <div
+                                                    className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1 overflow-hidden transition-all transform origin-top-right"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <Link
+                                                        href={`/product/${product.slug}`}
+                                                        target="_blank"
+                                                        className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                                    >
+                                                        <Eye className="mr-3 h-4 w-4" />
+                                                        Visit Product
+                                                    </Link>
+                                                    <Link
+                                                        href={`/admin/products/${product.id}`}
+                                                        className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                                                    >
+                                                        <Filter className="mr-3 h-4 w-4" />
+                                                        Edit Details
+                                                    </Link>
+                                                    <div className="border-t border-gray-100 my-1"></div>
+                                                    <button
+                                                        onClick={(e) => handleDelete(e, product.id)}
+                                                        disabled={deletingId === product.id}
+                                                        className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                                                    >
+                                                        <Trash2 className="mr-3 h-4 w-4" />
+                                                        Delete Product
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="mt-4 flex items-center justify-between">

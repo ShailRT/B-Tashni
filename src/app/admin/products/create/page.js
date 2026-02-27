@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Save, Package, Upload, Loader2, X, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProductAction } from '@/app/actions/products';
 
@@ -27,13 +27,45 @@ export default function CreateProductPage() {
     const handleVideoChange = (e) => {
         const file = e.target.files?.[0];
         if (file) {
-            setSelectedVideo(file);
+            if (selectedVideo?.preview) {
+                URL.revokeObjectURL(selectedVideo.preview);
+            }
+            const videoWithPreview = Object.assign(file, {
+                preview: URL.createObjectURL(file)
+            });
+            setSelectedVideo(videoWithPreview);
         }
     };
 
     const removeImage = (index) => {
+        const imageToRemove = selectedImages[index];
+        if (imageToRemove?.preview) {
+            URL.revokeObjectURL(imageToRemove.preview);
+        }
         setSelectedImages(prev => prev.filter((_, i) => i !== index));
     };
+
+    const removeVideo = () => {
+        if (selectedVideo?.preview) {
+            URL.revokeObjectURL(selectedVideo.preview);
+        }
+        setSelectedVideo(null);
+        if (videoInputRef.current) {
+            videoInputRef.current.value = '';
+        }
+    };
+
+    // Cleanup object URLs on unmount
+    useEffect(() => {
+        return () => {
+            selectedImages.forEach(file => {
+                if (file.preview) URL.revokeObjectURL(file.preview);
+            });
+            if (selectedVideo?.preview) {
+                URL.revokeObjectURL(selectedVideo.preview);
+            }
+        };
+    }, [selectedImages, selectedVideo]);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -45,6 +77,10 @@ export default function CreateProductPage() {
         selectedImages.forEach((file) => {
             formData.append('images', file);
         });
+
+        if (selectedVideo) {
+            formData.append('video', selectedVideo);
+        }
 
         const result = await createProductAction(formData);
 
@@ -268,15 +304,38 @@ export default function CreateProductPage() {
                                 accept="video/*"
                                 className="hidden"
                             />
-                            <div
-                                onClick={() => videoInputRef.current?.click()}
-                                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-32"
-                            >
-                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                <span className="text-sm text-gray-500">
-                                    {selectedVideo ? selectedVideo.name : 'Click to upload video'}
-                                </span>
-                            </div>
+                            {selectedVideo ? (
+                                <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 p-2">
+                                    <video
+                                        src={selectedVideo.preview}
+                                        className="w-full h-48 object-cover rounded-md"
+                                        controls
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={removeVideo}
+                                        className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors z-10"
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
+                                    <div className="mt-2 flex items-center justify-between px-2">
+                                        <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                                            {selectedVideo.name}
+                                        </p>
+                                        <span className="text-[10px] font-medium bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                                            Ready to upload
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div
+                                    onClick={() => videoInputRef.current?.click()}
+                                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-32"
+                                >
+                                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                                    <span className="text-sm text-gray-500">Click to upload video</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
