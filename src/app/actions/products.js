@@ -63,10 +63,27 @@ export async function createProductAction(formData) {
         const description = formData.get('description');
         const price = formData.get('price');
         const stock = formData.get('stock');
-        const category = formData.get('category');
         const videoUrl = formData.get('videoUrl');
         const sizesStr = formData.get('sizes') || '';
         const sizes = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
+
+        const trendingSection = formData.get('trendingSection') === 'true';
+        const homeVideoSection = formData.get('homeVideoSection') === 'true';
+
+        // Validation: Max 4 products per section
+        if (trendingSection) {
+            const count = await prisma.product.count({ where: { trendingSection: true } });
+            if (count >= 4) {
+                return { success: false, error: 'Maximum 4 products allowed in Trending Section' };
+            }
+        }
+
+        if (homeVideoSection) {
+            const count = await prisma.product.count({ where: { homeVideoSection: true } });
+            if (count >= 4) {
+                return { success: false, error: 'Maximum 4 products allowed in Home Video Section' };
+            }
+        }
 
         const images = await uploadFiles(formData, 'images');
         const videos = await uploadFiles(formData, 'video');
@@ -81,11 +98,12 @@ export async function createProductAction(formData) {
             description,
             price,
             stock,
-            category,
             sizes,
             imageUrls: images,
             videoUrl: finalVideoUrl,
-            isActive
+            isActive,
+            trendingSection,
+            homeVideoSection
         });
 
         revalidatePath('/admin/products');
@@ -102,10 +120,37 @@ export async function updateProductAction(id, formData) {
         const description = formData.get('description');
         const price = formData.get('price');
         const stock = formData.get('stock');
-        const category = formData.get('category');
         const videoUrl = formData.get('videoUrl');
         const sizesStr = formData.get('sizes') || '';
         const sizes = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
+
+        const trendingSection = formData.get('trendingSection') === 'true';
+        const homeVideoSection = formData.get('homeVideoSection') === 'true';
+
+        // Validation: Max 4 products per section
+        if (trendingSection) {
+            const count = await prisma.product.count({
+                where: {
+                    trendingSection: true,
+                    id: { not: id }
+                }
+            });
+            if (count >= 4) {
+                return { success: false, error: 'Maximum 4 products allowed in Trending Section' };
+            }
+        }
+
+        if (homeVideoSection) {
+            const count = await prisma.product.count({
+                where: {
+                    homeVideoSection: true,
+                    id: { not: id }
+                }
+            });
+            if (count >= 4) {
+                return { success: false, error: 'Maximum 4 products allowed in Home Video Section' };
+            }
+        }
 
         const existingImageUrls = JSON.parse(formData.get('existingImageUrls') || '[]');
         const uploadedImages = await uploadFiles(formData, 'images');
@@ -123,11 +168,12 @@ export async function updateProductAction(id, formData) {
             description,
             price,
             stock,
-            category,
             sizes,
             imageUrls,
             videoUrl: finalVideoUrl,
-            isActive
+            isActive,
+            trendingSection,
+            homeVideoSection
         });
 
         revalidatePath('/admin/products');

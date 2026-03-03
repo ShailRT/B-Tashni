@@ -35,7 +35,6 @@ export default async function SearchPage({ searchParams }) {
     const params = await searchParams;
     const query = params.q || "";
     const filters = {
-        category: params.category || "",
         minPrice: params.minPrice || "",
         maxPrice: params.maxPrice || "",
         sort: params.sort || "",

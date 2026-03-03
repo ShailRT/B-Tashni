@@ -7,7 +7,7 @@ import { getProductsByIdsAction } from "@/app/actions/products";
 
 export default async function Home() {
   // Toggle this to true if you want to force static products
-  const useStaticProducts = true;
+  const useStaticProducts = false;
 
   // Fetch dynamic products from DB
   const videoProductIds = ["cmm4q2z9n00000xgtrtqwwdwe"];

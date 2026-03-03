@@ -163,7 +163,7 @@ export default function Page() {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-full group py-4 px-1 text-left transition-all duration-300 flex justify-between items-center ${selectedSize === size ? "bg-black/2" : "hover:bg-black/[0.01]"}`}
+                    className={`w-full cursor-pointer group py-4 px-1 text-left transition-all duration-300 flex justify-between items-center ${selectedSize === size ? "bg-black/2" : "hover:bg-black/[0.01]"}`}
                   >
                     <span className={`text-[12px] uppercase tracking-[0.1em] transition-all transform ${selectedSize === size ? "font-bold translate-x-1" : "font-light"}`}>
                       {size}
@@ -179,7 +179,7 @@ export default function Page() {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedSize}
-                className="w-full bg-black text-white hover:bg-[#111] py-5 px-8 text-[11px] font-bold uppercase tracking-[0.25em] transition-all duration-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98]"
+                className="w-full cursor-pointer bg-black text-white hover:bg-[#111] py-5 px-8 text-[11px] font-bold uppercase tracking-[0.25em] transition-all duration-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98]"
               >
                 {selectedSize ? 'Process Order' : 'Add to Cart'}
               </button>

@@ -69,14 +69,13 @@ export async function isUserAdmin(id) {
 // ==================== PRODUCT OPERATIONS ====================
 
 /**
- * Get all active products with pagination and category filtering
+ * Get all active products with pagination
  */
-export async function getProducts({ page = 1, limit = 12, category = null } = {}) {
+export async function getProducts({ page = 1, limit = 12 } = {}) {
     const skip = (page - 1) * limit;
 
     const where = {
         isActive: true,
-        ...(category && { category: category }),
     };
 
     const [products, total] = await Promise.all([
@@ -131,11 +130,12 @@ export async function createProduct(data) {
             description: data.description,
             price: parseFloat(data.price),
             compareAtPrice: data.compareAtPrice ? parseFloat(data.compareAtPrice) : null,
-            category: data.category,
             sizes: data.sizes || [],
             stock: parseInt(data.stock),
             imageUrls: data.imageUrls,
             videoUrl: data.videoUrl,
+            trendingSection: data.trendingSection || false,
+            homeVideoSection: data.homeVideoSection || false,
         },
     });
 }
@@ -175,12 +175,13 @@ export async function updateProduct(id, data) {
             description: data.description,
             price: parseFloat(data.price),
             compareAtPrice: data.compareAtPrice ? parseFloat(data.compareAtPrice) : null,
-            category: data.category,
             sizes: data.sizes || [],
             stock: parseInt(data.stock),
             imageUrls: data.imageUrls,
             videoUrl: data.videoUrl,
             isActive: data.isActive,
+            trendingSection: data.trendingSection,
+            homeVideoSection: data.homeVideoSection,
         },
     });
 }
@@ -240,7 +241,6 @@ export async function searchProducts(query, filters = {}) {
                 { description: { contains: query, mode: 'insensitive' } },
             ],
         } : {}),
-        ...(category ? { category } : {}),
         ...(minPrice || maxPrice ? {
             price: {
                 ...(minPrice ? { gte: parseFloat(minPrice) } : {}),

@@ -110,6 +110,10 @@ export default function ProductDetailsPage() {
 
         formData.append('slug', product.slug);
 
+        // Checkbox values
+        formData.set('trendingSection', String(formData.get('trendingSection') === 'true'));
+        formData.set('homeVideoSection', String(formData.get('homeVideoSection') === 'true'));
+
         const result = await updateProductAction(productId, formData);
 
         if (result.success) {
@@ -415,29 +419,48 @@ export default function ProductDetailsPage() {
                         </div>
                     </div>
 
-                    {/* Organization */}
+                    {/* Organization & Sections */}
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                            <h3 className="font-semibold text-gray-900">Organization</h3>
+                            <h3 className="font-semibold text-gray-900">Organization & Sections</h3>
                         </div>
                         <div className="p-6 space-y-4">
-                            <div>
-                                <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                                <select
-                                    id="category"
-                                    name="category"
-                                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-                                    defaultValue={product.category || 'Apparel'}
-                                >
-                                    <option value="Apparel">Apparel</option>
-                                    <option value="Electronics">Electronics</option>
-                                    <option value="Footwear">Footwear</option>
-                                    <option value="Accessories">Accessories</option>
-                                    <option value="Home">Home</option>
-                                </select>
+                            <div className="space-y-4">
+                                <label className="block text-sm font-medium text-gray-700">Home Page Sections</label>
+                                <div className="space-y-3">
+                                    <div className="flex items-center">
+                                        <input
+                                            id="trending-section"
+                                            name="trendingSection"
+                                            type="checkbox"
+                                            value="true"
+                                            defaultChecked={product.trendingSection}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <label htmlFor="trending-section" className="ml-2 block text-sm text-gray-900">
+                                            Show in Trending Section
+                                        </label>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <input
+                                            id="home-video-section"
+                                            name="homeVideoSection"
+                                            type="checkbox"
+                                            value="true"
+                                            defaultChecked={product.homeVideoSection}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        />
+                                        <label htmlFor="home-video-section" className="ml-2 block text-sm text-gray-900">
+                                            Show in Home Video Section
+                                        </label>
+                                    </div>
+                                    <p className="text-xs text-gray-500 italic">
+                                        Note: A maximum of 4 products can be active in each section.
+                                    </p>
+                                </div>
                             </div>
 
-                            <div>
+                            <div className="pt-4 border-t border-gray-100">
                                 <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
                                 <select
                                     id="status"

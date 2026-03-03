@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
-import { Filter, X } from "lucide-react";
+import { useState } from "react";
+import { Filter } from "lucide-react";
 
 export default function SearchFilterClient() {
     const router = useRouter();
@@ -10,16 +10,12 @@ export default function SearchFilterClient() {
     const [isOpen, setIsOpen] = useState(false);
 
     // Initial local states from URL
-    const [localCategory, setLocalCategory] = useState(searchParams.get("category") || "");
     const [localMinPrice, setLocalMinPrice] = useState(searchParams.get("minPrice") || "0");
     const [localMaxPrice, setLocalMaxPrice] = useState(searchParams.get("maxPrice") || "20000");
     const [localSort, setLocalSort] = useState(searchParams.get("sort") || "");
 
     const handleApplyFilters = () => {
         const params = new URLSearchParams(searchParams);
-
-        if (localCategory) params.set("category", localCategory);
-        else params.delete("category");
 
         if (localMinPrice && localMinPrice !== "0") params.set("minPrice", localMinPrice);
         else params.delete("minPrice");
@@ -34,14 +30,12 @@ export default function SearchFilterClient() {
     };
 
     const handleClearFilters = () => {
-        setLocalCategory("");
         setLocalMinPrice("0");
         setLocalMaxPrice("20000");
         setLocalSort("");
         router.push("/search");
     };
 
-    const categories = ["Apparel", "Electronics", "Footwear", "Accessories", "Home"];
     const sorts = [
         { label: "Newest", value: "newest" },
         { label: "Price: Low to High", value: "price_asc" },
@@ -57,7 +51,7 @@ export default function SearchFilterClient() {
                 >
                     <Filter className="w-4 h-4" />
                     {isOpen ? "Hide Filters" : "Show Filters"}
-                    {(localCategory || (localMinPrice !== "0") || (localMaxPrice !== "20000")) && (
+                    {((localMinPrice !== "0") || (localMaxPrice !== "20000")) && (
                         <span className="w-2 h-2 bg-black rounded-full" />
                     )}
                 </button>
@@ -82,28 +76,6 @@ export default function SearchFilterClient() {
             {isOpen && (
                 <div className="pt-6 border-t border-gray-200">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-8">
-                        <div>
-                            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-4 text-gray-500">Category</h4>
-                            <div className="flex flex-wrap gap-2">
-                                {["All", ...categories].map((category) => {
-                                    const value = category === "All" ? "" : category;
-                                    const isActive = localCategory === value;
-                                    return (
-                                        <button
-                                            key={category}
-                                            onClick={() => setLocalCategory(value)}
-                                            className={`text-[10px] uppercase tracking-wider px-3 py-1.5 border transition-all ${isActive
-                                                    ? "bg-black text-white border-black"
-                                                    : "bg-white text-black border-gray-200 hover:border-black"
-                                                }`}
-                                        >
-                                            {category}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
                         <div>
                             <h4 className="text-[11px] font-bold uppercase tracking-widest mb-4 text-gray-500">Price Range</h4>
                             <div className="space-y-8 px-1">

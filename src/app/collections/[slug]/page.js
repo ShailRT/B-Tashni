@@ -5,10 +5,9 @@ import { notFound } from "next/navigation";
 export default async function CollectionPage({ params }) {
   const { slug } = await params;
 
-  // Fetch products from database by category (slug)
+  // Fetch products from database
   const { products: filteredProducts } = await getProducts({
     limit: 50,
-    category: slug.toUpperCase() // Adjust based on how you store categories
   });
 
   // Optional: validation to check if category is valid (e.g. against a known list)

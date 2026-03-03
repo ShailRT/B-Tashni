@@ -106,7 +106,7 @@ export default function ProductsPage() {
                                     ) : (
                                         <div className="flex flex-col items-center">
                                             <ImageIcon className="h-10 w-10 text-gray-300 mb-2" />
-                                            <span className="text-gray-400 font-medium text-xs opacity-50 uppercase tracking-widest">{product.category || 'Product'}</span>
+                                            <span className="text-gray-400 font-medium text-xs opacity-50 uppercase tracking-widest">Product</span>
                                         </div>
                                     )}
                                     {!product.isActive && (
@@ -125,7 +125,6 @@ export default function ProductsPage() {
                                                     {product.name}
                                                 </Link>
                                             </h3>
-                                            <p className="mt-1 text-sm text-gray-500">{product.category}</p>
                                         </div>
 
                                         <div className="relative">
