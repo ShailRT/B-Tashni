@@ -6,9 +6,12 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createProductAction } from '@/app/actions/products';
 
+import { upload } from '@vercel/blob/client';
+
 export default function CreateProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState(null);
@@ -72,27 +75,58 @@ export default function CreateProductPage() {
         setLoading(true);
         setError(null);
 
-        const formData = new FormData(e.currentTarget);
+        try {
+            const formData = new FormData(e.currentTarget);
 
-        selectedImages.forEach((file) => {
-            formData.append('images', file);
-        });
+            // 1. Upload images to Vercel Blob
+            setUploading(true);
+            const imageUrls = [];
+            for (const file of selectedImages) {
+                const blob = await upload(file.name, file, {
+                    access: 'public',
+                    handleUploadUrl: '/api/upload',
+                });
+                imageUrls.push(blob.url);
+            }
 
-        if (selectedVideo) {
-            formData.append('video', selectedVideo);
-        }
+            // 2. Upload video if exists
+            let finalVideoUrl = formData.get('videoUrl') || '';
+            if (selectedVideo) {
+                const blob = await upload(selectedVideo.name, selectedVideo, {
+                    access: 'public',
+                    handleUploadUrl: '/api/upload',
+                });
+                finalVideoUrl = blob.url;
+            }
+            setUploading(false);
 
-        // Checkbox values
-        formData.set('trendingSection', String(formData.get('trendingSection') === 'true'));
-        formData.set('homeVideoSection', String(formData.get('homeVideoSection') === 'true'));
+            // 3. Prepare data for server action
+            const productData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                price: parseFloat(formData.get('price')),
+                stock: parseInt(formData.get('stock')),
+                sizesStr: formData.get('sizes'),
+                trendingSection: formData.get('trendingSection') === 'true',
+                homeVideoSection: formData.get('homeVideoSection') === 'true',
+                imageUrls,
+                videoUrl: finalVideoUrl,
+                status: formData.get('status')
+            };
 
-        const result = await createProductAction(formData);
+            const result = await createProductAction(productData);
 
-        if (result.success) {
-            router.push('/admin/products');
-        } else {
-            setError(result.error);
+            if (result.success) {
+                router.push('/admin/products');
+            } else {
+                setError(result.error);
+                setLoading(false);
+            }
+        } catch (err) {
+            console.error('Upload failed:', err);
+            setError('Failed to upload files. Please try again.');
             setLoading(false);
+            setUploading(false);
         }
     }
 
@@ -378,7 +412,7 @@ export default function CreateProductPage() {
                         {loading ? (
                             <>
                                 <Loader2 className="-ml-1 mr-2 h-4 w-4 animate-spin" />
-                                Creating...
+                                {uploading ? 'Uploading Files...' : 'Creating...'}
                             </>
                         ) : (
                             <>

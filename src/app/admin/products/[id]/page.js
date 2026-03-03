@@ -6,6 +6,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { getProductByIdAction, updateProductAction, deleteProductAction } from '@/app/actions/products';
 
+import { upload } from '@vercel/blob/client';
+
 export default function ProductDetailsPage() {
     const params = useParams();
     const router = useRouter();
@@ -14,6 +16,7 @@ export default function ProductDetailsPage() {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState(null);
 
@@ -91,40 +94,67 @@ export default function ProductDetailsPage() {
         setSaving(true);
         setError(null);
 
-        const formData = new FormData(e.currentTarget);
-        // Map UI status to isActive
-        const status = formData.get('status');
-        formData.set('status', status === 'Active' || status === 'In Stock' ? 'Active' : 'Draft');
+        try {
+            const formData = new FormData(e.currentTarget);
 
-        // Combine existing and new mock images
-        const existingImages = product.imageUrls || [];
-        formData.append('existingImageUrls', JSON.stringify(existingImages));
+            // 1. Upload new images to Vercel Blob
+            setUploading(true);
+            const uploadedImageUrls = [];
+            for (const file of newSelectedImages) {
+                const blob = await upload(file.name, file, {
+                    access: 'public',
+                    handleUploadUrl: '/api/upload',
+                });
+                uploadedImageUrls.push(blob.url);
+            }
 
-        newSelectedImages.forEach((file) => {
-            formData.append('images', file);
-        });
+            // 2. Combine with existing images
+            const existingImages = product.imageUrls || [];
+            const finalImageUrls = [...existingImages, ...uploadedImageUrls];
 
-        if (newSelectedVideo) {
-            formData.append('video', newSelectedVideo);
+            // 3. Upload video if new one selected
+            let finalVideoUrl = formData.get('videoUrl') || product.videoUrl || '';
+            if (newSelectedVideo) {
+                const blob = await upload(newSelectedVideo.name, newSelectedVideo, {
+                    access: 'public',
+                    handleUploadUrl: '/api/upload',
+                });
+                finalVideoUrl = blob.url;
+            }
+            setUploading(false);
+
+            // 4. Prepare data for server action
+            const productData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                price: parseFloat(formData.get('price')),
+                stock: parseInt(formData.get('stock')),
+                sizesStr: formData.get('sizes'),
+                trendingSection: formData.get('trendingSection') === 'true',
+                homeVideoSection: formData.get('homeVideoSection') === 'true',
+                imageUrls: finalImageUrls,
+                videoUrl: finalVideoUrl,
+                status: formData.get('status'),
+                slug: product.slug
+            };
+
+            const result = await updateProductAction(productId, productData);
+
+            if (result.success) {
+                setProduct(result.product);
+                setNewSelectedImages([]);
+                setNewSelectedVideo(null);
+                alert('Product updated successfully');
+            } else {
+                setError(result.error);
+            }
+        } catch (err) {
+            console.error('Update failed:', err);
+            setError('Failed to upload files. Please try again.');
+            setUploading(false);
+        } finally {
+            setSaving(false);
         }
-
-        formData.append('slug', product.slug);
-
-        // Checkbox values
-        formData.set('trendingSection', String(formData.get('trendingSection') === 'true'));
-        formData.set('homeVideoSection', String(formData.get('homeVideoSection') === 'true'));
-
-        const result = await updateProductAction(productId, formData);
-
-        if (result.success) {
-            setProduct(result.product);
-            setNewSelectedImages([]);
-            setNewSelectedVideo(null);
-            alert('Product updated successfully');
-        } else {
-            setError(result.error);
-        }
-        setSaving(false);
     }
 
     async function handleDelete() {
@@ -187,8 +217,17 @@ export default function ProductDetailsPage() {
                         disabled={saving || deleting}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
                     >
-                        {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="-ml-1 mr-2 h-4 w-4" />}
-                        Save Changes
+                        {saving ? (
+                            <>
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                {uploading ? 'Uploading Files...' : 'Saving Changes...'}
+                            </>
+                        ) : (
+                            <>
+                                <Save className="-ml-1 mr-2 h-4 w-4" />
+                                Save Changes
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

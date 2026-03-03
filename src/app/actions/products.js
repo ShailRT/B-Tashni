@@ -13,29 +13,9 @@ import {
     getProducts
 } from '@/lib/prisma-queries';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs';
-import path from 'path';
+import prisma from '@/lib/prisma';
 
-async function uploadFiles(formData, fieldName = 'images') {
-    const files = formData.getAll(fieldName);
-    const uploadedUrls = [];
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    for (const file of files) {
-        if (file && typeof file === 'object' && file.size > 0) {
-            const buffer = Buffer.from(await file.arrayBuffer());
-            const filename = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-            const filepath = path.join(uploadDir, filename);
-            fs.writeFileSync(filepath, buffer);
-            uploadedUrls.push(`/uploads/${filename}`);
-        }
-    }
-    return uploadedUrls;
-}
+// Removed uploadFiles logic as we now use cloud storage (Vercel Blob)
 
 export async function searchProductsAction(query, filters = {}) {
     try {
@@ -57,18 +37,22 @@ export async function getProductsAction(params = {}) {
     }
 }
 
-export async function createProductAction(formData) {
+export async function createProductAction(data) {
     try {
-        const name = formData.get('name');
-        const description = formData.get('description');
-        const price = formData.get('price');
-        const stock = formData.get('stock');
-        const videoUrl = formData.get('videoUrl');
-        const sizesStr = formData.get('sizes') || '';
-        const sizes = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
+        const {
+            name,
+            description,
+            price,
+            stock,
+            sizesStr,
+            trendingSection,
+            homeVideoSection,
+            imageUrls,
+            videoUrl,
+            status
+        } = data;
 
-        const trendingSection = formData.get('trendingSection') === 'true';
-        const homeVideoSection = formData.get('homeVideoSection') === 'true';
+        const sizes = sizesStr ? sizesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
         // Validation: Max 4 products per section
         if (trendingSection) {
@@ -85,11 +69,7 @@ export async function createProductAction(formData) {
             }
         }
 
-        const images = await uploadFiles(formData, 'images');
-        const videos = await uploadFiles(formData, 'video');
-        const finalVideoUrl = videos.length > 0 ? videos[0] : videoUrl;
-
-        const isActive = formData.get('status') === 'Active';
+        const isActive = status === 'Active';
         const slug = await generateUniqueSlug(name);
 
         const product = await createProduct({
@@ -99,8 +79,8 @@ export async function createProductAction(formData) {
             price,
             stock,
             sizes,
-            imageUrls: images,
-            videoUrl: finalVideoUrl,
+            imageUrls,
+            videoUrl,
             isActive,
             trendingSection,
             homeVideoSection
@@ -114,18 +94,23 @@ export async function createProductAction(formData) {
     }
 }
 
-export async function updateProductAction(id, formData) {
+export async function updateProductAction(id, data) {
     try {
-        const name = formData.get('name');
-        const description = formData.get('description');
-        const price = formData.get('price');
-        const stock = formData.get('stock');
-        const videoUrl = formData.get('videoUrl');
-        const sizesStr = formData.get('sizes') || '';
-        const sizes = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
+        const {
+            name,
+            description,
+            price,
+            stock,
+            sizesStr,
+            trendingSection,
+            homeVideoSection,
+            imageUrls,
+            videoUrl,
+            status,
+            slug: existingSlug
+        } = data;
 
-        const trendingSection = formData.get('trendingSection') === 'true';
-        const homeVideoSection = formData.get('homeVideoSection') === 'true';
+        const sizes = sizesStr ? sizesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
 
         // Validation: Max 4 products per section
         if (trendingSection) {
@@ -152,15 +137,8 @@ export async function updateProductAction(id, formData) {
             }
         }
 
-        const existingImageUrls = JSON.parse(formData.get('existingImageUrls') || '[]');
-        const uploadedImages = await uploadFiles(formData, 'images');
-        const imageUrls = [...existingImageUrls, ...uploadedImages];
-
-        const uploadedVideos = await uploadFiles(formData, 'video');
-        const finalVideoUrl = uploadedVideos.length > 0 ? uploadedVideos[0] : videoUrl;
-
-        const isActive = formData.get('status') === 'Active';
-        const slug = formData.get('slug') || await generateUniqueSlug(name);
+        const isActive = status === 'Active';
+        const slug = existingSlug || await generateUniqueSlug(name);
 
         const product = await updateProduct(id, {
             name,
@@ -170,7 +148,7 @@ export async function updateProductAction(id, formData) {
             stock,
             sizes,
             imageUrls,
-            videoUrl: finalVideoUrl,
+            videoUrl,
             isActive,
             trendingSection,
             homeVideoSection
