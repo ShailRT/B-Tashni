@@ -11,7 +11,7 @@ export default async function Home() {
 
   // Fetch dynamic products from DB
   const allProducts = await getProductsAction({ limit: 100 });
-  const videoProducts = allProducts.filter(p => p.videoUrl && p.homeVideoSection);
+  const videoProducts = allProducts.filter(p => p.videoUrl);
 
   return (
     <main className="min-h-screen bg-white">

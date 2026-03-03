@@ -44,6 +44,7 @@ function VideoCard({ product }) {
           muted
           playsInline
           autoPlay
+          crossOrigin="anonymous"
         />
       </div>
       <h3 className="mt-4 text-sm font-extrabold uppercase tracking-wide text-[#2d2a26] pl-2 group-hover:underline underline-offset-4 decoration-1">
@@ -54,9 +55,8 @@ function VideoCard({ product }) {
 }
 
 export default function VideoSection({ products = [], useStatic = false }) {
-  // Determine which data to display
-  // If useStatic is true, or if no dynamic products are provided
-  const displayProducts = useStatic || (!products || products.length === 0)
+  // Use static fallback only when explicitly set OR when no DB products available
+  const displayProducts = useStatic || products.length === 0
     ? staticVideos
     : products;
 

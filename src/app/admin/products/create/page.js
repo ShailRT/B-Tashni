@@ -15,6 +15,8 @@ export default function CreateProductPage() {
     const [error, setError] = useState(null);
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState(null);
+    const [videoUrlInput, setVideoUrlInput] = useState('');
+    const [videoUrlError, setVideoUrlError] = useState(false);
 
     const imageInputRef = useRef(null);
     const videoInputRef = useRef(null);
@@ -349,10 +351,16 @@ export default function CreateProductPage() {
                                     type="text"
                                     id="video-url"
                                     name="videoUrl"
+                                    value={videoUrlInput}
+                                    onChange={(e) => { setVideoUrlInput(e.target.value); setVideoUrlError(false); }}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="https://..."
                                 />
                             </div>
+
+                            {/* Reset error when URL changes */}
+                            {/* videoUrlError resets automatically via key change on video element */}
+
                             <input
                                 type="file"
                                 ref={videoInputRef}
@@ -360,41 +368,61 @@ export default function CreateProductPage() {
                                 accept="video/*"
                                 className="hidden"
                             />
-                            {selectedVideo ? (
-                                <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 p-2">
-                                    <video
-                                        src={selectedVideo.preview}
-                                        className="w-full h-48 object-cover rounded-md"
-                                        controls
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={removeVideo}
-                                        className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors z-10"
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </button>
-                                    <div className="mt-2 flex items-center justify-between px-2">
-                                        <p className="text-xs text-gray-500 truncate max-w-[200px]">
-                                            {selectedVideo.name}
-                                        </p>
-                                        <span className="text-[10px] font-medium bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
-                                            Ready to upload
-                                        </span>
+
+                            {/* Upload zone — always visible, same as image section */}
+                            <div
+                                onClick={() => videoInputRef.current?.click()}
+                                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-32"
+                            >
+                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                                <span className="text-sm text-gray-500">Click to upload video file</span>
+                                <span className="text-xs text-gray-400 mt-1">File overrides URL above</span>
+                            </div>
+
+                            {/* Preview card — same style as image grid cards */}
+                            {(selectedVideo || videoUrlInput) && (
+                                <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-100 group">
+                                    {!videoUrlError ? (
+                                        <video
+                                            key={selectedVideo ? selectedVideo.preview : videoUrlInput}
+                                            src={selectedVideo ? selectedVideo.preview : videoUrlInput}
+                                            className="w-full h-48"
+                                            controls
+                                            playsInline
+                                            crossOrigin="anonymous"
+                                            onError={() => !selectedVideo && setVideoUrlError(true)}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-48 flex flex-col items-center justify-center bg-gray-200 text-gray-500 text-sm gap-2">
+                                            <span>⚠️ Cannot preview this URL in browser</span>
+                                            <a
+                                                href={videoUrlInput}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline text-xs truncate max-w-[80%]"
+                                            >
+                                                Open video in new tab
+                                            </a>
+                                        </div>
+                                    )}
+                                    {selectedVideo && (
+                                        <button
+                                            type="button"
+                                            onClick={removeVideo}
+                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                        >
+                                            <X className="h-3 w-3" />
+                                        </button>
+                                    )}
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-[10px] text-white truncate px-2 py-1">
+                                        {selectedVideo ? selectedVideo.name : videoUrlInput}
                                     </div>
-                                </div>
-                            ) : (
-                                <div
-                                    onClick={() => videoInputRef.current?.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-32"
-                                >
-                                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                    <span className="text-sm text-gray-500">Click to upload video</span>
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
+
 
                 {/* Footer Actions */}
                 <div className="lg:col-span-3 flex justify-end space-x-3 pt-4 border-t border-gray-200">
