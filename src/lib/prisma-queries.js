@@ -231,7 +231,7 @@ export async function getProductsAdmin({ page = 1, limit = 50, search = '' } = {
  * Search products
  */
 export async function searchProducts(query, filters = {}) {
-    const { category, minPrice, maxPrice, sort } = filters;
+    const { minPrice, maxPrice, sort } = filters;
 
     const where = {
         isActive: true,
