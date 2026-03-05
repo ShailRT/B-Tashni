@@ -47,7 +47,7 @@ model Product {
 model Order {
   id                String        @id @default(cuid())
   orderNumber       String        @unique
-  userId            String
+  userId            String?
   status            OrderStatus   @default(PENDING)
   totalAmount       Float
   shippingAddress   Json
@@ -62,7 +62,7 @@ model Order {
   razorpayPaymentId String?
   refundId          String?
   refundStatus      String?
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   items             OrderItem[]
 
   @@index([userId])

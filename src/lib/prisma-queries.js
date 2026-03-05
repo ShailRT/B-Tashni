@@ -272,13 +272,26 @@ export async function createOrder(userId, orderData) {
     // Generate unique order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
+    // Verify all products exist before creating order (Prevents P2003 from stale storage)
+    const productIds = orderData.items.map((item) => item.originalId || item.productId);
+    const uniqueIds = [...new Set(productIds)];
+    const existingProducts = await prisma.product.findMany({
+        where: { id: { in: uniqueIds } },
+        select: { id: true },
+    });
+
+    if (existingProducts.length !== uniqueIds.length) {
+        throw new Error("One or more products in your cart are no longer available. Please clear your cart and try again.");
+    }
+
     return await prisma.$transaction(async (tx) => {
         // Create the order with items
         const order = await tx.order.create({
             data: {
                 orderNumber,
-                userId,
                 totalAmount: orderData.totalAmount,
+                // Use the relation shorthand for better handling of guest checkouts
+                ...(userId && { user: { connect: { id: userId } } }),
                 shippingAddress: orderData.shippingAddress,
                 billingAddress: orderData.billingAddress,
                 razorpayOrderId: orderData.razorpayOrderId,
@@ -412,6 +425,20 @@ export async function updateOrderStatusByRazorpayId(razorpayOrderId, updateData)
             paymentStatus: status, // status here is PAID from webhook
             ...(paymentId && { razorpayPaymentId: paymentId }),
             ...(status === 'PAID' && { status: 'PROCESSING' }), // Move from PENDING to PROCESSING if paid
+        },
+    });
+}
+
+/**
+ * Update order address based on Razorpay Order ID (for Magic Checkout)
+ * @param {string} razorpayOrderId - Razorpay Order ID
+ * @param {object} addressData - Detailed address data
+ */
+export async function updateOrderAddressByRazorpayId(razorpayOrderId, addressData) {
+    return await prisma.order.update({
+        where: { razorpayOrderId },
+        data: {
+            shippingAddress: addressData,
         },
     });
 }

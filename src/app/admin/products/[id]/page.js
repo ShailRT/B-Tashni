@@ -70,6 +70,7 @@ export default function ProductDetailsPage() {
             setLoading(true);
             const data = await getProductByIdAction(productId);
             if (data) {
+                console.log(data)
                 setProduct(data);
                 setVideoUrlInput(data.videoUrl || '');
             } else {
@@ -78,7 +79,7 @@ export default function ProductDetailsPage() {
             setLoading(false);
         }
         fetchProduct();
-    }, [productId]);
+    }, [productId, uploading]);
 
     // Cleanup object URLs
     useEffect(() => {

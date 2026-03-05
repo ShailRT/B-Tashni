@@ -78,7 +78,7 @@ export default function Page() {
       <div className="flex flex-col lg:flex-row w-full max-w-[2400px] mx-auto overflow-hidden px-0 lg:px-[8vw] xl:px-[12vw]">
 
         {/* Image Gallery - Left Side (Zara's signature 2/3 scroll with grid) */}
-        <div className="w-full lg:w-[65%] grid grid-cols-1 lg:grid-cols-2 gap-[1px] lg:gap-[4px] bg-transparent">
+        <div className="w-full lg:w-[65%] grid grid-cols-1 lg:grid-cols-2 gap-[1px] lg:gap-[4px] bg-transparent lg:py-4">
           {images.map((img, idx) => (
             <div
               key={idx}
@@ -132,7 +132,7 @@ export default function Page() {
                 onClick={() => setShowDescription(!showDescription)}
                 className="w-full flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.15em] border-b border-black/10 pb-3 group"
               >
-                <span>Materials and Care</span>
+                <span>Description & Materials</span>
                 {showDescription ? <ChevronUp className="w-3 h-3 text-black/40 group-hover:text-black" /> : <ChevronDown className="w-3 h-3 text-black/40 group-hover:text-black" />}
               </button>
               {showDescription && (
@@ -181,7 +181,7 @@ export default function Page() {
                 disabled={!selectedSize}
                 className="w-full cursor-pointer bg-black text-white hover:bg-[#111] py-5 px-8 text-[11px] font-bold uppercase tracking-[0.25em] transition-all duration-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98]"
               >
-                {selectedSize ? 'Process Order' : 'Add to Cart'}
+                Add to Cart
               </button>
               <p className="text-[9px] text-center text-gray-500 uppercase tracking-widest font-light">
                 Free delivery for all orders above ₹2999

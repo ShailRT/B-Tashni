@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const CartContext = createContext();
 
@@ -32,7 +32,7 @@ export function CartProvider({ children }) {
     }
   }, [cart, isInitialized]);
 
-  const addToCart = (product) => {
+  const addToCart = useCallback((product) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -45,24 +45,28 @@ export function CartProvider({ children }) {
       return [...prevCart, { ...product, quantity: 1 }];
     });
     setIsCartOpen(true);
-  };
+  }, []);
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = useCallback((productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-  };
+  }, []);
 
-  const updateQuantity = (productId, quantity) => {
-    if (quantity < 1) return;
+  const updateQuantity = useCallback((productId, quantity) => {
+    console.log(quantity)
+    if (quantity < 1) {
+      removeFromCart(productId);
+      return;
+    }
     setCart((prevCart) =>
       prevCart.map((item) =>
         item.id === productId ? { ...item, quantity } : item,
       ),
     );
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
-  };
+  }, []);
 
   const cartCount = (Array.isArray(cart) ? cart : []).reduce(
     (total, item) => total + item.quantity,

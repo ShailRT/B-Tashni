@@ -78,7 +78,7 @@ export async function verifyAndCompleteOrder(paymentData) {
 export async function initiateCheckout(orderData) {
     try {
         const { userId } = await auth();
-        if (!userId) throw new Error("Unauthorized");
+        // Removed: if (!userId) throw new Error("Unauthorized");
 
         // 1. Create Razorpay Order
         const rzpResult = await createRazorpayOrder(orderData.totalAmount);
@@ -91,7 +91,8 @@ export async function initiateCheckout(orderData) {
             paymentMethod: 'razorpay',
         };
 
-        const dbOrder = await createOrder(userId, fullOrderData);
+        // If userId is null, it will be stored as a guest order
+        const dbOrder = await createOrder(userId || null, fullOrderData);
 
         return {
             success: true,

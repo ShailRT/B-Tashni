@@ -54,7 +54,8 @@ function VideoCard({ product }) {
   );
 }
 
-export default function VideoSection({ products = [], useStatic = false }) {
+export default function VideoSection({ products = [] }) {
+  const useStatic = false;
   // Use static fallback only when explicitly set OR when no DB products available
   const displayProducts = useStatic || products.length === 0
     ? staticVideos

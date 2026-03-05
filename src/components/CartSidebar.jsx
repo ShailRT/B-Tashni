@@ -5,7 +5,7 @@ import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useUser, useSignIn } from "@clerk/nextjs";
-import { initiateCheckout, verifyAndCompleteOrder } from "@/app/actions/checkout";
+import { useRouter } from "next/navigation";
 
 const FREE_SHIPPING_THRESHOLD = 10000; // INR 10,000 for free shipping
 
@@ -20,6 +20,7 @@ export default function CartSidebar() {
   } = useCart();
 
   const { user, isLoaded: isUserLoaded } = useUser();
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -29,108 +30,9 @@ export default function CartSidebar() {
 
   if (!mounted) return null;
 
-  const handleCheckout = async () => {
-    console.log("Checkout initiated...", { isUserLoaded, user: user?.id, cartTotal });
-
-    try {
-      setIsProcessing(true);
-
-      // 0. Check authentication
-      if (!isUserLoaded) {
-        console.log("User auth state is still loading...");
-        return;
-      }
-
-      if (!user) {
-        console.log("No user found, redirecting to sign-in...");
-        // Instead of a plain alert, we actually suggest signing in
-        if (confirm("You need to be signed in to complete your purchase. Would you like to sign in now?")) {
-          window.location.href = "/sign-in?redirect_url=" + encodeURIComponent(window.location.pathname);
-        }
-        return;
-      }
-
-      // 1. Initiate checkout (Creates DB order and Razorpay order)
-      console.log("Sending checkout request to server...");
-      const orderData = {
-        totalAmount: cartTotal,
-        shippingAddress: {}, // TODO: Implement address collection
-        items: cart.map(item => ({
-          productId: item.originalId || item.id,
-          quantity: item.quantity,
-          price: item.priceValue || parseFloat(String(item.price).replace(/[^0-9.]/g, '')),
-        })),
-      };
-
-      const result = await initiateCheckout(orderData);
-      console.log("InitiateCheckout result:", result);
-
-      if (!result.success) {
-        if (result.error === "Unauthorized") {
-          alert("Your session has expired. Please sign in again.");
-          window.location.href = "/sign-in";
-        } else {
-          alert(result.error || "Failed to initiate checkout");
-        }
-        return;
-      }
-
-      // 2. Options for Razorpay Checkout
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: result.amount,
-        currency: result.currency,
-        name: "B-Tashni",
-        description: "Premium Apparel Purchase",
-        order_id: result.orderId,
-        handler: async function (response) {
-          console.log("Razorpay response received:", response);
-          setIsProcessing(true); // Ensure processing stays true during verification
-
-          try {
-            const verificationResult = await verifyAndCompleteOrder({
-              ...response,
-              dbOrderId: result.dbOrderId
-            });
-
-            if (verificationResult.success) {
-              window.location.href = `/order-success?order_id=${result.orderId}&payment_id=${response.razorpay_payment_id}`;
-            } else {
-              alert(verificationResult.error || "Payment verification failed.");
-            }
-          } catch (err) {
-            console.error("Verification error:", err);
-            alert("An error occurred while verifying your payment.");
-          } finally {
-            setIsProcessing(false);
-          }
-        },
-        prefill: {
-          name: user.fullName || "",
-          email: user.primaryEmailAddress?.emailAddress || "",
-          contact: ""
-        },
-        theme: {
-          color: "#000000"
-        },
-        magic: true // Enable Magic Checkout
-      };
-
-      console.log("Opening Razorpay popup...");
-      const rzp = new window.Razorpay(options);
-
-      rzp.on('payment.failed', function (response) {
-        console.error("Payment failed:", response.error);
-        alert("Payment failed: " + response.error.description);
-      });
-
-      rzp.open();
-    } catch (error) {
-      console.error("Checkout Final Error:", error);
-      alert(error.message || "Something went wrong. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    router.push("/checkout");
   };
 
   // Calculate Free Shipping Progress
@@ -257,15 +159,16 @@ export default function CartSidebar() {
                         INR {typeof item.price === 'number' ? item.price.toLocaleString('en-IN') : item.price}
                       </p>
                     </div>
-
                     <div className="flex justify-between items-end mt-4">
                       <div className="flex items-center border border-gray-200 h-8">
                         <button
-                          onClick={() =>
+                          onClick={() => {
+                            console.log(item.quantity - 1)
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600"
-                          disabled={item.quantity <= 1}
+                          }
+                          className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
+
                         >
                           <Minus className="w-3 h-3" />
                         </button>
@@ -276,7 +179,7 @@ export default function CartSidebar() {
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600"
+                          className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
