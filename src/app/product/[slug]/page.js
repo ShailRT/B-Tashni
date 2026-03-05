@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { getProductBySlugAction } from "@/app/actions/products";
+import { getProductBySlugAction, getProductsAction } from "@/app/actions/products";
 import { notFound, useParams } from "next/navigation";
 import { Bookmark, ChevronDown, ChevronUp, Share2, Ruler, ShieldCheck, Truck } from "lucide-react";
 
@@ -13,6 +13,7 @@ export default function Page() {
   const slug = params?.slug;
 
   const [product, setProduct] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(null);
   const [showDescription, setShowDescription] = useState(true);
@@ -27,6 +28,9 @@ export default function Page() {
         const data = await getProductBySlugAction(slug);
         if (data) {
           setProduct(data);
+          // Fetch recommendations
+          const products = await getProductsAction({ limit: 12 });
+          setRecommendations(products.filter(p => p.slug !== slug).slice(0, 6));
         } else {
           setProduct(null);
         }
@@ -78,11 +82,11 @@ export default function Page() {
       <div className="flex flex-col lg:flex-row w-full max-w-[2400px] mx-auto overflow-hidden px-0 lg:px-[8vw] xl:px-[12vw]">
 
         {/* Image Gallery - Left Side (Zara's signature 2/3 scroll with grid) */}
-        <div className="w-full lg:w-[65%] grid grid-cols-1 lg:grid-cols-2 gap-[1px] lg:gap-[4px] bg-transparent lg:py-4">
+        <div className="w-full lg:w-[65%] grid grid-cols-1 lg:grid-cols-2 gap-[1px] lg:gap-[4px] bg-transparent pt-10 lg:py-16">
           {images.map((img, idx) => (
             <div
               key={idx}
-              className={`relative w-full h-[calc(100vh-64px)] lg:h-[calc(100vh-100px)] bg-transparent flex items-center justify-center overflow-hidden group ${idx < 2 ? "lg:col-span-2" : "lg:col-span-1 h-[60vh] lg:h-[75vh]"
+              className={`relative w-full h-[calc(100vh-300px)] lg:h-[calc(100vh-100px)] bg-transparent flex items-center justify-center overflow-hidden group ${idx < 2 ? "lg:col-span-2" : "lg:col-span-1 h-[60vh] lg:h-[75vh]"
                 }`}
             >
               <Image
@@ -111,9 +115,6 @@ export default function Page() {
                 <h1 className="text-[18px] lg:text-[20px] font-light leading-[1.1] uppercase tracking-[0.08em] text-balance">
                   {title}
                 </h1>
-                <button className="p-2 -mr-2 hover:bg-black/5 rounded-full transition-colors active:scale-90">
-                  <Bookmark className="w-[18px] h-[18px] font-light opacity-40 hover:opacity-100 transition-opacity" />
-                </button>
               </div>
 
               <div className="space-y-1">
@@ -192,18 +193,18 @@ export default function Page() {
       </div>
 
       {/* Match With Section */}
-      {product.matchWith && product.matchWith.length > 0 && (
-        <div className="px-6 lg:px-20 mt-40 max-w-[2000px] mx-auto border-t border-black/5 pt-32">
+      {recommendations && recommendations.length > 0 && (
+        <div className="px-6 lg:px-20 max-w-[2000px] mx-auto border-t border-black/5 pt-10 pb-10">
           <div className="space-y-16">
             <header className="space-y-4">
-              <h2 className="text-[12px] font-bold uppercase tracking-[0.3em] text-black">
-                Match With
+              <h2 className="text-[16px] font-bold uppercase tracking-[0.3em] text-black">
+                You May Also Like
               </h2>
               <div className="w-8 h-[1px] bg-black"></div>
             </header>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-x-[2px] lg:gap-x-10 gap-y-20">
-              {product.matchWith.map((item, i) => (
+            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-x-[2px] lg:gap-x-10 gap-y-20">
+              {recommendations.map((item, i) => (
                 <Link
                   href={`/product/${item.slug}`}
                   key={i}
@@ -211,7 +212,7 @@ export default function Page() {
                 >
                   <div className="relative aspect-[10/14] overflow-hidden bg-[#f8f8f8]">
                     <Image
-                      src={item.image}
+                      src={item.imageUrls?.[0] || "/placeholder.jpg"}
                       alt={item.name}
                       fill
                       className="object-cover transition-transform duration-[2.5s] ease-out group-hover:scale-105"
@@ -225,7 +226,7 @@ export default function Page() {
                       {item.name}
                     </p>
                     <p className="text-[10px] text-gray-400 font-bold tracking-widest">
-                      INR {item.price}
+                      INR {item.price.toLocaleString('en-IN')}
                     </p>
                   </div>
                 </Link>

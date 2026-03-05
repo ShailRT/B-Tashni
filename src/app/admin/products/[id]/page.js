@@ -21,6 +21,7 @@ export default function ProductDetailsPage() {
     const [error, setError] = useState(null);
 
     const [newSelectedImages, setNewSelectedImages] = useState([]);
+    const [existingImageUrls, setExistingImageUrls] = useState([]);
     const [newSelectedVideo, setNewSelectedVideo] = useState(null);
     const [videoUrlInput, setVideoUrlInput] = useState('');
     const [videoUrlError, setVideoUrlError] = useState(false);
@@ -55,6 +56,10 @@ export default function ProductDetailsPage() {
         setNewSelectedImages(prev => prev.filter((_, i) => i !== index));
     };
 
+    const removeExistingImage = (index) => {
+        setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+    };
+
     const removeNewVideo = () => {
         if (newSelectedVideo?.preview) {
             URL.revokeObjectURL(newSelectedVideo.preview);
@@ -65,6 +70,11 @@ export default function ProductDetailsPage() {
         }
     };
 
+    const removeExistingVideo = () => {
+        setVideoUrlInput('');
+        setVideoUrlError(false);
+    };
+
     useEffect(() => {
         async function fetchProduct() {
             setLoading(true);
@@ -72,6 +82,7 @@ export default function ProductDetailsPage() {
             if (data) {
                 console.log(data)
                 setProduct(data);
+                setExistingImageUrls(data.imageUrls || []);
                 setVideoUrlInput(data.videoUrl || '');
             } else {
                 setError('Product not found');
@@ -112,9 +123,8 @@ export default function ProductDetailsPage() {
                 uploadedImageUrls.push(blob.url);
             }
 
-            // 2. Combine with existing images
-            const existingImages = product.imageUrls || [];
-            const finalImageUrls = [...existingImages, ...uploadedImageUrls];
+            // 2. Combine with remaining existing images
+            const finalImageUrls = [...existingImageUrls, ...uploadedImageUrls];
 
             // 3. Upload video if new one selected
             let finalVideoUrl = formData.get('videoUrl') || product.videoUrl || '';
@@ -370,11 +380,18 @@ export default function ProductDetailsPage() {
 
                                 <div className="grid grid-cols-3 gap-2">
                                     {/* Existing Images */}
-                                    {product.imageUrls && product.imageUrls.map((img, idx) => (
+                                    {existingImageUrls.map((img, idx) => (
                                         <div key={`existing-${idx}`} className="aspect-square bg-gray-100 rounded-lg border border-gray-200 overflow-hidden relative group">
                                             <img src={img} alt="" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <span className="text-[10px] text-white font-medium">Existing</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeExistingImage(idx)}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                                <span className="text-[10px] text-white font-medium">Existing Image</span>
                                             </div>
                                         </div>
                                     ))}
@@ -465,6 +482,17 @@ export default function ProductDetailsPage() {
                                                 </a>
                                             </div>
                                         )}
+                                        {/* Remove button for existing video (only if no new video selected) */}
+                                        {!newSelectedVideo && videoUrlInput && (
+                                            <button
+                                                type="button"
+                                                onClick={removeExistingVideo}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        )}
+                                        {/* Remove button for NEW video */}
                                         {newSelectedVideo && (
                                             <button
                                                 type="button"
@@ -475,7 +503,7 @@ export default function ProductDetailsPage() {
                                             </button>
                                         )}
                                         <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-[10px] text-white truncate px-2 py-1">
-                                            {newSelectedVideo ? newSelectedVideo.name : videoUrlInput}
+                                            {newSelectedVideo ? `New: ${newSelectedVideo.name}` : `Currently: ${videoUrlInput}`}
                                         </div>
                                     </div>
                                 )}
