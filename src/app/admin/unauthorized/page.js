@@ -28,12 +28,12 @@ export default function UnauthorizedPage() {
                         <ArrowLeft className="w-4 h-4" />
                         Back to Shop
                     </Link>
-                    <button
+                    <Link
+                        href="/sign-in"
                         className="text-[10px] text-gray-400 uppercase tracking-widest font-light hover:text-black transition-colors"
-                        onClick={() => window.location.href = '/sign-in'}
                     >
                         Try another account
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
