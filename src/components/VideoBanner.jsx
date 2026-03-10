@@ -20,14 +20,14 @@ export default function VideoBanner() {
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
-          src="https://cdn.shopify.com/videos/c/o/v/4942729919de4fcba876b6645b6ecb50.mp4"
+          src="/video-home.mp4"
           loop
           muted
           playsInline
           autoPlay
         />
 
-        {/* Overlay Darken (optional, Bluorng is quite clear but maybe slight tint) */}
+        {/* Overlay Darken (optional, btashni is quite clear but maybe slight tint) */}
         <div className="absolute inset-0 bg-black/10"></div>
 
         {/* Centered Rotating Badge */}

@@ -4,7 +4,7 @@ export default function SecondaryBanner() {
       <div className="relative w-full h-[60vh] md:h-[85vh]">
         {/* Background Image */}
         <img
-          src="https://skims-sanity.imgix.net/images/hfqi0zm0/production/2075a33d721beb760410c1579374b8bcf6d9a559-4096x1760.webp?auto=format&q=95&ixlib=react-9.10.0"
+          src="/banner-home.png"
           alt="Just in at B-Tashni"
           className="w-full h-full object-cover object-center"
         />

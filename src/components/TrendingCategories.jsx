@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const categories = [
+const staticCategories = [
   {
     title: "TOPS",
     image:
@@ -30,26 +30,36 @@ const categories = [
   },
 ];
 
-export default function TrendingCategories() {
+export default function TrendingCategories({ products = [], useStatic = true }) {
+  const displayItems =
+    useStatic || products.length === 0
+      ? staticCategories
+      : products.map((product) => ({
+        title: product.name,
+        image: product.imageUrls?.[0] || "/placeholder.png",
+        href: `/product/${product.slug}`,
+      }));
+
   return (
     <section className="w-full mt-6">
       <div className="w-full">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-          {categories.map((category) => (
+          {displayItems.map((item, index) => (
             <Link
-              key={category.title}
-              href={category.href}
+              key={index}
+              href={item.href}
               className="group block cursor-pointer"
             >
               <div className="relative aspect-[0.8] w-full bg-gray-100 mb-2 overflow-hidden">
-                <img
-                  src={category.image}
-                  alt={category.title}
+                <Image
+                  src={item.image}
+                  alt={item.title}
+                  fill
                   className="w-full h-full object-cover"
                 />
               </div>
               <h3 className="mt-4 text-sm font-extrabold uppercase tracking-wide text-[#2d2a26] pl-2 group-hover:underline underline-offset-4 decoration-1">
-                {category.title}
+                {item.title}
               </h3>
             </Link>
           ))}
