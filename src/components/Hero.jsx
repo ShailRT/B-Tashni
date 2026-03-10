@@ -7,8 +7,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <video
           className="w-full h-full object-cover object-center"
-          src="https://cdn.shopify.com/videos/c/o/v/bf861138015a4c0caf95384ac27b20d7.mp4"
-          poster="https://cdn.shopify.com/videos/c/o/v/bf861138015a4c0caf95384ac27b20d7.mp4"
+          src="/herovideo.mp4"
           autoPlay
           loop
           muted
