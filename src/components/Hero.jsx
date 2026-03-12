@@ -20,23 +20,23 @@ export default function Hero() {
       {/* Content Overlay */}
       <div className="absolute bottom-10 left-6 md:bottom-20 md:left-12 text-white z-10 max-w-lg">
         <h2 className="text-xl md:text-2xl font-medium tracking-wide mb-2 uppercase">
-          Just In
+          NEW ARRIVALS
         </h2>
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 uppercase">
-          Soft Lounge
+          LOUNGE ESSENTIALS
         </h1>
         <div className="flex gap-6">
           <a
             href="#"
             className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase"
           >
-            Shop Women
+            SIGNATURE OVERSIZED
           </a>
           <a
             href="#"
             className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase"
           >
-            Shop Men
+            SHOP THE COLLECTION
           </a>
         </div>
       </div>

@@ -43,8 +43,7 @@ export default function VideoBanner() {
               </defs>
               <text className="fill-white text-[12px] font-bold tracking-[0.2em] uppercase">
                 <textPath href="#circlePath" startOffset="0%">
-                  EXTENSION OF YOUR EXPRESSION ~ BTASHNI ~ EXTENSION OF YOUR
-                  EXPRESSION ~ BTASHNI ~
+                  Wear What Words Can’t Say- BTASHNI NEW DROP – NOW LIVE
                 </textPath>
               </text>
             </svg>

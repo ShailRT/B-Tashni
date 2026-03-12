@@ -14,7 +14,7 @@ export default function Footer() {
 
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
             <div className="w-full md:w-[50%] md:max-w-md mx-auto order-1 md:order-2 flex flex-col items-center text-center mb-10 md:mb-0">
-              <h2 className="font-extrabold text-lg md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">STAY IN THE KNOW</h2>
+              <h2 className="font-extrabold text-lg md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">JOIN THE BTASHNI CIRCLE</h2>
               <p className="text-[14px] md:text-[13px] mb-5 text-[#4a4a4a] font-medium leading-relaxed">Be the first to discover new drops, special offers, and all things BTASHNI</p>
               <div className="w-full flex mb-4 border border-[#191919] h-12">
                 <input type="text" placeholder="your email" className="flex-1 px-4 placeholder-gray-400 focus:outline-none text-[13px]" disabled />

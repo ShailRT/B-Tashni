@@ -13,16 +13,16 @@ export default function SecondaryBanner() {
         {/* Slight overlay for text readability if needed */}
         <div className="absolute bottom-6 left-5 md:bottom-12 md:left-10 text-white z-10">
           <h2 className="text-3xl md:text-5xl font-bold uppercase mb-2 tracking-tight">
-            Just in at B-Tashni
+            Drop 01 Is Here
           </h2>
           <p className="text-base md:text-xl mb-4 font-normal">
-            Fresh cotton styles that fit every season
+            Oversized cotton styles built for everyday comfort.
           </p>
           <a
             href="#"
             className="text-sm md:text-base font-medium underline underline-offset-4 hover:text-gray-200 transition-colors"
           >
-            Shop Now
+            Shop The Drop
           </a>
         </div>
       </div>
