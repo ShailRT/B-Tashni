@@ -15,9 +15,9 @@ export default function Footer() {
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
             <div className="w-full md:w-[50%] md:max-w-md mx-auto order-1 md:order-2 flex flex-col items-center text-center mb-10 md:mb-0">
               <h2 className="font-extrabold text-lg md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">JOIN THE BTASHNI CIRCLE</h2>
-              <p className="text-[14px] md:text-[13px] mb-5 text-[#4a4a4a] font-medium leading-relaxed">Be the first to discover new drops, special offers, and all things BTASHNI</p>
+              <p className="text-[14px] md:text-[13px] mb-5 text-[#4a4a4a] font-medium leading-relaxed">Be the first to experience new drops, limited releases, and everything happening inside BTASHNI.</p>
               <div className="w-full flex mb-4 border border-[#191919] h-12">
-                <input type="text" placeholder="your email" className="flex-1 px-4 placeholder-gray-400 focus:outline-none text-[13px]" disabled />
+                <input type="text" placeholder="Enter your email for early access" className="flex-1 px-4 placeholder-gray-400 focus:outline-none text-[13px]" disabled />
                 <button className="bg-[#292621] text-white px-5 flex items-center justify-center hover:bg-black transition-colors" disabled>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                 </button>
@@ -37,22 +37,17 @@ export default function Footer() {
                 className="font-extrabold text-[#191919] text-[15px] md:text-[13px] tracking-widest uppercase py-4 md:py-0 md:mb-5 flex justify-between items-center md:flex-col md:items-center text-left md:text-center w-full cursor-pointer md:cursor-auto"
                 onClick={() => setIsHelpOpen(!isHelpOpen)}
               >
-                Help
+                SUPPORT
                 <span className="md:hidden text-[#191919]">
                   <svg className={`w-[22px] h-[22px] transition-transform duration-300 ${isHelpOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 9l-7 7-7-7" /></svg>
                 </span>
               </h3>
               <ul className={`${isHelpOpen ? 'flex' : 'hidden'} md:flex flex-col space-y-[14px] text-[13px] text-[#4a4a4a] text-left md:text-center font-normal pb-6 md:pb-0 pl-3 md:pl-0 border-l-[1px] md:border-l-0 border-gray-200 ml-1 md:ml-0 translate-y-[-5px] md:translate-y-0`}>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Return Policy</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Start a Return</a></li>
+                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Returns</a></li>
                 <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Track Order</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Track Return</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Size Guides</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Ordering</a></li>
+                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Size Guide</a></li>
                 <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Shipping</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">International</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">FAQs</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Contact Us</a></li>
+                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Contact</a></li>
               </ul>
             </div>
 
@@ -62,17 +57,15 @@ export default function Footer() {
                 className="font-extrabold text-[#191919] text-[15px] md:text-[13px] tracking-widest uppercase py-4 md:py-0 md:mb-5 flex justify-between items-center md:flex-col md:items-center text-left md:text-center w-full cursor-pointer md:cursor-auto"
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
               >
-                More
+                ABOUT BTASHNI
                 <span className="md:hidden text-[#191919]">
                   <svg className={`w-[22px] h-[22px] transition-transform duration-300 ${isMoreOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 9l-7 7-7-7" /></svg>
                 </span>
               </h3>
               <ul className={`${isMoreOpen ? 'flex' : 'hidden'} md:flex flex-col space-y-[14px] text-[13px] text-[#4a4a4a] text-left md:text-center font-normal pb-6 md:pb-0 pl-3 md:pl-0 border-l-[1px] md:border-l-0 border-gray-200 ml-1 md:ml-0 translate-y-[-5px] md:translate-y-0`}>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">About</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Store Locator</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline text-left md:text-center">Environmental and Social Partnerships</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Careers</a></li>
-                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Blog</a></li>
+                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Our Story</a></li>
+                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline">Journal</a></li>
+                <li><a href="#" onClick={e => e.preventDefault()} className="hover:text-black hover:underline text-left md:text-center">Careers</a></li>
               </ul>
             </div>
 
@@ -98,7 +91,7 @@ export default function Footer() {
           <div className="border-t border-gray-200 pt-6 flex flex-col items-center md:flex-row md:justify-between text-[11px] text-[#4a4a4a] relative">
             <div className="flex items-center gap-2 mb-6 md:mb-0 cursor-pointer text-black">
               <img src="https://flagcdn.com/w20/in.png" alt="India flag" className="w-[18px] h-3 rounded-sm object-cover" />
-              <span className="font-semibold uppercase tracking-wide">MADE IN INDIA</span>
+              <span className="font-semibold uppercase tracking-wide">DESIGNED IN INDIA</span>
             </div>
 
             <div className="flex flex-col md:flex-row text-center gap-4 md:gap-10 items-center flex-wrap justify-center mb-10 md:mb-0 font-medium whitespace-nowrap">

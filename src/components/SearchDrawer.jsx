@@ -53,7 +53,7 @@ export default function SearchDrawer() {
         }
     };
 
-    const trendingSearches = ["Jumper", "Jeans", "T-Shirt", "Trousers", "Boxy"];
+    const trendingSearches = ["Oversized", "90s", "T-Shirt", "kaleshi"];
 
     return (
         <>
