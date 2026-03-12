@@ -72,17 +72,15 @@ export async function isUserAdmin(id) {
  * Get all active products with pagination
  */
 export async function getProducts({ page = 1, limit = 12 } = {}) {
-    const skip = (page - 1) * limit;
-
-    const where = {
-        isActive: true,
-    };
+    const limitNum = Number(limit);
+    const skip = (page - 1) * limitNum;
+    const where = { isActive: true };
 
     const [products, total] = await Promise.all([
         prisma.product.findMany({
             where,
             orderBy: { createdAt: 'desc' },
-            take: limit,
+            take: limitNum,
             skip,
         }),
         prisma.product.count({ where }),
@@ -91,7 +89,7 @@ export async function getProducts({ page = 1, limit = 12 } = {}) {
     return {
         products,
         total,
-        pages: Math.ceil(total / limit),
+        pages: Math.ceil(total / limitNum),
         currentPage: page,
     };
 }
