@@ -7,6 +7,7 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load cart from local storage on mount
@@ -92,6 +93,8 @@ export function CartProvider({ children }) {
         cartTotal,
         isCartOpen,
         setIsCartOpen,
+        isSizeGuideOpen,
+        setIsSizeGuideOpen,
         clearCart,
       }}
     >

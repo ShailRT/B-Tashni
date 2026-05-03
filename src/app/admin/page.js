@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
     DollarSign,
     Users,
@@ -9,83 +10,104 @@ import {
     ArrowUpRight,
     ArrowDownRight
 } from 'lucide-react';
+import { fetchAllOrders } from '@/app/actions/orders';
+import { getUsers } from '@/app/actions/user';
+import { getAdminProductsAction } from '@/app/actions/products';
 
 export default function AdminDashboard() {
+    const [statsData, setStatsData] = useState({
+        totalRevenue: 0,
+        totalCustomers: 0,
+        totalOrders: 0,
+        totalProducts: 0,
+        loading: true
+    });
+    const [recentTransactions, setRecentTransactions] = useState([]);
+
+    useEffect(() => {
+        async function loadDashboardData() {
+            try {
+                // Fetch orders from the same API used by the orders page for consistency
+                const res = await fetch('/api/admin/orders?limit=100');
+                const ordersResult = await res.json();
+                const orders = ordersResult.orders || [];
+                
+                // Calculate revenue from non-cancelled and non-refunded orders
+                const revenue = orders
+                    .filter(order => !['CANCELLED', 'REFUNDED'].includes(order.status))
+                    .reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+                
+                // Fetch users and products in parallel
+                const [users, productsRes] = await Promise.all([
+                    getUsers(),
+                    getAdminProductsAction({ limit: 1 })
+                ]);
+                
+                setStatsData({
+                    totalRevenue: revenue,
+                    totalCustomers: users.length,
+                    totalOrders: ordersResult.total || orders.length,
+                    totalProducts: productsRes.total || 0,
+                    loading: false
+                });
+
+                // Recent transactions - robust mapping
+                const formattedRecent = orders.slice(0, 5).map(order => {
+                    // Fallback to shipping address if user relation is missing (Guest checkout)
+                    const shipping = order.shippingAddress || {};
+                    
+                    return {
+                        id: order.id.slice(-6).toUpperCase(),
+                        firstName: order.user?.firstName || shipping.firstName || "Guest",
+                        lastName: order.user?.lastName || shipping.lastName || "",
+                        email: order.user?.email || shipping.email || "N/A",
+                        amount: `₹${order.totalAmount?.toLocaleString('en-IN')}`,
+                        status: order.status,
+                        date: new Date(order.createdAt).toISOString().split('T')[0]
+                    };
+                });
+                setRecentTransactions(formattedRecent);
+            } catch (error) {
+                console.error("Dashboard Load Error:", error);
+                setStatsData(prev => ({ ...prev, loading: false }));
+            }
+        }
+
+        loadDashboardData();
+    }, []);
+
     const stats = [
         {
             title: 'Total Revenue',
-            value: '₹45,231.89',
-            change: '+20.1% from last month',
+            value: statsData.loading ? '...' : `₹${statsData.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`,
+            change: '',
             trend: 'up',
             icon: DollarSign,
             color: 'bg-green-500'
         },
         {
             title: 'Total Customers',
-            value: '2,350',
-            change: '+180.1% from last month',
+            value: statsData.loading ? '...' : statsData.totalCustomers.toLocaleString(),
+            change: '',
             trend: 'up',
             icon: Users,
             color: 'bg-blue-500'
         },
         {
             title: 'Total Orders',
-            value: '12,234',
-            change: '+19% from last month',
+            value: statsData.loading ? '...' : statsData.totalOrders.toLocaleString(),
+            change: '',
             trend: 'up',
             icon: ShoppingBag,
             color: 'bg-purple-500'
         },
         {
-            title: 'Active Now',
-            value: '+573',
-            change: '+201 since last hour',
+            title: 'Total Products',
+            value: statsData.loading ? '...' : statsData.totalProducts.toLocaleString(),
+            change: '',
             trend: 'up',
             icon: TrendingUp,
             color: 'bg-orange-500'
-        }
-    ];
-
-    const recentTransactions = [
-        {
-            id: "OD-1234",
-            user: "Liam Johnson",
-            email: "liam@example.com",
-            amount: "₹250.00",
-            status: "Success",
-            date: "2024-02-04"
-        },
-        {
-            id: "OD-1235",
-            user: "Olivia Smith",
-            email: "olivia@example.com",
-            amount: "₹120.50",
-            status: "Processing",
-            date: "2024-02-03"
-        },
-        {
-            id: "OD-1236",
-            user: "Noah Williams",
-            email: "noah@example.com",
-            amount: "₹450.00",
-            status: "Failed",
-            date: "2024-02-03"
-        },
-        {
-            id: "OD-1237",
-            user: "Emma Brown",
-            email: "emma@example.com",
-            amount: "₹60.00",
-            status: "Success",
-            date: "2024-02-02"
-        },
-        {
-            id: "OD-1238",
-            user: "James Jones",
-            email: "james@example.com",
-            amount: "₹320.00",
-            status: "Success",
-            date: "2024-02-02"
         }
     ];
 
@@ -130,7 +152,7 @@ export default function AdminDashboard() {
                 <div className="col-span-4 rounded-xl border border-gray-200 bg-white shadow-sm">
                     <div className="p-6 border-b border-gray-200">
                         <h3 className="font-semibold text-gray-900">Recent Orders</h3>
-                        <p className="text-sm text-gray-500">You made 265 sales this month.</p>
+                        <p className="text-sm text-gray-500">You have {statsData.totalOrders} total sales.</p>
                     </div>
                     <div className="p-0">
                         <div className="overflow-x-auto">
@@ -146,19 +168,20 @@ export default function AdminDashboard() {
                                 <tbody>
                                     {recentTransactions.map((transaction) => (
                                         <tr key={transaction.id} className="border-b last:border-0 hover:bg-gray-50">
-                                            <td className="px-6 py-4 font-medium text-gray-900">
+                                            <td className="px-6 py-4">
                                                 <div className="flex flex-col">
-                                                    <span>{transaction.user}</span>
-                                                    <span className="text-xs text-gray-500">{transaction.email}</span>
+                                                    <span className="text-sm font-bold text-gray-900">{transaction.firstName} {transaction.lastName}</span>
+                                                    <span className="text-[10px] text-gray-400">{transaction.email}</span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`
-                           px-2.5 py-0.5 rounded-full text-xs font-medium
-                           ${transaction.status === 'Success' ? 'bg-green-100 text-green-800' :
-                                                        transaction.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
-                                                            'bg-red-100 text-red-800'}
-                         `}>
+                            px-2.5 py-0.5 rounded-full text-xs font-medium
+                            ${transaction.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+                                                        transaction.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                                            transaction.status === 'SHIPPED' ? 'bg-blue-100 text-blue-800' :
+                                                                'bg-gray-100 text-gray-800'}
+                          `}>
                                                     {transaction.status}
                                                 </span>
                                             </td>

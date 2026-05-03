@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { getProductBySlugAction, getProductsAction } from "@/app/actions/products";
 import { notFound, useParams } from "next/navigation";
 import { Bookmark, ChevronDown, ChevronUp, Share2, Ruler, ShieldCheck, Truck } from "lucide-react";
+import SizeGuidePopup from "@/components/SizeGuidePopup";
 
 export default function Page() {
   const params = useParams();
@@ -17,7 +18,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(null);
   const [showDescription, setShowDescription] = useState(true);
-  const { addToCart } = useCart();
+  const { addToCart, setIsSizeGuideOpen } = useCart();
 
   useEffect(() => {
     if (!slug) return;
@@ -153,7 +154,10 @@ export default function Page() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest">Select Size</span>
-                <button className="flex items-center gap-1.5 text-[10px] uppercase underline underline-offset-4 tracking-widest font-light hover:text-gray-500 transition-colors">
+                <button 
+                  onClick={() => setIsSizeGuideOpen(true)}
+                  className="flex items-center gap-1.5 text-[10px] uppercase underline underline-offset-4 tracking-widest font-light hover:text-gray-500 transition-colors"
+                >
                   <Ruler className="w-3 h-3" />
                   Size Guide
                 </button>

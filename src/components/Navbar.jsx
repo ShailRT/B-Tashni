@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Search, ShoppingBag, User, Menu } from "lucide-react";
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useSearch } from "@/context/SearchContext";
@@ -10,12 +16,16 @@ import { useSearch } from "@/context/SearchContext";
 import { usePathname } from "next/navigation";
 import UserOrders from "./UserOrders";
 
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { cartCount, setIsCartOpen } = useCart();
   const { setIsSearchOpen } = useSearch();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   const [currentAnnouncement, setCurrentAnnouncement] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -50,17 +60,19 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || !isHomePage
-        ? "bg-white text-[#2d2a26] shadow-sm"
-        : "bg-transparent text-[#2d2a26] lg:text-white"
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled || !isHomePage
+          ? "bg-white text-[#2d2a26] shadow-sm"
+          : "bg-transparent text-[#2d2a26] lg:text-white"
+      }`}
     >
       <div className="bg-black text-white text-[10px] font-bold text-center tracking-widest uppercase w-full overflow-hidden h-8 relative z-50">
         <div
-          className={`flex flex-col transition-transform ease-out ${isAnimating
-            ? "duration-700 -translate-y-1/2"
-            : "duration-0 translate-y-0"
-            }`}
+          className={`flex flex-col transition-transform ease-out ${
+            isAnimating
+              ? "duration-700 -translate-y-1/2"
+              : "duration-0 translate-y-0"
+          }`}
         >
           <div className="h-8 flex items-center justify-center w-full">
             {ANNOUNCEMENTS[currentAnnouncement]}
@@ -72,29 +84,36 @@ export default function Navbar() {
       </div>
 
       <div
-        className={`container mx-auto px-6 flex items-end justify-between transition-all duration-300 ${isScrolled || !isHomePage ? "py-4" : "py-6"
-          } ${!isScrolled && isHomePage ? "text-white mix-blend-difference" : ""}`}
+        className={`container mx-auto px-6 flex items-end justify-between transition-all duration-300 ${
+          isScrolled || !isHomePage ? "py-4" : "py-6"
+        } ${!isScrolled && isHomePage ? "text-white mix-blend-difference" : ""}`}
       >
-        {/* using mix-blend-difference to make it visible on both dark and light if possible, or just simplistic approach: text-black always? 
-          Original was text-white on top. Let's keep it. 
+        {/* using mix-blend-difference to make it visible on both dark and light if possible, or just simplistic approach: text-black always?
+          Original was text-white on top. Let's keep it.
        */}
         {/* Left: Mobile Menu & Logo */}
         <div className="flex items-center gap-4">
-          <Menu className="w-6 h-6 lg:hidden cursor-pointer" />
+          <Menu
+            className="w-6 h-6 lg:hidden cursor-pointer"
+            onClick={toggleMobileMenu}
+          />
           <Link href="/" className="flex items-center">
             <img
               src="/logo.png"
               alt="B-Tashni"
-              className={`h-6 lg:h-7 w-auto object-contain transition-all duration-300 ${!isScrolled && isHomePage ? "brightness-0 invert" : ""
-                }`}
+              className={`h-6 lg:h-7 w-auto object-contain transition-all duration-300 ${
+                !isScrolled && isHomePage ? "brightness-0 invert" : ""
+              }`}
             />
           </Link>
         </div>
 
         {/* Center: Navigation Links (Desktop) */}
-        <div className={`hidden lg:flex items-center gap-8 text-sm  tracking-wide-custom ${isHomePage && "font-bold"}`}>
+        <div
+          className={`hidden lg:flex items-center gap-8 text-sm  tracking-wide-custom ${isHomePage && "font-bold"}`}
+        >
           {[
-            { label: "NEW", href: "/product/ripped-effect-jumper" }, // Direct link for demo
+            { label: "NEW", href: "/collections/new" }, // Direct link for demo
             { label: "BESTSELLERS", href: "/collections/bestsellers" },
             { label: "SHAPEWEAR", href: "/collections/shapewear" },
             { label: "UNDERWEAR", href: "/collections/underwear" },
@@ -113,18 +132,25 @@ export default function Navbar() {
 
         {/* Right: Utility Icons */}
         <div className="flex items-center gap-6">
-          <Search strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" onClick={() => setIsSearchOpen(true)} />
+          <Search
+            strokeWidth={isHomePage ? 2.5 : 1.5}
+            className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity"
+            onClick={() => setIsSearchOpen(true)}
+          />
           <SignedOut>
             <SignInButton mode="modal">
-              <User strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity" />
+              <User
+                strokeWidth={isHomePage ? 2.5 : 1.5}
+                className="w-5 h-5 cursor-pointer hover:opacity-75 transition-opacity"
+              />
             </SignInButton>
           </SignedOut>
           <SignedIn>
             <UserButton>
               <UserButton.UserProfilePage
                 label="Orders"
-                url="orders"
                 labelIcon={<ShoppingBag className="w-4 h-4" />}
+                url="orders"
               >
                 <UserOrders />
               </UserButton.UserProfilePage>
@@ -134,7 +160,10 @@ export default function Navbar() {
             className="relative cursor-pointer hover:opacity-75 transition-opacity"
             onClick={() => setIsCartOpen(true)}
           >
-            <ShoppingBag strokeWidth={isHomePage ? 2.5 : 1.5} className="w-5 h-5" />
+            <ShoppingBag
+              strokeWidth={isHomePage ? 2.5 : 1.5}
+              className="w-5 h-5"
+            />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-3.5 h-3.5 flex items-center justify-center rounded-full">
                 {cartCount}
@@ -142,6 +171,42 @@ export default function Navbar() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <div
+        className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex justify-end p-6">
+          <button
+            onClick={toggleMobileMenu}
+            className="text-[#2d2a26] text-2xl"
+          >
+            &times;
+          </button>
+        </div>
+        <ul className="flex flex-col gap-4 p-6 text-[#2d2a26] text-lg font-medium">
+          {[
+            { label: "NEW", href: "/collections/new" },
+            { label: "BESTSELLERS", href: "/collections/bestsellers" },
+            { label: "SHAPEWEAR", href: "/collections/shapewear" },
+            { label: "UNDERWEAR", href: "/collections/underwear" },
+            { label: "LOUNGE", href: "/collections/lounge" },
+            { label: "CLOTHING", href: "/collections/clothing" },
+          ].map((item) => (
+            <li key={item.label}>
+              <Link
+                href={item.href}
+                onClick={toggleMobileMenu}
+                className="block hover:text-gray-600"
+              >
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
     </nav>
   );

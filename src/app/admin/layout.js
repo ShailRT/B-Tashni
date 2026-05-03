@@ -13,10 +13,14 @@ import {
     X
 } from 'lucide-react';
 import { useState } from 'react';
+import { useClerk } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLayout({ children }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const pathname = usePathname();
+    const { signOut } = useClerk();
+    const router = useRouter();
 
     const navigation = [
         { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -38,7 +42,7 @@ export default function AdminLayout({ children }) {
             {/* Sidebar */}
             <aside
                 className={`
-          fixed top-0 left-0 z-50 h-auto w-62 bg-white border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static
+          fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transition-transform duration-200 ease-in-out lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
             >
@@ -82,11 +86,11 @@ export default function AdminLayout({ children }) {
 
                     {/* Bottom Actions */}
                     <div className="p-4 border-t border-gray-200 space-y-1">
-                        <button className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
-                            <Settings className="mr-3 h-5 w-5" />
-                            Settings
-                        </button>
-                        <button className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+
+                        <button 
+                            onClick={() => signOut({ redirectUrl: '/' })}
+                            className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
+                        >
                             <LogOut className="mr-3 h-5 w-5" />
                             Logout
                         </button>

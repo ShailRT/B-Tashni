@@ -23,22 +23,22 @@ model User {
 }
 
 model Product {
-  id             String      @id @default(cuid())
-  name           String
-  slug           String      @unique
-  description    String?
-  price          Float
-  compareAtPrice Float?
-  imageUrls      String[]
-  videoUrl       String?
-  stock          Int         @default(0)
-  isActive       Boolean     @default(true)
-  trendingSection Boolean    @default(false)
-  homeVideoSection Boolean   @default(false)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-  sizes          String[]
-  orderItems     OrderItem[]
+  id               String      @id @default(cuid())
+  name             String
+  slug             String      @unique
+  description      String?
+  price            Float
+  compareAtPrice   Float?
+  imageUrls        String[]
+  videoUrl         String?
+  stock            Int         @default(0)
+  isActive         Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  sizes            String[]
+  homeVideoSection Boolean     @default(false)
+  trendingSection  Boolean     @default(false)
+  orderItems       OrderItem[]
 
   @@index([slug])
   @@index([isActive])
