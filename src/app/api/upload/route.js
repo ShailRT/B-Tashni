@@ -15,6 +15,7 @@ export async function POST(request) {
                  */
                 return {
                     allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime'],
+                    addRandomSuffix: true,
                     tokenPayload: JSON.stringify({
                         // optional, sent to your server on upload completion
                     }),
