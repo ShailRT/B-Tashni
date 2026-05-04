@@ -17,6 +17,8 @@ export default function CreateProductPage() {
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [videoUrlInput, setVideoUrlInput] = useState('');
     const [videoUrlError, setVideoUrlError] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+
 
     const imageInputRef = useRef(null);
     const videoInputRef = useRef(null);
@@ -24,10 +26,23 @@ export default function CreateProductPage() {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
+            const duplicates = files.filter(file =>
+                selectedImages.some(existing => existing.name === file.name && existing.size === file.size)
+            );
+
+            if (duplicates.length > 0) {
+                setFieldErrors(prev => ({ ...prev, images: `Image "${duplicates[0].name}" is already selected.` }));
+                return;
+            }
+
+            // Clear image error if any
+            setFieldErrors(prev => ({ ...prev, images: null }));
+
             const newImages = files.map(file => Object.assign(file, { preview: URL.createObjectURL(file) }));
             setSelectedImages(prev => [...prev, ...newImages]);
         }
     };
+
 
     const handleVideoChange = (e) => {
         const file = e.target.files?.[0];
@@ -47,8 +62,17 @@ export default function CreateProductPage() {
         if (imageToRemove?.preview) {
             URL.revokeObjectURL(imageToRemove.preview);
         }
-        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+        const updatedImages = selectedImages.filter((_, i) => i !== index);
+        setSelectedImages(updatedImages);
+
+        // Re-validate image requirement on removal
+        if (updatedImages.length === 0) {
+            setFieldErrors(prev => ({ ...prev, images: 'At least one product image is required.' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, images: null }));
+        }
     };
+
 
     const removeVideo = () => {
         if (selectedVideo?.preview) {
@@ -79,6 +103,40 @@ export default function CreateProductPage() {
 
         try {
             const formData = new FormData(e.currentTarget);
+            setFieldErrors({});
+
+            // Validation logic
+            const errors = {};
+            const name = formData.get('name');
+            const description = formData.get('description');
+            const price = formData.get('price');
+            const stock = formData.get('stock');
+            const sizes = formData.get('sizes');
+            const sku = formData.get('sku');
+
+            if (!name || name.trim().length < 3) errors.name = 'Product name must be at least 3 characters.';
+            if (!description || description.trim().length < 10) errors.description = 'Description must be at least 10 characters.';
+            if (!price || parseFloat(price) <= 0) errors.price = 'Price must be a positive number.';
+            if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) errors.stock = 'Stock cannot be negative.';
+            if (!sizes || sizes.trim().length === 0) errors.sizes = 'At least one size is required (e.g. S, M, L).';
+            if (!sku || sku.trim().length === 0) errors.sku = 'SKU is required.';
+            if (selectedImages.length === 0) errors.images = 'At least one product image is required.';
+
+            if (Object.keys(errors).length > 0) {
+                setFieldErrors(errors);
+                setLoading(false);
+                return;
+            }
+
+
+            // Check for duplicate filenames in the selection before uploading
+            const filenames = selectedImages.map(f => f.name);
+            const hasDuplicates = filenames.some((name, index) => filenames.indexOf(name) !== index);
+            if (hasDuplicates) {
+                setError('Duplicate filenames detected. Please ensure all selected images have unique names.');
+                setLoading(false);
+                return;
+            }
 
             // 1. Upload images to Vercel Blob
             setUploading(true);
@@ -126,7 +184,8 @@ export default function CreateProductPage() {
             }
         } catch (err) {
             console.error('Upload failed:', err);
-            setError('Failed to upload files. Please try again.');
+            // More specific error message for potential duplicates
+            setError('Upload failed. This usually happens if same image already exists');
             setLoading(false);
             setUploading(false);
         }
@@ -160,10 +219,14 @@ export default function CreateProductPage() {
                                     id="product-name"
                                     name="name"
                                     required
+                                    onChange={() => setFieldErrors(prev => ({ ...prev, name: null }))}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
                                     placeholder="e.g. Premium Cotton T-Shirt"
                                 />
+                                {fieldErrors.name && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.name}</p>}
                             </div>
+
 
                             <div>
                                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
@@ -171,10 +234,14 @@ export default function CreateProductPage() {
                                     id="description"
                                     name="description"
                                     rows={4}
+                                    onChange={() => setFieldErrors(prev => ({ ...prev, description: null }))}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
                                     placeholder="Product description..."
                                 />
+                                {fieldErrors.description && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.description}</p>}
                             </div>
+
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
@@ -189,14 +256,18 @@ export default function CreateProductPage() {
                                             name="price"
                                             required
                                             step="0.01"
+                                            onChange={() => setFieldErrors(prev => ({ ...prev, price: null }))}
                                             className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md py-2 border"
+
                                             placeholder="0.00"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <span className="text-gray-500 sm:text-sm">INR</span>
                                         </div>
                                     </div>
+                                    {fieldErrors.price && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.price}</p>}
                                 </div>
+
 
                                 <div>
                                     <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label>
@@ -205,10 +276,13 @@ export default function CreateProductPage() {
                                         id="stock"
                                         name="stock"
                                         required
+                                        onChange={() => setFieldErrors(prev => ({ ...prev, stock: null }))}
                                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         placeholder="0"
                                     />
+                                    {fieldErrors.stock && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.stock}</p>}
                                 </div>
+
                             </div>
 
                             <div>
@@ -217,10 +291,14 @@ export default function CreateProductPage() {
                                     type="text"
                                     id="sizes"
                                     name="sizes"
+                                    onChange={() => setFieldErrors(prev => ({ ...prev, sizes: null }))}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
                                     placeholder="S, M, L, XL"
                                 />
+                                {fieldErrors.sizes && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sizes}</p>}
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -284,10 +362,14 @@ export default function CreateProductPage() {
                                     type="text"
                                     id="sku"
                                     name="sku"
+                                    onChange={() => setFieldErrors(prev => ({ ...prev, sku: null }))}
                                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
                                     placeholder="SKU-12345"
                                 />
+                                {fieldErrors.sku && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sku}</p>}
                             </div>
+
                         </div>
                     </div>
 
@@ -310,7 +392,9 @@ export default function CreateProductPage() {
                             >
                                 <Upload className="h-8 w-8 text-gray-400 mb-2" />
                                 <span className="text-sm text-gray-500">Click to upload image</span>
+                                {fieldErrors.images && <p className="mt-2 text-xs text-red-500 font-medium">{fieldErrors.images}</p>}
                             </div>
+
 
                             {selectedImages.length > 0 && (
                                 <div className="grid grid-cols-3 gap-2 mt-4">
@@ -434,10 +518,11 @@ export default function CreateProductPage() {
                     </Link>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || Object.values(fieldErrors).some(error => error !== null)}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
+
                             <>
                                 <Loader2 className="-ml-1 mr-2 h-4 w-4 animate-spin" />
                                 {uploading ? 'Uploading Files...' : 'Creating...'}

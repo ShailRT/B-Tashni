@@ -6,9 +6,7 @@ import {
     Users,
     ShoppingBag,
     TrendingUp,
-    CreditCard,
-    ArrowUpRight,
-    ArrowDownRight
+    CreditCard
 } from 'lucide-react';
 import { fetchAllOrders } from '@/app/actions/orders';
 import { getUsers } from '@/app/actions/user';
@@ -31,18 +29,18 @@ export default function AdminDashboard() {
                 const res = await fetch('/api/admin/orders?limit=100');
                 const ordersResult = await res.json();
                 const orders = ordersResult.orders || [];
-                
+
                 // Calculate revenue from non-cancelled and non-refunded orders
                 const revenue = orders
                     .filter(order => !['CANCELLED', 'REFUNDED'].includes(order.status))
                     .reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-                
+
                 // Fetch users and products in parallel
                 const [users, productsRes] = await Promise.all([
                     getUsers(),
                     getAdminProductsAction({ limit: 1 })
                 ]);
-                
+
                 setStatsData({
                     totalRevenue: revenue,
                     totalCustomers: users.length,
@@ -55,7 +53,7 @@ export default function AdminDashboard() {
                 const formattedRecent = orders.slice(0, 5).map(order => {
                     // Fallback to shipping address if user relation is missing (Guest checkout)
                     const shipping = order.shippingAddress || {};
-                    
+
                     return {
                         id: order.id.slice(-6).toUpperCase(),
                         firstName: order.user?.firstName || shipping.firstName || "Guest",
@@ -81,7 +79,6 @@ export default function AdminDashboard() {
             title: 'Total Revenue',
             value: statsData.loading ? '...' : `₹${statsData.totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`,
             change: '',
-            trend: 'up',
             icon: DollarSign,
             color: 'bg-green-500'
         },
@@ -89,7 +86,6 @@ export default function AdminDashboard() {
             title: 'Total Customers',
             value: statsData.loading ? '...' : statsData.totalCustomers.toLocaleString(),
             change: '',
-            trend: 'up',
             icon: Users,
             color: 'bg-blue-500'
         },
@@ -97,7 +93,6 @@ export default function AdminDashboard() {
             title: 'Total Orders',
             value: statsData.loading ? '...' : statsData.totalOrders.toLocaleString(),
             change: '',
-            trend: 'up',
             icon: ShoppingBag,
             color: 'bg-purple-500'
         },
@@ -105,11 +100,23 @@ export default function AdminDashboard() {
             title: 'Total Products',
             value: statsData.loading ? '...' : statsData.totalProducts.toLocaleString(),
             change: '',
-            trend: 'up',
+
             icon: TrendingUp,
             color: 'bg-orange-500'
         }
     ];
+
+    if (statsData.loading) {
+        return (
+            <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <img src="/logo.png" alt="B-Tashni" className="h-8 mb-8 animate-pulse grayscale" />
+                    <div className="w-10 h-10 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-6 text-[10px] font-bold text-black tracking-[0.2em] uppercase">Initializing BTASHNI Admin</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -131,16 +138,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="mt-2">
                                 <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                                <p className="text-xs text-gray-500 mt-1 flex items-center">
-                                    {stat.trend === 'up' ? (
-                                        <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-                                    ) : (
-                                        <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-                                    )}
-                                    <span className={stat.trend === 'up' ? 'text-green-600' : 'text-red-600'}>
-                                        {stat.change}
-                                    </span>
-                                </p>
+
                             </div>
                         </div>
                     );

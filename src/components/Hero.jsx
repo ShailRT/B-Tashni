@@ -28,13 +28,15 @@ export default function Hero() {
         <div className="flex gap-6">
           <a
             href="#"
-            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase"
+            onClick={(e) => e.preventDefault()}
+            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase cursor-pointer"
           >
             SIGNATURE OVERSIZED
           </a>
           <a
             href="#"
-            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase"
+            onClick={(e) => e.preventDefault()}
+            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase cursor-pointer"
           >
             SHOP THE COLLECTION
           </a>

@@ -1,21 +1,28 @@
 import { useState } from "react";
-import { useUser, SignInButton } from "@clerk/nextjs";
+import { useUser, SignInButton, UserProfile } from "@clerk/nextjs";
+
+
 import { useCart } from "@/context/CartContext";
 import ShippingStrip from "./ShippingStrip";
 import UserOrders from "./UserOrders";
 import SizeGuidePopup from "./SizeGuidePopup";
+import { ShoppingBag, X } from "lucide-react";
+
 
 export default function Footer() {
-  const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
-  const { isSizeGuideOpen, setIsSizeGuideOpen } = useCart();
   const { isSignedIn } = useUser();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { isSizeGuideOpen, setIsSizeGuideOpen } = useCart();
+
 
   return (
     <>
       <ShippingStrip />
       <footer className="bg-white pt-10 md:pt-20 pb-6 text-[#191919]">
+
         <div className="max-w-[1100px] mx-auto px-4 md:px-8 mb-15 md:mb-16">
           <div className="flex flex-col md:flex-row justify-between items-start md:gap-4 lg:gap-8">
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
@@ -141,9 +148,14 @@ export default function Footer() {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        setIsOrdersModalOpen(true);
+                        setIsProfileOpen(true);
                       }}
+
+
+
+
                       className="hover:text-black hover:underline"
+
                     >
                       Track Order
                     </a>
@@ -331,13 +343,7 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-col md:flex-row text-center gap-4 md:gap-10 items-center flex-wrap justify-center mb-10 md:mb-0 font-medium whitespace-nowrap">
-              <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
-                className="hover:text-black"
-              >
-                CA Transparency Act
-              </a>
+
               <a
                 href="/accessibility"
                 className="hover:text-black"
@@ -373,18 +379,70 @@ export default function Footer() {
         </div>
       </footer>
 
-      {isOrdersModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 relative">
+      {isProfileOpen && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 cursor-pointer"
+          onClick={() => setIsProfileOpen(false)}
+        >
+          <div 
+            className="relative w-full max-w-[960px] h-[90vh] md:h-[720px] bg-white rounded-lg shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] cursor-default overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setIsOrdersModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
+              onClick={() => setIsProfileOpen(false)}
+              className="absolute top-[1.25rem] right-[1.25rem] z-[110] text-[#6b7280] hover:text-[#111827] transition-colors"
+              aria-label="Close"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X size={20} strokeWidth={1.5} />
             </button>
-            <UserOrders />
+            <div className="h-full">
+              <UserProfile 
+                routing="hash"
+                appearance={{
+                  elements: {
+                    rootBox: {
+                      height: "100%",
+                      width: "100%",
+                    },
+                    cardBox: {
+                      height: "100%",
+                      width: "100%",
+                    },
+                    card: {
+                      height: "100%",
+                      width: "100%",
+                      boxShadow: "none",
+                      border: "none",
+                      borderRadius: "0",
+                    },
+                    navbar: {
+                      backgroundColor: "#f9fafb",
+                      borderRight: "1px solid #e5e7eb",
+                    },
+                    scrollBox: {
+                      backgroundColor: "white",
+                      borderRadius: "0",
+                    },
+                    pageScrollBox: {
+                      padding: "2.5rem",
+                    },
+                    navbarMobileMenuRow: {
+                      border: "none",
+                    },
+                  }
+                }}
+              >
+
+
+                <UserProfile.Page
+                  label="Orders"
+                  labelIcon={<ShoppingBag size={16} />}
+                  url="orders"
+                >
+                  <UserOrders />
+                </UserProfile.Page>
+              </UserProfile>
+            </div>
           </div>
         </div>
       )}
@@ -396,3 +454,5 @@ export default function Footer() {
     </>
   );
 }
+
+

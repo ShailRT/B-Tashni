@@ -125,57 +125,59 @@ export default function AdminOrdersPage() {
 
             {/* Table */}
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-gray-50 border-b border-gray-100">
-                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Order</th>
-                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Customer</th>
-                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Total</th>
-                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Status</th>
-                            <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50">
-                        {loading ? (
-                            <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">Loading orders...</td></tr>
-                        ) : error ? (
-                            <tr><td colSpan="5" className="px-6 py-8 text-center text-red-500">Error: {error}</td></tr>
-                        ) : orders.length === 0 ? (
-                            <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No orders found</td></tr>
-                        ) : (
-                            orders.map((order) => (
-                                <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-bold text-[#1c1c1c]">{order.orderNumber}</span>
-                                            <span className="text-[10px] text-gray-400">{new Date(order.createdAt).toLocaleDateString()}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm text-gray-600">{order.user?.firstName || "Unknown"} {order.user?.lastName || ""}</span>
-                                            <span className="text-[10px] text-gray-400">{order.user?.email || "No Email"}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-medium">₹{order.totalAmount.toLocaleString()}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${getStatusColor(order.status)}`}>
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <button
-                                            onClick={() => setSelectedOrder(order)}
-                                            className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                                        >
-                                            <Eye className="w-4 h-4 text-gray-600" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr className="bg-gray-50 border-b border-gray-100">
+                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Order</th>
+                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Customer</th>
+                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Total</th>
+                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Status</th>
+                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {loading ? (
+                                <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">Loading orders...</td></tr>
+                            ) : error ? (
+                                <tr><td colSpan="5" className="px-6 py-8 text-center text-red-500">Error: {error}</td></tr>
+                            ) : orders.length === 0 ? (
+                                <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No orders found</td></tr>
+                            ) : (
+                                orders.map((order) => (
+                                    <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-[#1c1c1c]">{order.orderNumber}</span>
+                                                <span className="text-[10px] text-gray-400">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-gray-600">{order.user?.firstName || "Unknown"} {order.user?.lastName || ""}</span>
+                                                <span className="text-[10px] text-gray-400">{order.user?.email || "No Email"}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-medium">₹{order.totalAmount.toLocaleString()}</td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${getStatusColor(order.status)}`}>
+                                                {order.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <button
+                                                onClick={() => setSelectedOrder(order)}
+                                                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                            >
+                                                <Eye className="w-4 h-4 text-gray-600" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
                 {/* Pagination */}
                 <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
@@ -202,7 +204,8 @@ export default function AdminOrdersPage() {
             {/* Order Detail Modal */}
             {selectedOrder && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedOrder(null)} />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" onClick={() => setSelectedOrder(null)} />
+
                     <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
                             <div>

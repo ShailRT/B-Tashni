@@ -1,28 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ShoppingBag, User, Menu } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, LayoutDashboard } from "lucide-react";
+
 import {
   SignedIn,
   SignedOut,
   SignInButton,
   SignUpButton,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useSearch } from "@/context/SearchContext";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import UserOrders from "./UserOrders";
 
 
 export default function Navbar() {
+  const { user } = useUser();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const { cartCount, setIsCartOpen } = useCart();
   const { setIsSearchOpen } = useSearch();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+
+  const isAdmin = user?.publicMetadata?.role === "ADMIN" || user?.publicMetadata?.role === "admin";
+
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -147,6 +154,15 @@ export default function Navbar() {
           </SignedOut>
           <SignedIn>
             <UserButton>
+              <UserButton.MenuItems>
+                {isAdmin && (
+                  <UserButton.Link
+                    label="Admin Dashboard"
+                    labelIcon={<LayoutDashboard className="w-4 h-4" />}
+                    href="/admin"
+                  />
+                )}
+              </UserButton.MenuItems>
               <UserButton.UserProfilePage
                 label="Orders"
                 labelIcon={<ShoppingBag className="w-4 h-4" />}

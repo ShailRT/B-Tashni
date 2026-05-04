@@ -7,19 +7,26 @@ async function SearchResults({ query, filters }) {
     const filteredProducts = (query.trim() || Object.keys(filters).length > 0) ? await searchProducts(query.trim(), filters) : [];
 
     return (
-        <div className="pt-32 min-h-screen bg-white">
-            <div className="container mx-auto px-6 mb-8 lg:px-6">
-                <SearchFilterClient />
-                <h1 className="text-2xl md:text-3xl font-bold uppercase tracking-widest text-[#1c1c1c]">
-                    Search Results for "{query}"
-                </h1>
-                <p className="text-sm text-gray-500 mt-2 uppercase tracking-wide">
-                    {filteredProducts.length} results found
-                </p>
+        <div className="pt-32 md:pt-40 min-h-screen bg-white">
+            <div className="container mx-auto px-6">
+                <div className="mb-10">
+                    <h1 className="text-2xl md:text-4xl font-bold uppercase tracking-widest text-[#1c1c1c] mb-2">
+                        Search Results
+                    </h1>
+                    <p className="text-[11px] md:text-xs text-gray-400 uppercase tracking-[0.2em] font-medium">
+                        {filteredProducts.length} items found for "{query}"
+                    </p>
+                </div>
+                
+                <div className="border-t border-gray-100 py-6 mb-2">
+                    <SearchFilterClient />
+                </div>
             </div>
 
             {filteredProducts.length > 0 ? (
-                <ProductGrid items={filteredProducts} title="" />
+                <div className="-mt-10">
+                    <ProductGrid items={filteredProducts} title="" />
+                </div>
             ) : (
                 <div className="container mx-auto px-6 py-20 text-center">
                     <p className="text-lg font-medium text-gray-500 uppercase tracking-widest">
@@ -27,6 +34,7 @@ async function SearchResults({ query, filters }) {
                     </p>
                 </div>
             )}
+
         </div>
     );
 }
