@@ -6,17 +6,31 @@ import { useCart } from "@/context/CartContext";
 import ShippingStrip from "./ShippingStrip";
 import UserOrders from "./UserOrders";
 import SizeGuidePopup from "./SizeGuidePopup";
+import { subscribeEmail } from "@/app/actions/subscribe";
 import { ShoppingBag, X } from "lucide-react";
 
 
 export default function Footer() {
-  const { isSignedIn } = useUser();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { isSizeGuideOpen, setIsSizeGuideOpen } = useCart();
+  const { isSignedIn } = useUser();
+  const [email, setEmail] = useState("");
+  const [subStatus, setSubStatus] = useState({ loading: false, message: "", type: "" });
 
+  const handleSubscribe = async () => {
+    if (!email) return;
+    setSubStatus({ loading: true, message: "", type: "" });
+    const res = await subscribeEmail(email);
+    if (res.success) {
+      setSubStatus({ loading: false, message: "You've joined the BTASHNI emailer!", type: "success" });
+      setEmail("");
+    } else {
+      setSubStatus({ loading: false, message: res.error, type: "error" });
+    }
+  };
 
   return (
     <>
@@ -34,30 +48,45 @@ export default function Footer() {
                 Be the first to experience new drops, limited releases, and
                 everything happening inside BTASHNI.
               </p>
-              <div className="w-full flex mb-4 border border-[#191919] h-12">
+              <div className="w-full flex mb-2 border border-[#191919] h-12">
                 <input
-                  type="text"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
                   placeholder="Enter your email for early access"
-                  className="flex-1 px-4 placeholder-gray-400 focus:outline-none text-[13px]"
+                  className="flex-1 px-4 placeholder-gray-400 focus:outline-none text-[13px] disabled:bg-gray-100"
+                  disabled={subStatus.loading}
                 />
                 <button
-                  className="bg-[#292621] text-white px-5 flex items-center justify-center hover:bg-black transition-colors"
+                  onClick={handleSubscribe}
+                  disabled={subStatus.loading}
+                  className="bg-[#292621] text-white px-5 flex items-center justify-center hover:bg-black transition-colors disabled:bg-gray-400 cursor-pointer"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
+                  {subStatus.loading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                  )}
                 </button>
               </div>
+              {subStatus.message && (
+                <p className={`text-[12px] mb-1 ${subStatus.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                  {subStatus.message}
+                </p>
+              )}
               <p className="text-[12px] text-[#4a4a4a] mb-6 leading-[1.6] font-medium max-w-[380px]">
                 By submitting your email you agree to receive recurring
                 automated marketing messages from BTASHNI. View{" "}
@@ -380,11 +409,11 @@ export default function Footer() {
       </footer>
 
       {isProfileOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 cursor-pointer"
           onClick={() => setIsProfileOpen(false)}
         >
-          <div 
+          <div
             className="relative w-full max-w-[960px] h-[90vh] md:h-[720px] bg-white rounded-lg shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] cursor-default overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
@@ -396,7 +425,7 @@ export default function Footer() {
               <X size={20} strokeWidth={1.5} />
             </button>
             <div className="h-full">
-              <UserProfile 
+              <UserProfile
                 routing="hash"
                 appearance={{
                   elements: {
