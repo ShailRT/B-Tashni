@@ -3,6 +3,7 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { updateOrderStatusByRazorpayId, createOrder, updateOrderRefund } from '@/lib/prisma-queries';
 import { auth } from '@clerk/nextjs/server';
+import { sendOrderConfirmationEmail } from '@/lib/email';
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -57,10 +58,18 @@ export async function verifyAndCompleteOrder(paymentData) {
     if (expectedSignature === razorpay_signature) {
         try {
             // Update order in database
-            await updateOrderStatusByRazorpayId(razorpay_order_id, {
+            const order = await updateOrderStatusByRazorpayId(razorpay_order_id, {
                 status: "PAID",
                 paymentId: razorpay_payment_id,
             });
+
+            // Send confirmation email
+            if (order) {
+                // We don't await this to avoid blocking the response, 
+                // but we could if we want to ensure it's sent.
+                // For now, let's fire and forget or await for reliability.
+                sendOrderConfirmationEmail(order);
+            }
 
             return { success: true };
         } catch (error) {

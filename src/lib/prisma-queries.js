@@ -437,6 +437,14 @@ export async function updateOrderStatusByRazorpayId(razorpayOrderId, updateData)
             ...(paymentId && { razorpayPaymentId: paymentId }),
             ...(status === 'PAID' && { status: 'PROCESSING' }), // Move from PENDING to PROCESSING if paid
         },
+        include: {
+            items: {
+                include: {
+                    product: true
+                }
+            },
+            user: true
+        }
     });
 }
 

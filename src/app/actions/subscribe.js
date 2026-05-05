@@ -1,6 +1,6 @@
 'use server';
 
-import { sendEmail } from '@/lib/email';
+import { sendSubscriptionWelcomeEmail } from '@/lib/email';
 
 export async function subscribeEmail(email) {
   if (!email || !email.includes('@')) {
@@ -9,21 +9,7 @@ export async function subscribeEmail(email) {
 
   try {
     // 1. Send the confirmation email
-    const emailSent = await sendEmail({
-      to: email,
-      subject: 'Welcome to the BTASHNI Circle! 🎉',
-      text: "You've successfully joined the BTASHNI emailer. Get ready for early access to new drops, limited releases, and exclusive updates.",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #191919;">
-          <h2 style="text-transform: uppercase; letter-spacing: 2px;">Welcome to BTASHNI</h2>
-          <p>You've successfully joined our inner circle.</p>
-          <p>Get ready for early access to new drops, limited releases, and exclusive updates.</p>
-          <br/>
-          <p>Stay tuned,</p>
-          <p><strong>The BTASHNI Team</strong></p>
-        </div>
-      `
-    });
+    const emailSent = await sendSubscriptionWelcomeEmail(email);
 
     if (!emailSent) {
       return { success: false, error: 'Failed to send confirmation email. Please try again later.' };
