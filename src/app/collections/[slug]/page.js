@@ -15,7 +15,7 @@ export default async function CollectionPage({ params }) {
   // Actually, let's show an empty state if no products, rather than 404, unless we want strict category validation.
 
   return (
-    <main className="min-h-screen pt-24 bg-white">
+    <main className="min-h-screen pt-32 bg-white">
       <div className="container mx-auto px-6 mb-12 pt-10">
         <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">
           {slug.replace("-", " ")}

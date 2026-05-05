@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ShoppingBag, User, Menu, LayoutDashboard } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, ShieldCheck } from "lucide-react";
 
 import {
   SignedIn,
@@ -67,19 +67,17 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || !isHomePage
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || !isHomePage
           ? "bg-white text-[#2d2a26] shadow-sm"
           : "bg-transparent text-[#2d2a26] lg:text-white"
-      }`}
+        }`}
     >
       <div className="bg-black text-white text-[10px] font-bold text-center tracking-widest uppercase w-full overflow-hidden h-8 relative z-50">
         <div
-          className={`flex flex-col transition-transform ease-out ${
-            isAnimating
+          className={`flex flex-col transition-transform ease-out ${isAnimating
               ? "duration-700 -translate-y-1/2"
               : "duration-0 translate-y-0"
-          }`}
+            }`}
         >
           <div className="h-8 flex items-center justify-center w-full">
             {ANNOUNCEMENTS[currentAnnouncement]}
@@ -91,9 +89,8 @@ export default function Navbar() {
       </div>
 
       <div
-        className={`container mx-auto px-6 flex items-end justify-between transition-all duration-300 ${
-          isScrolled || !isHomePage ? "py-4" : "py-6"
-        } ${!isScrolled && isHomePage ? "text-white mix-blend-difference" : ""}`}
+        className={`container mx-auto px-6 flex items-end justify-between transition-all duration-300 ${isScrolled || !isHomePage ? "py-4" : "py-6"
+          } ${!isScrolled && isHomePage ? "text-white mix-blend-difference" : ""}`}
       >
         {/* using mix-blend-difference to make it visible on both dark and light if possible, or just simplistic approach: text-black always?
           Original was text-white on top. Let's keep it.
@@ -108,9 +105,8 @@ export default function Navbar() {
             <img
               src="/logo.png"
               alt="B-Tashni"
-              className={`h-6 lg:h-7 w-auto object-contain transition-all duration-300 ${
-                !isScrolled && isHomePage ? "brightness-0 invert" : ""
-              }`}
+              className={`h-6 lg:h-7 w-auto object-contain transition-all duration-300 ${!isScrolled && isHomePage ? "brightness-0 invert" : ""
+                }`}
             />
           </Link>
         </div>
@@ -158,7 +154,7 @@ export default function Navbar() {
                 {isAdmin && (
                   <UserButton.Link
                     label="Admin Dashboard"
-                    labelIcon={<LayoutDashboard className="w-4 h-4" />}
+                    labelIcon={<ShieldCheck className="w-4 h-4" />}
                     href="/admin"
                   />
                 )}
@@ -191,9 +187,8 @@ export default function Navbar() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex justify-end p-6">
           <button

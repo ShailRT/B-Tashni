@@ -108,9 +108,8 @@ export default function AdminDashboard() {
 
     if (statsData.loading) {
         return (
-            <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-[100] flex flex-col items-center justify-center">
+            <div className="min-h-[60vh] flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center">
-                    <img src="/logo.png" alt="B-Tashni" className="h-8 mb-8 animate-pulse grayscale" />
                     <div className="w-10 h-10 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
                     <p className="mt-6 text-[10px] font-bold text-black tracking-[0.2em] uppercase">Initializing BTASHNI Admin</p>
                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Save, Trash2, Image as ImageIcon, Video, Upload, Loader2, X } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Image as ImageIcon, Video, Upload, Loader2, X, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
@@ -25,6 +25,55 @@ export default function ProductDetailsPage() {
     const [newSelectedVideo, setNewSelectedVideo] = useState(null);
     const [videoUrlInput, setVideoUrlInput] = useState('');
     const [videoUrlError, setVideoUrlError] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [touchedFields, setTouchedFields] = useState({});
+
+    const validateField = (name, value) => {
+        let error = null;
+        switch (name) {
+            case 'name':
+                if (!value || value.trim().length < 3) error = 'Product name must be at least 3 characters.';
+                break;
+            case 'description':
+                if (!value || value.trim().length < 10) error = 'Description must be at least 10 characters.';
+                break;
+            case 'price':
+                if (!value || parseFloat(value) <= 0) error = 'Price must be a positive number.';
+                break;
+            case 'stock':
+                if (value === '' || isNaN(parseInt(value)) || parseInt(value) < 0) error = 'Stock cannot be negative.';
+                break;
+            case 'sizes':
+                if (!value || value.trim().length === 0) error = 'At least one size is required.';
+                break;
+            case 'sku':
+                if (!value || value.trim().length === 0) error = 'SKU is required.';
+                break;
+            case 'images':
+                if (existingImageUrls.length === 0 && newSelectedImages.length === 0) error = 'At least one product image is required.';
+                break;
+            default:
+                break;
+        }
+        setFieldErrors(prev => ({ ...prev, [name]: error }));
+        return error;
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouchedFields(prev => ({ ...prev, [name]: true }));
+        validateField(name, value);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        if (touchedFields[name]) {
+            validateField(name, value);
+        }
+    };
 
     const imageInputRef = useRef(null);
     const videoInputRef = useRef(null);
@@ -32,6 +81,9 @@ export default function ProductDetailsPage() {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
+            // Clear image error if any
+            setFieldErrors(prev => ({ ...prev, images: null }));
+            
             const newImages = files.map(file => Object.assign(file, {
                 preview: URL.createObjectURL(file)
             }));
@@ -53,11 +105,23 @@ export default function ProductDetailsPage() {
     };
 
     const removeNewImage = (index) => {
-        setNewSelectedImages(prev => prev.filter((_, i) => i !== index));
+        const updatedNewImages = newSelectedImages.filter((_, i) => i !== index);
+        setNewSelectedImages(updatedNewImages);
+        if (existingImageUrls.length === 0 && updatedNewImages.length === 0) {
+            setFieldErrors(prev => ({ ...prev, images: 'At least one product image is required.' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, images: null }));
+        }
     };
 
     const removeExistingImage = (index) => {
-        setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+        const updatedExistingImages = existingImageUrls.filter((_, i) => i !== index);
+        setExistingImageUrls(updatedExistingImages);
+        if (updatedExistingImages.length === 0 && newSelectedImages.length === 0) {
+            setFieldErrors(prev => ({ ...prev, images: 'At least one product image is required.' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, images: null }));
+        }
     };
 
     const removeNewVideo = () => {
@@ -111,6 +175,34 @@ export default function ProductDetailsPage() {
 
         try {
             const formData = new FormData(e.currentTarget);
+            setFieldErrors({});
+
+            // Validation logic
+            const errors = {};
+            const name = formData.get('name');
+            const description = formData.get('description');
+            const price = formData.get('price');
+            const stock = formData.get('stock');
+            const sizes = formData.get('sizes');
+            const sku = formData.get('sku');
+
+            if (!name || name.trim().length < 3) errors.name = 'Product name must be at least 3 characters.';
+            if (!description || description.trim().length < 10) errors.description = 'Description must be at least 10 characters.';
+            if (!price || parseFloat(price) <= 0) errors.price = 'Price must be a positive number.';
+            if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) errors.stock = 'Stock cannot be negative.';
+            if (!sizes || sizes.trim().length === 0) errors.sizes = 'At least one size is required.';
+            if (!sku || sku.trim().length === 0) errors.sku = 'SKU is required.';
+            if (existingImageUrls.length === 0 && newSelectedImages.length === 0) errors.images = 'At least one product image is required.';
+
+            if (Object.keys(errors).length > 0) {
+                setFieldErrors(errors);
+                // Mark all fields as touched to show errors
+                const touched = {};
+                Object.keys(errors).forEach(key => touched[key] = true);
+                setTouchedFields(touched);
+                setSaving(false);
+                return;
+            }
 
             // 1. Upload new images to Vercel Blob
             setUploading(true);
@@ -158,7 +250,9 @@ export default function ProductDetailsPage() {
                 setProduct(result.product);
                 setNewSelectedImages([]);
                 setNewSelectedVideo(null);
-                alert('Product updated successfully');
+                setSuccessMessage('Product updated successfully');
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 3000);
             } else {
                 setError(result.error);
             }
@@ -171,19 +265,25 @@ export default function ProductDetailsPage() {
         }
     }
 
-    async function handleDelete() {
-        if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
-            return;
-        }
+    const handleDelete = () => {
+        setShowDeleteModal(true);
+    };
 
+    async function confirmDelete() {
         setDeleting(true);
         const result = await deleteProductAction(productId);
 
         if (result.success) {
-            router.push('/admin/products');
+            setSuccessMessage('Product deleted successfully');
+            setShowSuccess(true);
+            setShowDeleteModal(false);
+            setTimeout(() => {
+                router.push('/admin/products');
+            }, 1500);
         } else {
             setError(result.error);
             setDeleting(false);
+            setShowDeleteModal(false);
         }
     }
 
@@ -262,25 +362,35 @@ export default function ProductDetailsPage() {
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label htmlFor="product-name" className="block text-sm font-medium text-gray-700">Product Name</label>
+                                <label htmlFor="product-name" className="block text-sm font-medium text-gray-700">
+                                    Product Name <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     id="product-name"
                                     name="name"
                                     required
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.name ? 'border-red-500' : 'border-gray-300'}`}
                                     defaultValue={product.name}
                                 />
+                                {fieldErrors.name && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.name}</p>}
                             </div>
                             <div>
-                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                    Description <span className="text-red-500">*</span>
+                                </label>
                                 <textarea
                                     id="description"
                                     name="description"
                                     rows={4}
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.description ? 'border-red-500' : 'border-gray-300'}`}
                                     defaultValue={product.description || ''}
                                 />
+                                {fieldErrors.description && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.description}</p>}
                             </div>
                         </div>
                     </div>
@@ -292,7 +402,9 @@ export default function ProductDetailsPage() {
                         </div>
                         <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label htmlFor="price" className="block text-sm font-medium text-gray-700">Base Price</label>
+                                <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                                    Base Price <span className="text-red-500">*</span>
+                                </label>
                                 <div className="mt-1 relative rounded-md shadow-sm">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <span className="text-gray-500 sm:text-sm">₹</span>
@@ -303,7 +415,9 @@ export default function ProductDetailsPage() {
                                         name="price"
                                         required
                                         step="0.01"
-                                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md py-2 border"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        className={`focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm rounded-md py-2 border ${fieldErrors.price ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0.00"
                                         defaultValue={product.price}
                                     />
@@ -311,41 +425,59 @@ export default function ProductDetailsPage() {
                                         <span className="text-gray-500 sm:text-sm">INR</span>
                                     </div>
                                 </div>
+                                {fieldErrors.price && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.price}</p>}
                             </div>
 
                             <div>
-                                <label htmlFor="sku" className="block text-sm font-medium text-gray-700">SKU</label>
+                                <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
+                                    SKU <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     id="sku"
                                     name="sku"
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    required
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.sku ? 'border-red-500' : 'border-gray-300'}`}
                                     defaultValue={product.sku || ''}
                                 />
+                                {fieldErrors.sku && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sku}</p>}
                             </div>
 
                             <div>
-                                <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock Quantity</label>
+                                <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+                                    Stock Quantity <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="number"
                                     id="stock"
                                     name="stock"
                                     required
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.stock ? 'border-red-500' : 'border-gray-300'}`}
                                     defaultValue={product.stock}
                                 />
+                                {fieldErrors.stock && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.stock}</p>}
                             </div>
 
                             <div>
-                                <label htmlFor="sizes" className="block text-sm font-medium text-gray-700">Sizes (comma separated)</label>
+                                <label htmlFor="sizes" className="block text-sm font-medium text-gray-700">
+                                    Sizes (comma separated) <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     id="sizes"
                                     name="sizes"
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    required
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.sizes ? 'border-red-500' : 'border-gray-300'}`}
                                     defaultValue={product.sizes ? product.sizes.join(', ') : ''}
                                     placeholder="S, M, L, XL"
                                 />
+                                {fieldErrors.sizes && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sizes}</p>}
                             </div>
                         </div>
                     </div>
@@ -361,7 +493,9 @@ export default function ProductDetailsPage() {
                         <div className="p-6 space-y-6">
                             {/* Images Section */}
                             <div className="space-y-4">
-                                <label className="block text-sm font-medium text-gray-700">Images</label>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Images <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="file"
                                     ref={imageInputRef}
@@ -372,10 +506,11 @@ export default function ProductDetailsPage() {
                                 />
                                 <div
                                     onClick={() => imageInputRef.current?.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-40"
+                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-40 ${fieldErrors.images ? 'border-red-500 bg-red-50/10' : 'border-gray-300'}`}
                                 >
-                                    <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
-                                    <span className="text-sm text-gray-500">Click to upload images</span>
+                                    <ImageIcon className={`h-8 w-8 mb-2 ${fieldErrors.images ? 'text-red-400' : 'text-gray-400'}`} />
+                                    <span className={`text-sm ${fieldErrors.images ? 'text-red-500' : 'text-gray-500'}`}>Click to upload images</span>
+                                    {fieldErrors.images && <p className="mt-2 text-xs text-red-500 font-medium">{fieldErrors.images}</p>}
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-2">
@@ -569,6 +704,62 @@ export default function ProductDetailsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Success Toast */}
+            {showSuccess && (
+                <div className="fixed bottom-8 right-8 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-white/10">
+                        <div className="bg-green-500 rounded-full p-1">
+                            <CheckCircle2 className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="text-sm font-bold">Success!</p>
+                            <p className="text-xs text-gray-400">{successMessage}</p>
+                        </div>
+                        <button 
+                            type="button"
+                            onClick={() => setShowSuccess(false)} 
+                            className="ml-4 text-gray-500 hover:text-white transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 text-center">
+                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-50 mb-4">
+                                <Trash2 className="h-6 w-6 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Product?</h3>
+                            <p className="text-sm text-gray-500">
+                                Are you sure you want to delete this product? This action cannot be undone and will remove the product from your store.
+                            </p>
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowDeleteModal(false)}
+                                className="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmDelete}
+                                disabled={deleting}
+                                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+                            >
+                                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete Product'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }

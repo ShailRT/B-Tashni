@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Filter, Plus, MoreVertical, Loader2, Image as ImageIcon, Trash2, ExternalLink, Eye } from 'lucide-react';
+import { Search, Filter, Plus, MoreVertical, Loader2, Image as ImageIcon, Trash2, ExternalLink, Eye, CheckCircle2, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
@@ -15,6 +15,8 @@ export default function ProductsPage() {
     const [sort, setSort] = useState('newest');
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [activeDropdownId, setActiveDropdownId] = useState(null);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
 
 
@@ -41,20 +43,28 @@ export default function ProductsPage() {
     }, [search, minPrice, maxPrice, sort]);
 
 
-    const handleDelete = async (e, id) => {
+    const handleDelete = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
+        setProductToDelete(id);
+    };
 
-        if (!confirm('Are you sure you want to delete this product?')) return;
-
-        setDeletingId(id);
-        const result = await deleteProductAction(id);
+    const confirmDelete = async () => {
+        if (!productToDelete) return;
+        
+        setDeletingId(productToDelete);
+        const result = await deleteProductAction(productToDelete);
+        
         if (result.success) {
-            setProducts(products.filter(p => p.id !== id));
+            setProducts(products.filter(p => p.id !== productToDelete));
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 3000);
         } else {
             alert(result.error || 'Failed to delete product');
         }
+        
         setDeletingId(null);
+        setProductToDelete(null);
         setActiveDropdownId(null);
     };
 
@@ -147,20 +157,18 @@ export default function ProductsPage() {
                                         min="0"
                                         max="20000"
                                         step="100"
-                                        className="absolute w-full h-1.5 bg-transparent appearance-none pointer-events-none cursor-pointer z-20 accent-blue-600"
+                                        className="absolute w-full h-1.5 bg-transparent appearance-none pointer-events-none cursor-pointer z-20 accent-blue-600 [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
                                         value={minPrice}
                                         onChange={(e) => setMinPrice(Math.min(Number(e.target.value), Number(maxPrice) - 500).toString())}
-                                        style={{ pointerEvents: 'auto' }}
                                     />
                                     <input
                                         type="range"
                                         min="0"
                                         max="20000"
                                         step="100"
-                                        className="absolute w-full h-1.5 bg-transparent appearance-none pointer-events-none cursor-pointer z-10 accent-blue-600"
+                                        className="absolute w-full h-1.5 bg-transparent appearance-none pointer-events-none cursor-pointer z-10 accent-blue-600 [&::-webkit-slider-thumb]:pointer-events-auto [&::-moz-range-thumb]:pointer-events-auto"
                                         value={maxPrice}
                                         onChange={(e) => setMaxPrice(Math.max(Number(e.target.value), Number(minPrice) + 500).toString())}
-                                        style={{ pointerEvents: 'auto' }}
                                     />
 
                                     <div
@@ -339,6 +347,62 @@ export default function ProductsPage() {
                         <Plus className="h-4 w-4 mr-1" />
                         Create a product
                     </Link>
+                </div>
+            )}
+
+            {/* Success Toast */}
+            {showSuccess && (
+                <div className="fixed bottom-8 right-8 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-white/10">
+                        <div className="bg-green-500 rounded-full p-1">
+                            <CheckCircle2 className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="text-sm font-bold">Success!</p>
+                            <p className="text-xs text-gray-400">Product deleted successfully</p>
+                        </div>
+                        <button 
+                            type="button"
+                            onClick={() => setShowSuccess(false)} 
+                            className="ml-4 text-gray-500 hover:text-white transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {productToDelete && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="p-6 text-center">
+                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-50 mb-4">
+                                <Trash2 className="h-6 w-6 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-2">Delete Product?</h3>
+                            <p className="text-sm text-gray-500">
+                                Are you sure you want to delete this product? This action cannot be undone and will remove the product from your store.
+                            </p>
+                        </div>
+                        <div className="bg-gray-50 px-6 py-4 flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setProductToDelete(null)}
+                                className="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmDelete}
+                                disabled={deletingId}
+                                className="flex-1 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center"
+                            >
+                                {deletingId ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Delete Product'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

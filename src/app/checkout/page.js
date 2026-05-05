@@ -25,6 +25,49 @@ export default function CheckoutPage() {
         state: "",
         pincode: "",
     });
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [touchedFields, setTouchedFields] = useState({});
+
+    const validateField = (name, value) => {
+        let error = null;
+        switch (name) {
+            case 'firstName':
+                if (!value || value.trim().length < 2) error = 'First name is too short.';
+                break;
+            case 'lastName':
+                if (!value || value.trim().length < 2) error = 'Last name is too short.';
+                break;
+            case 'email':
+                if (!value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = 'Invalid email address.';
+                break;
+            case 'phone':
+                const phoneDigits = value.replace(/\D/g, '');
+                if (!value || phoneDigits.length !== 10) error = 'Phone number must be exactly 10 digits.';
+                break;
+            case 'address':
+                if (!value || value.trim().length < 5) error = 'Please enter a valid address.';
+                break;
+            case 'city':
+                if (!value || value.trim().length < 2) error = 'City is required.';
+                break;
+            case 'state':
+                if (!value || value.trim().length < 2) error = 'State is required.';
+                break;
+            case 'pincode':
+                if (!value || !/^[0-9]{6}$/.test(value)) error = 'Invalid pincode (6 digits required).';
+                break;
+            default:
+                break;
+        }
+        setFieldErrors(prev => ({ ...prev, [name]: error }));
+        return error;
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouchedFields(prev => ({ ...prev, [name]: true }));
+        validateField(name, value);
+    };
 
     useEffect(() => {
         setMounted(true);
@@ -42,12 +85,51 @@ export default function CheckoutPage() {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        
+        if (name === 'phone') {
+            // Only allow numbers and + sign
+            const cleaned = value.replace(/[^0-9+]/g, '');
+            setFormData((prev) => ({ ...prev, [name]: cleaned }));
+            if (touchedFields[name]) {
+                validateField(name, cleaned);
+            }
+            return;
+        }
+
         setFormData((prev) => ({ ...prev, [name]: value }));
+        if (touchedFields[name]) {
+            validateField(name, value);
+        }
     };
 
     const handlePayment = async (e) => {
         e.preventDefault();
         if (isProcessing) return;
+
+        // Final validation check
+        const errors = {};
+        Object.keys(formData).forEach(key => {
+            if (key !== 'apartment') { // skip optional field
+                const error = validateField(key, formData[key]);
+                if (error) errors[key] = error;
+            }
+        });
+
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
+            const touched = {};
+            Object.keys(errors).forEach(key => touched[key] = true);
+            setTouchedFields(touched);
+            
+            // Scroll to the first error
+            const firstErrorField = Object.keys(errors)[0];
+            const element = document.getElementsByName(firstErrorField)[0];
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.focus();
+            }
+            return;
+        }
 
         try {
             setIsProcessing(true);
@@ -110,9 +192,17 @@ export default function CheckoutPage() {
                 magic: true,
             };
 
-            const rzp = new window.Razorpay(options);
+            const rzp = new window.Razorpay({
+                ...options,
+                modal: {
+                    ondismiss: function() {
+                        setIsProcessing(false);
+                    }
+                }
+            });
             rzp.on("payment.failed", function (response) {
-                alert("Payment failed: " + response.error.description);
+                console.error("Payment failed: ", response.error.description);
+                window.location.href = "/order-cancel";
             });
             rzp.open();
         } catch (error) {
@@ -135,7 +225,7 @@ export default function CheckoutPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#fafafa] text-[#1c1c1c] font-sans pt-20 pb-12">
+        <div className="min-h-screen bg-[#fafafa] text-[#1c1c1c] font-sans pt-32 pb-12">
             <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
             <div className="max-w-[1200px] mx-auto px-4 md:px-8">
@@ -163,8 +253,10 @@ export default function CheckoutPage() {
                                             name="firstName"
                                             value={formData.firstName}
                                             onChange={handleInputChange}
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            onBlur={handleBlur}
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.firstName ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.firstName && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.firstName}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Last Name *</label>
@@ -174,8 +266,10 @@ export default function CheckoutPage() {
                                             name="lastName"
                                             value={formData.lastName}
                                             onChange={handleInputChange}
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            onBlur={handleBlur}
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.lastName ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.lastName && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.lastName}</p>}
                                     </div>
                                 </div>
 
@@ -188,8 +282,10 @@ export default function CheckoutPage() {
                                             name="email"
                                             value={formData.email}
                                             onChange={handleInputChange}
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            onBlur={handleBlur}
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.email ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.email && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.email}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Phone Number *</label>
@@ -199,9 +295,11 @@ export default function CheckoutPage() {
                                             name="phone"
                                             value={formData.phone}
                                             onChange={handleInputChange}
+                                            onBlur={handleBlur}
                                             placeholder="+91"
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.phone ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.phone && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.phone}</p>}
                                     </div>
                                 </div>
 
@@ -213,9 +311,11 @@ export default function CheckoutPage() {
                                         name="address"
                                         value={formData.address}
                                         onChange={handleInputChange}
+                                        onBlur={handleBlur}
                                         placeholder="Street address"
-                                        className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                        className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.address ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                     />
+                                    {fieldErrors.address && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.address}</p>}
                                 </div>
 
                                 <div className="space-y-1.5">
@@ -238,8 +338,10 @@ export default function CheckoutPage() {
                                             name="city"
                                             value={formData.city}
                                             onChange={handleInputChange}
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            onBlur={handleBlur}
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.city ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.city && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.city}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">State *</label>
@@ -249,8 +351,10 @@ export default function CheckoutPage() {
                                             name="state"
                                             value={formData.state}
                                             onChange={handleInputChange}
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            onBlur={handleBlur}
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.state ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.state && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.state}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Pincode *</label>
@@ -260,8 +364,10 @@ export default function CheckoutPage() {
                                             name="pincode"
                                             value={formData.pincode}
                                             onChange={handleInputChange}
-                                            className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
+                                            onBlur={handleBlur}
+                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.pincode ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
+                                        {fieldErrors.pincode && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.pincode}</p>}
                                     </div>
                                 </div>
                             </form>
