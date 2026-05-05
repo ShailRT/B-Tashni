@@ -18,7 +18,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(null);
   const [showDescription, setShowDescription] = useState(true);
-  const { addToCart, setIsSizeGuideOpen } = useCart();
+  const { addToCart, isSizeGuideOpen, setIsSizeGuideOpen } = useCart();
 
   useEffect(() => {
     if (!slug) return;
@@ -79,7 +79,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans pb-32 pt-10 lg:pt-16 selection:bg-black selection:text-white antialiased">
+    <div className="min-h-screen bg-white text-black font-sans pb-32 pt-32 selection:bg-black selection:text-white antialiased">
       <div className="flex flex-col lg:flex-row w-full max-w-[2400px] mx-auto overflow-hidden px-0 lg:px-[8vw] xl:px-[12vw]">
 
         {/* Image Gallery - Left Side (Zara's signature 2/3 scroll with grid) */}
@@ -155,7 +155,7 @@ export default function Page() {
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest">Select Size</span>
                 <button 
-                  onClick={() => setIsSizeGuideOpen(true)}
+                  onClick={() => setIsSizeGuideOpen((prev) => !prev)}
                   className="flex items-center gap-1.5 text-[10px] uppercase underline underline-offset-4 tracking-widest font-light hover:text-gray-500 transition-colors"
                 >
                   <Ruler className="w-3 h-3" />

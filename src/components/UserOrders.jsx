@@ -7,6 +7,9 @@ import {
   ExternalLink,
   RefreshCcw,
   AlertCircle,
+  XCircle,
+  CreditCard,
+  MapPin,
 } from "lucide-react";
 import { fetchUserOrdersAction } from "../app/actions/orders";
 
@@ -123,7 +126,12 @@ export default function UserOrders() {
                         .join(", ")}
                     </p>
                   </div>
-                  <button className="p-2 -mr-2 text-[#687076] hover:text-[#11181C] transition-colors">
+                  <button 
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('open-order-detail', { detail: order }));
+                    }}
+                    className="p-2 -mr-2 text-[#687076] hover:text-[#11181C] transition-colors"
+                  >
                     <ExternalLink className="w-4 h-4" />
                   </button>
                 </div>
@@ -147,7 +155,6 @@ export default function UserOrders() {
         )}
       </div>
 
-      <div className="mt-8 h-[1px] w-full bg-[#EEEEF0]" />
       <div className="mt-8 flex items-start gap-3 bg-gray-50 p-4 rounded-xl">
         <Package className="w-5 h-5 text-gray-400 flex-shrink-0" />
         <p className="text-[0.75rem] text-[#687076] leading-relaxed">

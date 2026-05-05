@@ -10,7 +10,8 @@ import {
     Settings,
     LogOut,
     Menu,
-    X
+    X,
+    ArrowLeft
 } from 'lucide-react';
 import { useState } from 'react';
 import { useClerk } from '@clerk/nextjs';
@@ -86,9 +87,17 @@ export default function AdminLayout({ children }) {
 
                     {/* Bottom Actions */}
                     <div className="p-4 border-t border-gray-200 space-y-1">
+                        <Link
+                            href="/"
+                            className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            <ArrowLeft className="mr-3 h-5 w-5" />
+                            Home
+                        </Link>
 
-                        <button 
-                            onClick={() => signOut({ redirectUrl: '/' })}
+
+                        <button
+                            onClick={() => signOut(() => router.push('/'))}
                             className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                         >
                             <LogOut className="mr-3 h-5 w-5" />

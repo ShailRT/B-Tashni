@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Save, Package, Upload, Loader2, X, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Package, Upload, Loader2, X, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,10 +13,58 @@ export default function CreateProductPage() {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState(null);
+    const [showSuccess, setShowSuccess] = useState(false);
     const [selectedImages, setSelectedImages] = useState([]);
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [videoUrlInput, setVideoUrlInput] = useState('');
     const [videoUrlError, setVideoUrlError] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [touchedFields, setTouchedFields] = useState({});
+
+    const validateField = (name, value) => {
+        let error = null;
+        switch (name) {
+            case 'name':
+                if (!value || value.trim().length < 3) error = 'Product name must be at least 3 characters.';
+                break;
+            case 'description':
+                if (!value || value.trim().length < 10) error = 'Description must be at least 10 characters.';
+                break;
+            case 'price':
+                if (!value || parseFloat(value) <= 0) error = 'Price must be a positive number.';
+                break;
+            case 'stock':
+                if (value === '' || isNaN(parseInt(value)) || parseInt(value) < 0) error = 'Stock cannot be negative.';
+                break;
+            case 'sizes':
+                if (!value || value.trim().length === 0) error = 'At least one size is required.';
+                break;
+            case 'sku':
+                if (!value || value.trim().length === 0) error = 'SKU is required.';
+                break;
+            case 'images':
+                if (selectedImages.length === 0) error = 'At least one product image is required.';
+                break;
+            default:
+                break;
+        }
+        setFieldErrors(prev => ({ ...prev, [name]: error }));
+        return error;
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouchedFields(prev => ({ ...prev, [name]: true }));
+        validateField(name, value);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        if (touchedFields[name]) {
+            validateField(name, value);
+        }
+    };
+
 
     const imageInputRef = useRef(null);
     const videoInputRef = useRef(null);
@@ -24,10 +72,23 @@ export default function CreateProductPage() {
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files || []);
         if (files.length > 0) {
+            const duplicates = files.filter(file =>
+                selectedImages.some(existing => existing.name === file.name && existing.size === file.size)
+            );
+
+            if (duplicates.length > 0) {
+                setFieldErrors(prev => ({ ...prev, images: `Image "${duplicates[0].name}" is already selected.` }));
+                return;
+            }
+
+            // Clear image error if any
+            setFieldErrors(prev => ({ ...prev, images: null }));
+
             const newImages = files.map(file => Object.assign(file, { preview: URL.createObjectURL(file) }));
             setSelectedImages(prev => [...prev, ...newImages]);
         }
     };
+
 
     const handleVideoChange = (e) => {
         const file = e.target.files?.[0];
@@ -47,8 +108,17 @@ export default function CreateProductPage() {
         if (imageToRemove?.preview) {
             URL.revokeObjectURL(imageToRemove.preview);
         }
-        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+        const updatedImages = selectedImages.filter((_, i) => i !== index);
+        setSelectedImages(updatedImages);
+
+        // Re-validate image requirement on removal
+        if (updatedImages.length === 0) {
+            setFieldErrors(prev => ({ ...prev, images: 'At least one product image is required.' }));
+        } else {
+            setFieldErrors(prev => ({ ...prev, images: null }));
+        }
     };
+
 
     const removeVideo = () => {
         if (selectedVideo?.preview) {
@@ -79,6 +149,40 @@ export default function CreateProductPage() {
 
         try {
             const formData = new FormData(e.currentTarget);
+            setFieldErrors({});
+
+            // Validation logic
+            const errors = {};
+            const name = formData.get('name');
+            const description = formData.get('description');
+            const price = formData.get('price');
+            const stock = formData.get('stock');
+            const sizes = formData.get('sizes');
+            const sku = formData.get('sku');
+
+            if (!name || name.trim().length < 3) errors.name = 'Product name must be at least 3 characters.';
+            if (!description || description.trim().length < 10) errors.description = 'Description must be at least 10 characters.';
+            if (!price || parseFloat(price) <= 0) errors.price = 'Price must be a positive number.';
+            if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) errors.stock = 'Stock cannot be negative.';
+            if (!sizes || sizes.trim().length === 0) errors.sizes = 'At least one size is required (e.g. S, M, L).';
+            if (!sku || sku.trim().length === 0) errors.sku = 'SKU is required.';
+            if (selectedImages.length === 0) errors.images = 'At least one product image is required.';
+
+            if (Object.keys(errors).length > 0) {
+                setFieldErrors(errors);
+                setLoading(false);
+                return;
+            }
+
+
+            // Check for duplicate filenames in the selection before uploading
+            const filenames = selectedImages.map(f => f.name);
+            const hasDuplicates = filenames.some((name, index) => filenames.indexOf(name) !== index);
+            if (hasDuplicates) {
+                setError('Duplicate filenames detected. Please ensure all selected images have unique names.');
+                setLoading(false);
+                return;
+            }
 
             // 1. Upload images to Vercel Blob
             setUploading(true);
@@ -119,14 +223,18 @@ export default function CreateProductPage() {
             const result = await createProductAction(productData);
 
             if (result.success) {
-                router.push('/admin/products');
+                setShowSuccess(true);
+                setTimeout(() => {
+                    router.push('/admin/products');
+                }, 1500);
             } else {
                 setError(result.error);
                 setLoading(false);
             }
         } catch (err) {
             console.error('Upload failed:', err);
-            setError('Failed to upload files. Please try again.');
+            // More specific error message for potential duplicates
+            setError('Upload failed. This usually happens if same image already exists');
             setLoading(false);
             setUploading(false);
         }
@@ -154,31 +262,45 @@ export default function CreateProductPage() {
                         </div>
                         <div className="p-6 space-y-4">
                             <div>
-                                <label htmlFor="product-name" className="block text-sm font-medium text-gray-700">Product Name</label>
+                                <label htmlFor="product-name" className="block text-sm font-medium text-gray-700">
+                                    Product Name <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     id="product-name"
                                     name="name"
                                     required
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.name ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="e.g. Premium Cotton T-Shirt"
                                 />
+                                {fieldErrors.name && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.name}</p>}
                             </div>
 
+
                             <div>
-                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                                    Description <span className="text-red-500">*</span>
+                                </label>
                                 <textarea
                                     id="description"
                                     name="description"
                                     rows={4}
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.description ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="Product description..."
                                 />
+                                {fieldErrors.description && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.description}</p>}
                             </div>
+
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
+                                    <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+                                        Price <span className="text-red-500">*</span>
+                                    </label>
                                     <div className="mt-1 relative rounded-md shadow-sm">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span className="text-gray-500 sm:text-sm">₹</span>
@@ -189,38 +311,55 @@ export default function CreateProductPage() {
                                             name="price"
                                             required
                                             step="0.01"
-                                            className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md py-2 border"
+                                            onBlur={handleBlur}
+                                            onChange={handleChange}
+                                            className={`focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm rounded-md py-2 border ${fieldErrors.price ? 'border-red-500' : 'border-gray-300'}`}
                                             placeholder="0.00"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <span className="text-gray-500 sm:text-sm">INR</span>
                                         </div>
                                     </div>
+                                    {fieldErrors.price && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.price}</p>}
                                 </div>
 
+
                                 <div>
-                                    <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label>
+                                    <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+                                        Stock <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="number"
                                         id="stock"
                                         name="stock"
                                         required
-                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.stock ? 'border-red-500' : 'border-gray-300'}`}
                                         placeholder="0"
                                     />
+                                    {fieldErrors.stock && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.stock}</p>}
                                 </div>
+
                             </div>
 
                             <div>
-                                <label htmlFor="sizes" className="block text-sm font-medium text-gray-700">Sizes (comma separated)</label>
+                                <label htmlFor="sizes" className="block text-sm font-medium text-gray-700">
+                                    Sizes (comma separated) <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     id="sizes"
                                     name="sizes"
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    required
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.sizes ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="S, M, L, XL"
                                 />
+                                {fieldErrors.sizes && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sizes}</p>}
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -279,21 +418,30 @@ export default function CreateProductPage() {
                             </div>
 
                             <div>
-                                <label htmlFor="sku" className="block text-sm font-medium text-gray-700">SKU</label>
+                                <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
+                                    SKU <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     id="sku"
                                     name="sku"
-                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    required
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.sku ? 'border-red-500' : 'border-gray-300'}`}
                                     placeholder="SKU-12345"
                                 />
+                                {fieldErrors.sku && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sku}</p>}
                             </div>
+
                         </div>
                     </div>
 
                     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                         <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                            <h3 className="font-semibold text-gray-900">Product Images</h3>
+                            <h3 className="font-semibold text-gray-900">
+                                Product Images <span className="text-red-500">*</span>
+                            </h3>
                         </div>
                         <div className="p-6 space-y-4">
                             <input
@@ -306,11 +454,13 @@ export default function CreateProductPage() {
                             />
                             <div
                                 onClick={() => imageInputRef.current?.click()}
-                                className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-48"
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50 transition-colors h-48 ${fieldErrors.images ? 'border-red-500 bg-red-50/10' : 'border-gray-300'}`}
                             >
-                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                <span className="text-sm text-gray-500">Click to upload image</span>
+                                <Upload className={`h-8 w-8 mb-2 ${fieldErrors.images ? 'text-red-400' : 'text-gray-400'}`} />
+                                <span className={`text-sm ${fieldErrors.images ? 'text-red-500' : 'text-gray-500'}`}>Click to upload image</span>
+                                {fieldErrors.images && <p className="mt-2 text-xs text-red-500 font-medium">{fieldErrors.images}</p>}
                             </div>
+
 
                             {selectedImages.length > 0 && (
                                 <div className="grid grid-cols-3 gap-2 mt-4">
@@ -434,10 +584,11 @@ export default function CreateProductPage() {
                     </Link>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || Object.values(fieldErrors).some(error => error !== null)}
                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? (
+
                             <>
                                 <Loader2 className="-ml-1 mr-2 h-4 w-4 animate-spin" />
                                 {uploading ? 'Uploading Files...' : 'Creating...'}
@@ -451,6 +602,28 @@ export default function CreateProductPage() {
                     </button>
                 </div>
             </div>
+
+            {/* Success Toast */}
+            {showSuccess && (
+                <div className="fixed bottom-8 right-8 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
+                    <div className="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 border border-white/10">
+                        <div className="bg-green-500 rounded-full p-1">
+                            <CheckCircle2 className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="flex flex-col">
+                            <p className="text-sm font-bold">Success!</p>
+                            <p className="text-xs text-gray-400">Product created successfully</p>
+                        </div>
+                        <button 
+                            type="button"
+                            onClick={() => setShowSuccess(false)} 
+                            className="ml-4 text-gray-500 hover:text-white transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </form>
     );
 }

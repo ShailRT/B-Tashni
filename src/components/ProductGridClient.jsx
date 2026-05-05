@@ -18,18 +18,20 @@ export default function ProductGridClient({ products, title }) {
     }
 
     return (
-        <section className="py-20 px-6">
-            <div className="container mx-auto">
-                <h3 className="text-xl font-bold uppercase tracking-tight mb-8">{title}</h3>
+        <section className="py-8">
+            <div className="container mx-auto px-6">
+                {title && <h3 className="text-xl font-bold uppercase tracking-tight mb-8">{title}</h3>}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10">
+
                     {products.map((product) => (
                         <Link
                             href={`/product/${product.slug || product.id}`}
                             key={product.id || product.slug}
                             className="group cursor-pointer block"
                         >
-                            <div className="relative aspect-3/4 w-full bg-gray-100 mb-4 overflow-hidden">
+                            <div className="relative aspect-[3/4] w-full bg-gray-100 mb-4 overflow-hidden">
+
                                 <img
                                     src={product.image || product.imageUrls?.[0] || product.images?.[0] || 'https://via.placeholder.com/300x400'}
                                     alt={product.name || product.title}

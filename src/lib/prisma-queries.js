@@ -196,21 +196,34 @@ export async function deleteProduct(id) {
 /**
  * Get all products for admin view (including inactive ones)
  */
-export async function getProductsAdmin({ page = 1, limit = 50, search = '' } = {}) {
+export async function getProductsAdmin({ page = 1, limit = 50, search = '', minPrice, maxPrice, sort } = {}) {
     const skip = (page - 1) * limit;
 
-    const where = search ? {
-        OR: [
-            { name: { contains: search, mode: 'insensitive' } },
-            { slug: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } },
-        ],
-    } : {};
+    const where = {
+        ...(search ? {
+            OR: [
+                { name: { contains: search, mode: 'insensitive' } },
+                { slug: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+            ],
+        } : {}),
+        ...(minPrice || maxPrice ? {
+            price: {
+                ...(minPrice ? { gte: parseFloat(minPrice) } : {}),
+                ...(maxPrice ? { lte: parseFloat(maxPrice) } : {}),
+            }
+        } : {})
+    };
+
+    let orderBy = { createdAt: 'desc' };
+    if (sort === 'price_asc') orderBy = { price: 'asc' };
+    else if (sort === 'price_desc') orderBy = { price: 'desc' };
+    else if (sort === 'newest') orderBy = { createdAt: 'desc' };
 
     const [products, total] = await Promise.all([
         prisma.product.findMany({
             where,
-            orderBy: { createdAt: 'desc' },
+            orderBy,
             take: limit,
             skip,
         }),

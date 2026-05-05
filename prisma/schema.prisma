@@ -38,6 +38,7 @@ model Product {
   sizes            String[]
   homeVideoSection Boolean     @default(false)
   trendingSection  Boolean     @default(false)
+  sku              String?     @unique
   orderItems       OrderItem[]
 
   @@index([slug])

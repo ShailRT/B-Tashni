@@ -1,19 +1,45 @@
-import { useState } from "react";
-import { useUser, SignInButton } from "@clerk/nextjs";
+import { useUser, SignInButton, UserProfile, useClerk } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
+
 import { useCart } from "@/context/CartContext";
 import ShippingStrip from "./ShippingStrip";
 import UserOrders from "./UserOrders";
 import SizeGuidePopup from "./SizeGuidePopup";
 import { subscribeEmail } from "@/app/actions/subscribe";
+import { ShoppingBag, X, MapPin, AlertCircle, RefreshCcw, Package, CreditCard, ExternalLink, XCircle } from "lucide-react";
+
 
 export default function Footer() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [isOrdersModalOpen, setIsOrdersModalOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { isSizeGuideOpen, setIsSizeGuideOpen } = useCart();
   const { isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
   const [email, setEmail] = useState("");
   const [subStatus, setSubStatus] = useState({ loading: false, message: "", type: "" });
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case "DELIVERED":
+        return "bg-green-50 text-green-700 border-green-100";
+      case "CANCELLED":
+        return "bg-red-50 text-red-700 border-red-100";
+      case "REFUNDED":
+        return "bg-gray-50 text-gray-700 border-gray-100";
+      default:
+        return "bg-blue-50 text-blue-700 border-blue-100";
+    }
+  };
 
   const handleSubscribe = async () => {
     if (!email) return;
@@ -26,11 +52,45 @@ export default function Footer() {
       setSubStatus({ loading: false, message: res.error, type: "error" });
     }
   };
+  
+  // Handle deep linking to orders
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === "#/orders") {
+        if (isSignedIn) {
+          setIsProfileOpen(true);
+        } else {
+          openSignIn({ forceRedirectUrl: "/#orders" });
+        }
+      }
+    };
+
+    // Check on mount
+    checkHash();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, [isSignedIn, openSignIn]);
+
+  useEffect(() => {
+    const handleOpenDetail = (e) => {
+      setSelectedOrder(e.detail);
+    };
+    window.addEventListener('open-order-detail', handleOpenDetail);
+    return () => window.removeEventListener('open-order-detail', handleOpenDetail);
+  }, []);
+
+  const handleCloseProfile = () => {
+    window.location.hash = "";
+    setIsProfileOpen(false);
+  };
 
   return (
     <>
       <ShippingStrip />
       <footer className="bg-white pt-10 md:pt-20 pb-6 text-[#191919]">
+
         <div className="max-w-[1100px] mx-auto px-4 md:px-8 mb-15 md:mb-16">
           <div className="flex flex-col md:flex-row justify-between items-start md:gap-4 lg:gap-8">
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
@@ -171,9 +231,15 @@ export default function Footer() {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        setIsOrdersModalOpen(true);
+                        window.location.hash = "/orders";
+                        setIsProfileOpen(true);
                       }}
+
+
+
+
                       className="hover:text-black hover:underline"
+
                     >
                       Track Order
                     </a>
@@ -198,7 +264,7 @@ export default function Footer() {
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();
-                      setIsSizeGuideOpen(true);
+                      setIsSizeGuideOpen((prev) => !prev);
                     }}
                     className="hover:text-black hover:underline cursor-pointer"
                   >
@@ -361,13 +427,7 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-col md:flex-row text-center gap-4 md:gap-10 items-center flex-wrap justify-center mb-10 md:mb-0 font-medium whitespace-nowrap">
-              <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
-                className="hover:text-black"
-              >
-                CA Transparency Act
-              </a>
+
               <a
                 href="/accessibility"
                 className="hover:text-black"
@@ -403,18 +463,70 @@ export default function Footer() {
         </div>
       </footer>
 
-      {isOrdersModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto p-6 relative">
+      {isProfileOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-[2px] p-4 cursor-pointer"
+          onClick={handleCloseProfile}
+        >
+          <div
+            className="relative w-full max-w-[960px] h-[90vh] md:h-[720px] bg-white rounded-lg shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] cursor-default overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
-              onClick={() => setIsOrdersModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-black z-10"
+              onClick={handleCloseProfile}
+              className="absolute top-[1.25rem] right-[1.25rem] z-[110] text-[#6b7280] hover:text-[#111827] transition-colors"
+              aria-label="Close"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X size={20} strokeWidth={1.5} />
             </button>
-            <UserOrders />
+            <div className="h-full">
+              <UserProfile
+                routing="hash"
+                appearance={{
+                  elements: {
+                    rootBox: {
+                      height: "100%",
+                      width: "100%",
+                    },
+                    cardBox: {
+                      height: "100%",
+                      width: "100%",
+                    },
+                    card: {
+                      height: "100%",
+                      width: "100%",
+                      boxShadow: "none",
+                      border: "none",
+                      borderRadius: "0",
+                    },
+                    navbar: {
+                      backgroundColor: "#f9fafb",
+                      borderRight: "1px solid #e5e7eb",
+                    },
+                    scrollBox: {
+                      backgroundColor: "white",
+                      borderRadius: "0",
+                    },
+                    pageScrollBox: {
+                      padding: "2.5rem",
+                    },
+                    navbarMobileMenuRow: {
+                      border: "none",
+                    },
+                  }
+                }}
+              >
+
+
+                <UserProfile.Page
+                  label="Orders"
+                  labelIcon={<ShoppingBag size={16} />}
+                  url="orders"
+                >
+                  <UserOrders />
+                </UserProfile.Page>
+              </UserProfile>
+            </div>
           </div>
         </div>
       )}
@@ -423,6 +535,153 @@ export default function Footer() {
         isOpen={isSizeGuideOpen}
         onClose={() => setIsSizeGuideOpen(false)}
       />
+
+      {/* Global Order Detail Modal */}
+      {mounted && selectedOrder && createPortal(
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
+            onClick={() => setSelectedOrder(null)} 
+          />
+
+          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
+              <div>
+                <h2 className="text-lg font-bold text-[#11181C]">Order {selectedOrder.orderNumber}</h2>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">
+                  Placed on {new Date(selectedOrder.createdAt).toLocaleString("en-US", {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
+              <button 
+                onClick={() => setSelectedOrder(null)} 
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <XCircle className="w-6 h-6 text-gray-300 hover:text-gray-500" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+              {/* Order Status Summary */}
+              <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg border ${getStatusStyles(selectedOrder.status)}`}>
+                    <Package className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 leading-none mb-1">Status</p>
+                    <p className="text-xs font-bold text-[#11181C]">{selectedOrder.status}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 leading-none mb-1">Total Amount</p>
+                  <p className="text-sm font-bold text-[#11181C]">₹{selectedOrder.totalAmount.toLocaleString("en-IN")}</p>
+                </div>
+              </div>
+
+              {/* Items */}
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                  <ShoppingBag className="w-3 h-3" /> Items ({selectedOrder.items.length})
+                </h3>
+                <div className="space-y-3">
+                  {selectedOrder.items.map((item) => (
+                    <div key={item.id} className="flex gap-4 items-center p-3 rounded-xl border border-transparent hover:border-gray-100 hover:bg-gray-50/50 transition-all">
+                      <div className="w-14 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                        <img 
+                          src={item.product?.imageUrls?.[0] || ""} 
+                          alt="" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs font-bold text-[#11181C] uppercase tracking-tight">{item.product?.name || "Product"}</p>
+                        <p className="text-[10px] text-gray-500 font-medium">
+                          Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}
+                        </p>
+                      </div>
+                      <p className="text-xs font-bold text-[#11181C]">₹{(item.quantity * item.price).toLocaleString("en-IN")}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Grid: Shipping & Payment */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+                {/* Shipping Info */}
+                <div className="space-y-4">
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                    <MapPin className="w-3 h-3" /> Shipping Address
+                  </h3>
+                  <div className="text-xs text-[#11181C] leading-relaxed bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                    <p className="font-bold mb-1">
+                      {selectedOrder.shippingAddress?.firstName} {selectedOrder.shippingAddress?.lastName}
+                    </p>
+                    <p>{selectedOrder.shippingAddress?.address}</p>
+                    {selectedOrder.shippingAddress?.apartment && (
+                      <p>{selectedOrder.shippingAddress.apartment}</p>
+                    )}
+                    <p>
+                      {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.pincode}
+                    </p>
+                    <p className="mt-2 text-gray-500 font-medium">{selectedOrder.shippingAddress?.phone}</p>
+                  </div>
+                </div>
+
+                {/* Payment Info */}
+                <div className="space-y-4">
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                    <CreditCard className="w-3 h-3" /> Payment Details
+                  </h3>
+                  <div className="space-y-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+                    <div className="flex justify-between items-center">
+                      <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Status</p>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${selectedOrder.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                        {selectedOrder.paymentStatus}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Method</p>
+                      <p className="text-[10px] font-bold uppercase">{selectedOrder.paymentMethod || 'Online Payment'}</p>
+                    </div>
+                    {selectedOrder.razorpayPaymentId && (
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Payment ID</p>
+                        <p className="text-[10px] font-mono text-gray-400">{selectedOrder.razorpayPaymentId}</p>
+                      </div>
+                    )}
+                    {selectedOrder.refundStatus && (
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                        <p className="text-[10px] text-red-500 uppercase font-bold tracking-widest">Refund</p>
+                        <span className="text-[10px] font-bold text-red-600 uppercase">{selectedOrder.refundStatus}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end">
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="px-6 py-2 bg-[#11181C] text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-black transition-all"
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
+
+

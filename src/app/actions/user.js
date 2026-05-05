@@ -12,7 +12,21 @@ export async function syncCurrentUser() {
     try {
         const user = await currentUser();
         if (!user) return null;
-        return await syncUserFromClerk(user);
+        
+        const dbUser = await syncUserFromClerk(user);
+        
+        // Ensure Clerk publicMetadata stays in sync with Prisma role
+        // This is crucial for Client-side role checks (like the Admin button in Navbar)
+        if (dbUser.role !== user.publicMetadata?.role) {
+            const client = await clerkClient();
+            await client.users.updateUser(user.id, {
+                publicMetadata: {
+                    role: dbUser.role
+                }
+            });
+        }
+
+        return dbUser;
     } catch (error) {
         console.error('Error syncing user:', error);
         return null;
@@ -22,15 +36,21 @@ export async function syncCurrentUser() {
 /**
  * Fetch users from Prisma for the admin dashboard
  */
-export async function getUsers(search = '') {
+export async function getUsers(search = '', role = '') {
     try {
-        const where = search ? {
-            OR: [
+        const where = {};
+
+        if (search) {
+            where.OR = [
                 { firstName: { contains: search, mode: 'insensitive' } },
                 { lastName: { contains: search, mode: 'insensitive' } },
                 { email: { contains: search, mode: 'insensitive' } },
-            ],
-        } : {};
+            ];
+        }
+
+        if (role && role !== 'ALL') {
+            where.role = role;
+        }
 
         return await prisma.user.findMany({
             where,
@@ -67,9 +87,18 @@ export async function deleteUser(id) {
  */
 export async function updateUserRole(id, role) {
     try {
+        // 1. Update Prisma
         await prisma.user.update({
             where: { id: id },
             data: { role },
+        });
+
+        // 2. Update Clerk Metadata
+        const client = await clerkClient();
+        await client.users.updateUser(id, {
+            publicMetadata: {
+                role: role
+            }
         });
 
         revalidatePath('/admin/users');
