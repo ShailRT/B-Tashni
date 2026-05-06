@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail({ to, subject, text, html }) {
   try {
     const info = await transporter.sendMail({
-      from: process.env.SMTP_FROM_EMAIL || '"B-Tashni Store" <noreply@btashni.com>',
+      from: process.env.SMTP_FROM_EMAIL || '"B-Tashni Store" <noreply@btashni.in>',
       to,
       subject,
       text,
@@ -43,10 +43,10 @@ export async function sendEmail({ to, subject, text, html }) {
  */
 export async function sendOrderConfirmationEmail(order) {
   const { user, totalAmount, orderNumber, shippingAddress } = order;
-  
+
   // Determine recipient email: either from user profile or guest shipping address
   const recipientEmail = user?.email || shippingAddress?.email;
-  
+
   if (!recipientEmail) {
     console.error("No email address found for order:", orderNumber);
     return false;
@@ -70,7 +70,7 @@ export async function sendOrderConfirmationEmail(order) {
 export async function sendSubscriptionWelcomeEmail(email) {
   const subject = 'B-TASHNI | Welcome to the Circle! 🎉';
   const html = getSubscriptionWelcomeHtml();
-
+  console.log("in")
   return await sendEmail({
     to: email,
     subject,

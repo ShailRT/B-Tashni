@@ -13,7 +13,7 @@ export default function PrivacyPolicy() {
         <section>
           <p className="mb-4 text-black font-bold uppercase tracking-wider text-xs">Last updated October 9, 2024</p>
           <p className="mb-4">
-            Welcome to the BTASHNI website, btashni.com (the “Website”), and the BTASHNI mobile application (the “App”) (the Website and App are collectively referred to as the “Services”). The Services are operated by BTASHNI (“we,” “us,” or “our”). We believe that the privacy and security of your information and personal data (“Information”) is very important. This Privacy Policy (“Policy” or “Privacy Policy”) explains the type of Information we collect from users of the Services, how that Information is used, how the Information may be shared with other parties, and what controls our users have regarding their Information. We encourage you to read this Policy carefully.
+            Welcome to the BTASHNI website, btashni.in (the “Website”), and the BTASHNI mobile application (the “App”) (the Website and App are collectively referred to as the “Services”). The Services are operated by BTASHNI (“we,” “us,” or “our”). We believe that the privacy and security of your information and personal data (“Information”) is very important. This Privacy Policy (“Policy” or “Privacy Policy”) explains the type of Information we collect from users of the Services, how that Information is used, how the Information may be shared with other parties, and what controls our users have regarding their Information. We encourage you to read this Policy carefully.
           </p>
           <p className="mb-4">
             Any updates or modifications to this Policy will be posted to our Website on this page and on the App. By using or accessing the Services, you signify that you have read, understand and agree to be bound by this Policy.
@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
             California residents should consult the section titled “Your California Privacy Rights” for rights that apply to them.
           </p>
           <p className="mb-4">
-            If you have questions about this Policy, please contact us at privacy@btashni.com.
+            If you have questions about this Policy, please contact us at privacy@btashni.in.
           </p>
         </section>
 
