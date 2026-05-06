@@ -22,11 +22,11 @@ export default function ProductsPage() {
 
     async function fetchProducts() {
         setLoading(true);
-        const result = await getAdminProductsAction({ 
-            search, 
+        const result = await getAdminProductsAction({
+            search,
             minPrice: minPrice !== '0' ? minPrice : undefined,
             maxPrice: maxPrice !== '20000' ? maxPrice : undefined,
-            sort 
+            sort
         });
         if (result && result.products) {
             setProducts(result.products);
@@ -51,10 +51,10 @@ export default function ProductsPage() {
 
     const confirmDelete = async () => {
         if (!productToDelete) return;
-        
+
         setDeletingId(productToDelete);
         const result = await deleteProductAction(productToDelete);
-        
+
         if (result.success) {
             setProducts(products.filter(p => p.id !== productToDelete));
             setShowSuccess(true);
@@ -62,7 +62,7 @@ export default function ProductsPage() {
         } else {
             alert(result.error || 'Failed to delete product');
         }
-        
+
         setDeletingId(null);
         setProductToDelete(null);
         setActiveDropdownId(null);
@@ -80,7 +80,10 @@ export default function ProductsPage() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900">Products</h1>
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-900">Products</h1>
+                    <p className="text-sm text-gray-500">Manage your products and inventory</p>
+                </div>
                 <Link href="/admin/products/create" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     <Plus className="-ml-1 mr-2 h-4 w-4" />
                     Add Product
@@ -102,7 +105,7 @@ export default function ProductsPage() {
                             placeholder="Search products..."
                         />
                     </div>
-                    
+
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                         <select
                             value={sort}
@@ -114,14 +117,14 @@ export default function ProductsPage() {
                             <option value="price_desc">Price: High to Low</option>
                         </select>
 
-                        <button 
+                        <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                             className={`inline-flex items-center h-11 px-4 border border-gray-200 shadow-sm text-sm font-medium rounded-xl whitespace-nowrap transition-colors ${isFilterOpen ? 'bg-gray-100 border-gray-400' : 'bg-gray-50/50 hover:bg-gray-100/50'}`}
                         >
                             <Filter className={`-ml-1 mr-2 h-4 w-4 ${isFilterOpen ? 'text-black' : 'text-gray-400'}`} />
                             <span className="hidden sm:inline">{isFilterOpen ? 'Hide Filters' : 'Price Filter'}</span>
                             <span className="sm:hidden">Filters</span>
-                            { (minPrice !== '0' || maxPrice !== '20000') && (
+                            {(minPrice !== '0' || maxPrice !== '20000') && (
                                 <span className="ml-2 w-2 h-2 bg-blue-600 rounded-full" />
                             )}
                         </button>
@@ -134,14 +137,14 @@ export default function ProductsPage() {
                         <div className="max-w-md">
                             <div className="flex items-center justify-between mb-6">
                                 <h4 className="text-sm font-bold uppercase tracking-widest text-gray-900">Price Range</h4>
-                                <button 
+                                <button
                                     onClick={() => { setMinPrice('0'); setMaxPrice('20000'); }}
                                     className="text-xs text-blue-600 hover:underline font-medium"
                                 >
                                     Reset
                                 </button>
                             </div>
-                            
+
                             <div className="space-y-8 px-2">
                                 <div className="relative h-1.5 w-full bg-gray-100 rounded-full">
                                     <div
@@ -361,9 +364,9 @@ export default function ProductsPage() {
                             <p className="text-sm font-bold">Success!</p>
                             <p className="text-xs text-gray-400">Product deleted successfully</p>
                         </div>
-                        <button 
+                        <button
                             type="button"
-                            onClick={() => setShowSuccess(false)} 
+                            onClick={() => setShowSuccess(false)}
                             className="ml-4 text-gray-500 hover:text-white transition-colors"
                         >
                             <X className="h-4 w-4" />

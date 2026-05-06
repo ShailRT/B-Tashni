@@ -12,8 +12,21 @@ const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" }); // Con
 export const metadata = {
   title: "B-Tashni | Elegance in Every Thread",
   description: "Discover the latest collection of premium apparel from B-Tashni.",
+  icons: {
+    icon: [
+      {
+        url: '/icon1.png',
+        media: '(prefers-color-scheme: light)',
+        type: 'image/png',
+      },
+      {
+        url: '/icon-white1.png',
+        media: '(prefers-color-scheme: dark)',
+        type: 'image/png',
+      },
+    ],
+  },
 };
-
 import UserSync from "@/components/UserSync";
 
 export default function RootLayout({ children }) {

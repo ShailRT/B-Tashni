@@ -14,7 +14,8 @@ import {
     RefreshCcw,
     MoreVertical,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Loader2
 } from "lucide-react";
 
 export default function AdminOrdersPage() {
@@ -78,98 +79,121 @@ export default function AdminOrdersPage() {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case "PENDING": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-            case "PROCESSING": return "bg-blue-100 text-blue-700 border-blue-200";
-            case "SHIPPED": return "bg-purple-100 text-purple-700 border-purple-200";
-            case "DELIVERED": return "bg-green-100 text-green-700 border-green-200";
-            case "CANCELLED": return "bg-red-100 text-red-700 border-red-200";
-            case "REFUNDED": return "bg-gray-100 text-gray-700 border-gray-200";
-            default: return "bg-gray-100 text-gray-700 border-gray-100";
+            case "PENDING": return "bg-yellow-100 text-yellow-800";
+            case "PROCESSING": return "bg-blue-100 text-blue-800";
+            case "SHIPPED": return "bg-purple-100 text-purple-800";
+            case "DELIVERED": return "bg-green-100 text-green-800";
+            case "CANCELLED": return "bg-red-100 text-red-800";
+            case "REFUNDED": return "bg-gray-100 text-gray-800";
+            default: return "bg-gray-100 text-gray-800";
         }
     };
 
     return (
-        <div className="p-8 max-w-7xl mx-auto space-y-8">
+        <div className="space-y-6">
             {/* Header */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-[#1c1c1c]">Orders</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-900">Orders</h1>
                     <p className="text-sm text-gray-500">Manage and track customer purchases</p>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl border border-gray-200 shadow-sm items-center">
+                <div className="relative flex-1 group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <Search className="h-4 w-4 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                    </div>
                     <input
                         type="text"
                         placeholder="Search orders..."
-                        className="w-full pl-10 pr-4 py-2 bg-gray-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-black transition-all"
+                        className="block w-full h-11 pl-10 pr-10 border border-gray-200 rounded-xl text-sm bg-gray-50/50 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-all"
                     />
                 </div>
-                <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="px-4 py-2 bg-gray-50 border-none rounded-lg text-sm font-medium focus:ring-2 focus:ring-black transition-all"
-                >
-                    <option value="all">All Status</option>
-                    <option value="PENDING">Pending</option>
-                    <option value="PROCESSING">Processing</option>
-                    <option value="SHIPPED">Shipped</option>
-                    <option value="DELIVERED">Delivered</option>
-                    <option value="CANCELLED">Cancelled</option>
-                    <option value="REFUNDED">Refunded</option>
-                </select>
+
+                <div className="relative min-w-[160px]">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <Filter className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="appearance-none block w-full h-11 pl-10 pr-10 border border-gray-200 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-gray-50/50 hover:bg-gray-100/50 focus:outline-none focus:ring-4 focus:ring-blue-600/10 focus:border-blue-600 transition-all cursor-pointer"
+                    >
+                        <option value="all">All Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="PROCESSING">Processing</option>
+                        <option value="SHIPPED">Shipped</option>
+                        <option value="DELIVERED">Delivered</option>
+                        <option value="CANCELLED">Cancelled</option>
+                        <option value="REFUNDED">Refunded</option>
+                    </select>
+                    <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                        <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[600px]">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Order</th>
-                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Customer</th>
-                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Total</th>
-                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Status</th>
-                                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Action</th>
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Total</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="bg-white divide-y divide-gray-200">
                             {loading ? (
-                                <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">Loading orders...</td></tr>
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                                        <div className="flex flex-col items-center">
+                                            <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-2" />
+                                            <p>Loading orders...</p>
+                                        </div>
+                                    </td>
+                                </tr>
                             ) : error ? (
-                                <tr><td colSpan="5" className="px-6 py-8 text-center text-red-500">Error: {error}</td></tr>
+                                <tr><td colSpan="5" className="px-6 py-12 text-center text-red-500">Error: {error}</td></tr>
                             ) : orders.length === 0 ? (
-                                <tr><td colSpan="5" className="px-6 py-8 text-center text-gray-400">No orders found</td></tr>
+                                <tr><td colSpan="5" className="px-6 py-12 text-center text-gray-500">No orders found</td></tr>
                             ) : (
                                 orders.map((order) => (
-                                    <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-6 py-4">
+                                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-[#1c1c1c]">{order.orderNumber}</span>
-                                                <span className="text-[10px] text-gray-400">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                                <span className="text-sm font-semibold text-gray-900">{order.orderNumber}</span>
+                                                <span className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col">
-                                                <span className="text-sm text-gray-600">{order.user?.firstName || "Unknown"} {order.user?.lastName || ""}</span>
-                                                <span className="text-[10px] text-gray-400">{order.user?.email || "No Email"}</span>
+                                                <span className="text-sm font-semibold text-gray-900">{order.user?.firstName || "Guest"} {order.user?.lastName || ""}</span>
+                                                <span className="text-sm text-gray-500">{order.user?.email || "No Email"}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium">₹{order.totalAmount.toLocaleString()}</td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter border ${getStatusColor(order.status)}`}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                                            ₹{order.totalAmount.toLocaleString()}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full ${getStatusColor(order.status)}`}>
                                                 {order.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button
                                                 onClick={() => setSelectedOrder(order)}
-                                                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                                className="p-1.5 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-all"
+                                                title="View Details"
                                             >
-                                                <Eye className="w-4 h-4 text-gray-600" />
+                                                <Eye size={18} />
                                             </button>
                                         </td>
                                     </tr>
@@ -180,23 +204,49 @@ export default function AdminOrdersPage() {
                 </div>
 
                 {/* Pagination */}
-                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
-                    <p className="text-xs text-gray-500">Showing {orders.length} of {total} orders</p>
-                    <div className="flex gap-2">
+                <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between sm:px-6">
+                    <div className="flex-1 flex justify-between sm:hidden">
                         <button
                             disabled={page === 1}
                             onClick={() => setPage(p => p - 1)}
-                            className="p-2 border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-white transition-all shadow-sm"
+                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                         >
-                            <ChevronLeft className="w-4 h-4" />
+                            Previous
                         </button>
                         <button
                             disabled={page * 10 >= total}
                             onClick={() => setPage(p => p + 1)}
-                            className="p-2 border border-gray-200 rounded-lg disabled:opacity-30 hover:bg-white transition-all shadow-sm"
+                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                         >
-                            <ChevronRight className="w-4 h-4" />
+                            Next
                         </button>
+                    </div>
+                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p className="text-sm text-gray-700">
+                                Showing <span className="font-medium">{orders.length}</span> of <span className="font-medium">{total}</span> orders
+                            </p>
+                        </div>
+                        <div>
+                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <button
+                                    disabled={page === 1}
+                                    onClick={() => setPage(p => p - 1)}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                                >
+                                    <span className="sr-only">Previous</span>
+                                    <ChevronLeft className="h-5 w-5" />
+                                </button>
+                                <button
+                                    disabled={page * 10 >= total}
+                                    onClick={() => setPage(p => p + 1)}
+                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                                >
+                                    <span className="sr-only">Next</span>
+                                    <ChevronRight className="h-5 w-5" />
+                                </button>
+                            </nav>
+                        </div>
                     </div>
                 </div>
             </div>

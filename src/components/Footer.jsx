@@ -17,11 +17,10 @@ export default function Footer() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { isSizeGuideOpen, setIsSizeGuideOpen } = useCart();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, isLoaded } = useUser();
   const { openSignIn } = useClerk();
   const [email, setEmail] = useState("");
   const [subStatus, setSubStatus] = useState({ loading: false, message: "", type: "" });
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -57,6 +56,7 @@ export default function Footer() {
   useEffect(() => {
     const checkHash = () => {
       if (window.location.hash === "#/orders") {
+        if (!isLoaded) return;
         if (isSignedIn) {
           setIsProfileOpen(true);
         } else {
@@ -71,18 +71,12 @@ export default function Footer() {
     // Listen for hash changes
     window.addEventListener('hashchange', checkHash);
     return () => window.removeEventListener('hashchange', checkHash);
-  }, [isSignedIn, openSignIn]);
+  }, [isSignedIn, isLoaded, openSignIn]);
 
-  useEffect(() => {
-    const handleOpenDetail = (e) => {
-      setSelectedOrder(e.detail);
-    };
-    window.addEventListener('open-order-detail', handleOpenDetail);
-    return () => window.removeEventListener('open-order-detail', handleOpenDetail);
-  }, []);
+
 
   const handleCloseProfile = () => {
-    window.location.hash = "";
+    history.replaceState(null, document.title, window.location.pathname + window.location.search);
     setIsProfileOpen(false);
   };
 
@@ -536,150 +530,7 @@ export default function Footer() {
         onClose={() => setIsSizeGuideOpen(false)}
       />
 
-      {/* Global Order Detail Modal */}
-      {mounted && selectedOrder && createPortal(
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
-            onClick={() => setSelectedOrder(null)} 
-          />
 
-          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
-            {/* Modal Header */}
-            <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-center">
-              <div>
-                <h2 className="text-lg font-bold text-[#11181C]">Order {selectedOrder.orderNumber}</h2>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">
-                  Placed on {new Date(selectedOrder.createdAt).toLocaleString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-              <button 
-                onClick={() => setSelectedOrder(null)} 
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <XCircle className="w-6 h-6 text-gray-300 hover:text-gray-500" />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-              {/* Order Status Summary */}
-              <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg border ${getStatusStyles(selectedOrder.status)}`}>
-                    <Package className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 leading-none mb-1">Status</p>
-                    <p className="text-xs font-bold text-[#11181C]">{selectedOrder.status}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 leading-none mb-1">Total Amount</p>
-                  <p className="text-sm font-bold text-[#11181C]">₹{selectedOrder.totalAmount.toLocaleString("en-IN")}</p>
-                </div>
-              </div>
-
-              {/* Items */}
-              <div className="space-y-4">
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
-                  <ShoppingBag className="w-3 h-3" /> Items ({selectedOrder.items.length})
-                </h3>
-                <div className="space-y-3">
-                  {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex gap-4 items-center p-3 rounded-xl border border-transparent hover:border-gray-100 hover:bg-gray-50/50 transition-all">
-                      <div className="w-14 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
-                        <img 
-                          src={item.product?.imageUrls?.[0] || ""} 
-                          alt="" 
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-xs font-bold text-[#11181C] uppercase tracking-tight">{item.product?.name || "Product"}</p>
-                        <p className="text-[10px] text-gray-500 font-medium">
-                          Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}
-                        </p>
-                      </div>
-                      <p className="text-xs font-bold text-[#11181C]">₹{(item.quantity * item.price).toLocaleString("en-IN")}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Grid: Shipping & Payment */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
-                {/* Shipping Info */}
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
-                    <MapPin className="w-3 h-3" /> Shipping Address
-                  </h3>
-                  <div className="text-xs text-[#11181C] leading-relaxed bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                    <p className="font-bold mb-1">
-                      {selectedOrder.shippingAddress?.firstName} {selectedOrder.shippingAddress?.lastName}
-                    </p>
-                    <p>{selectedOrder.shippingAddress?.address}</p>
-                    {selectedOrder.shippingAddress?.apartment && (
-                      <p>{selectedOrder.shippingAddress.apartment}</p>
-                    )}
-                    <p>
-                      {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.pincode}
-                    </p>
-                    <p className="mt-2 text-gray-500 font-medium">{selectedOrder.shippingAddress?.phone}</p>
-                  </div>
-                </div>
-
-                {/* Payment Info */}
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
-                    <CreditCard className="w-3 h-3" /> Payment Details
-                  </h3>
-                  <div className="space-y-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Status</p>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${selectedOrder.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                        {selectedOrder.paymentStatus}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Method</p>
-                      <p className="text-[10px] font-bold uppercase">{selectedOrder.paymentMethod || 'Online Payment'}</p>
-                    </div>
-                    {selectedOrder.razorpayPaymentId && (
-                      <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                        <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Payment ID</p>
-                        <p className="text-[10px] font-mono text-gray-400">{selectedOrder.razorpayPaymentId}</p>
-                      </div>
-                    )}
-                    {selectedOrder.refundStatus && (
-                      <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                        <p className="text-[10px] text-red-500 uppercase font-bold tracking-widest">Refund</p>
-                        <span className="text-[10px] font-bold text-red-600 uppercase">{selectedOrder.refundStatus}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end">
-              <button 
-                onClick={() => setSelectedOrder(null)}
-                className="px-6 py-2 bg-[#11181C] text-white text-[10px] font-bold uppercase tracking-widest rounded-lg hover:bg-black transition-all"
-              >
-                Close Details
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
     </>
   );
 }

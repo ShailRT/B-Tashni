@@ -45,6 +45,7 @@ export default function ProductGridClient({ products, title }) {
                                 <button
                                     onClick={(e) => {
                                         e.preventDefault();
+                                        if (product.stock <= 0) return;
                                         addToCart({
                                             id: product.id,
                                             originalId: product.id,
@@ -54,9 +55,10 @@ export default function ProductGridClient({ products, title }) {
                                             slug: product.slug,
                                         });
                                     }}
-                                    className="absolute bottom-0 left-0 right-0 bg-white/90 py-3 text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-black hover:text-white"
+                                    disabled={product.stock <= 0}
+                                    className={`absolute bottom-0 left-0 right-0 bg-white/90 py-3 text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${product.stock <= 0 ? "opacity-80 cursor-not-allowed text-gray-500" : "hover:bg-black hover:text-white"}`}
                                 >
-                                    Quick Add
+                                    {product.stock <= 0 ? "Out of Stock" : "Quick Add"}
                                 </button>
                             </div>
 
