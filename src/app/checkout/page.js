@@ -192,17 +192,22 @@ export default function CheckoutPage() {
                 magic: true,
             };
 
+            let paymentFailed = false;
+
             const rzp = new window.Razorpay({
                 ...options,
                 modal: {
                     ondismiss: function() {
                         setIsProcessing(false);
+                        if (paymentFailed) {
+                            window.location.href = "/order-cancel";
+                        }
                     }
                 }
             });
             rzp.on("payment.failed", function (response) {
                 console.error("Payment failed: ", response.error.description);
-                window.location.href = "/order-cancel";
+                paymentFailed = true;
             });
             rzp.open();
         } catch (error) {

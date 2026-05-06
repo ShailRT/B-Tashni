@@ -67,7 +67,10 @@ export default function UsersPage() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900">Users</h1>
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-gray-900">Users</h1>
+                    <p className="text-sm text-gray-500">Manage users and access levels</p>
+                </div>
                 <Link href="/admin/users/create" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
                     <Plus className="-ml-1 mr-2 h-4 w-4" />
                     Add User
@@ -88,7 +91,7 @@ export default function UsersPage() {
                         placeholder="Search users by name, email or ID..."
                     />
                     {search && (
-                        <button 
+                        <button
                             onClick={() => setSearch('')}
                             className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600"
                         >

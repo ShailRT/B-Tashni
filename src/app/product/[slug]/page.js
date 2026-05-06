@@ -77,9 +77,8 @@ export default function Page() {
       quantity: 1,
     });
   };
-
   return (
-    <div className="min-h-screen bg-white text-black font-sans pb-32 pt-32 selection:bg-black selection:text-white antialiased">
+    <div className="min-h-screen bg-white text-black font-sans pb-32 pt-12 selection:bg-black selection:text-white antialiased">
       <div className="flex flex-col lg:flex-row w-full max-w-[2400px] mx-auto overflow-hidden px-0 lg:px-[8vw] xl:px-[12vw]">
 
         {/* Image Gallery - Left Side (Zara's signature 2/3 scroll with grid) */}
@@ -154,7 +153,7 @@ export default function Page() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest">Select Size</span>
-                <button 
+                <button
                   onClick={() => setIsSizeGuideOpen((prev) => !prev)}
                   className="flex items-center gap-1.5 text-[10px] uppercase underline underline-offset-4 tracking-widest font-light hover:text-gray-500 transition-colors"
                 >
@@ -168,7 +167,8 @@ export default function Page() {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-full cursor-pointer group py-4 px-1 text-left transition-all duration-300 flex justify-between items-center ${selectedSize === size ? "bg-black/2" : "hover:bg-black/[0.01]"}`}
+                    disabled={product.stock <= 0}
+                    className={`w-full group py-4 px-1 text-left transition-all duration-300 flex justify-between items-center ${selectedSize === size ? "bg-black/2" : "hover:bg-black/[0.01]"} ${product.stock <= 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                   >
                     <span className={`text-[12px] uppercase tracking-[0.1em] transition-all transform ${selectedSize === size ? "font-bold translate-x-1" : "font-light"}`}>
                       {size}
@@ -183,10 +183,10 @@ export default function Page() {
             <div className="flex flex-col gap-4">
               <button
                 onClick={handleAddToCart}
-                disabled={!selectedSize}
+                disabled={product.stock <= 0 ? true : !selectedSize}
                 className="w-full cursor-pointer bg-black text-white hover:bg-[#111] py-5 px-8 text-[11px] font-bold uppercase tracking-[0.25em] transition-all duration-500 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98]"
               >
-                Add to Cart
+                {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
               </button>
               <p className="text-[9px] text-center text-gray-500 uppercase tracking-widest font-light">
                 Free delivery for all orders above ₹2999

@@ -24,21 +24,16 @@ export default function UserOrders() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // If we already have cached data, use it immediately
     if (_cachedOrders !== null) {
       setOrders(_cachedOrders);
       setLoading(false);
-      return;
     }
-    // If another instance is already fetching, wait for it
-    if (_isFetching) return;
 
-    _isFetching = true;
     const loadOrders = async () => {
       try {
         const result = await fetchUserOrdersAction();
         const fetched = result.orders || [];
-        _cachedOrders = fetched; // Cache at module level
+        _cachedOrders = fetched; // Update cache
         setOrders(fetched);
         if (result.error && fetched.length === 0) {
           setError(result.error);
@@ -47,11 +42,13 @@ export default function UserOrders() {
         setError(e.message);
       } finally {
         setLoading(false);
-        _isFetching = false;
       }
     };
+    
     loadOrders();
   }, []);
+
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -65,6 +62,123 @@ export default function UserOrders() {
         return "bg-blue-50 text-blue-700 border-blue-100";
     }
   };
+
+  if (selectedOrder) {
+    return (
+      <div className="w-full animate-in fade-in duration-200">
+        <div className="mb-2 flex items-center gap-4">
+          <button 
+            onClick={() => setSelectedOrder(null)}
+            className="p-1.5 hover:bg-gray-100 rounded-md transition-colors text-gray-500 hover:text-black flex items-center justify-center"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <h2 className="text-[1.125rem] font-bold text-[#11181C]">Order {selectedOrder.orderNumber}</h2>
+        </div>
+        <div className="mt-4 mb-6 h-[1px] w-full bg-[#EEEEF0]" />
+
+        <div className="space-y-6 pb-8">
+          {/* Order Status Summary */}
+          <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg border ${getStatusStyles(selectedOrder.status)}`}>
+                <Package className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 leading-none mb-1">Status</p>
+                <p className="text-xs font-bold text-[#11181C]">{selectedOrder.status}</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 leading-none mb-1">Placed on</p>
+              <p className="text-xs font-bold text-[#11181C]">
+                {new Date(selectedOrder.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </p>
+            </div>
+          </div>
+
+          {/* Items */}
+          <div className="space-y-4">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+              <ShoppingBag className="w-3 h-3" /> Items ({selectedOrder.items.length})
+            </h3>
+            <div className="space-y-3">
+              {selectedOrder.items.map((item) => (
+                <div key={item.id} className="flex gap-4 items-center p-3 rounded-xl border border-transparent hover:border-gray-100 hover:bg-gray-50/50 transition-all">
+                  <div className="w-14 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                    <img 
+                      src={item.product?.imageUrls?.[0] || ""} 
+                      alt="" 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-[#11181C] uppercase tracking-tight">{item.product?.name || "Product"}</p>
+                    <p className="text-[10px] text-gray-500 font-medium">
+                      Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}
+                    </p>
+                  </div>
+                  <p className="text-xs font-bold text-[#11181C]">₹{(item.quantity * item.price).toLocaleString("en-IN")}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Grid: Shipping & Payment */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+            {/* Shipping Info */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                <MapPin className="w-3 h-3" /> Shipping Address
+              </h3>
+              <div className="text-xs text-[#11181C] leading-relaxed bg-gray-50/50 p-4 rounded-xl border border-gray-100 h-[140px]">
+                <p className="font-bold mb-1">
+                  {selectedOrder.shippingAddress?.firstName} {selectedOrder.shippingAddress?.lastName}
+                </p>
+                <p>{selectedOrder.shippingAddress?.address}</p>
+                {selectedOrder.shippingAddress?.apartment && (
+                  <p>{selectedOrder.shippingAddress.apartment}</p>
+                )}
+                <p>
+                  {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.pincode}
+                </p>
+                <p className="mt-2 text-gray-500 font-medium">{selectedOrder.shippingAddress?.phone}</p>
+              </div>
+            </div>
+
+            {/* Payment Info */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                <CreditCard className="w-3 h-3" /> Payment Details
+              </h3>
+              <div className="space-y-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100 h-[140px]">
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Total Amount</p>
+                  <p className="text-xs font-bold text-[#11181C]">₹{selectedOrder.totalAmount.toLocaleString("en-IN")}</p>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Status</p>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${selectedOrder.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                    {selectedOrder.paymentStatus}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Method</p>
+                  <p className="text-[10px] font-bold uppercase">{selectedOrder.paymentMethod || 'Online Payment'}</p>
+                </div>
+                {selectedOrder.razorpayPaymentId && (
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                    <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Payment ID</p>
+                    <p className="text-[10px] font-mono text-gray-400">{selectedOrder.razorpayPaymentId}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
@@ -127,9 +241,7 @@ export default function UserOrders() {
                     </p>
                   </div>
                   <button 
-                    onClick={() => {
-                      window.dispatchEvent(new CustomEvent('open-order-detail', { detail: order }));
-                    }}
+                    onClick={() => setSelectedOrder(order)}
                     className="p-2 -mr-2 text-[#687076] hover:text-[#11181C] transition-colors"
                   >
                     <ExternalLink className="w-4 h-4" />
