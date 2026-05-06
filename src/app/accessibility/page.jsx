@@ -14,7 +14,7 @@ export default function AccessibilityPage() {
                             Accessibility Assistance
                         </h2>
                         <p className="text-[15px]">
-                            If you have difficulty using or accessing any element of this website, please email us at <a href="mailto:help@btashni.com" className="underline font-bold text-black hover:text-gray-700">help@btashni.com</a> and we will work with you to provide the information, item, or transaction you seek through a communication method or that is accessible for you consistent with applicable law (for example, through telephone support).
+                            If you have difficulty using or accessing any element of this website, please email us at <a href="mailto:help@btashni.in" className="underline font-bold text-black hover:text-gray-700">help@btashni.in</a> and we will work with you to provide the information, item, or transaction you seek through a communication method or that is accessible for you consistent with applicable law (for example, through telephone support).
                         </p>
                     </section>
 
