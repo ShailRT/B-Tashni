@@ -49,7 +49,7 @@ function SuccessContent() {
 
                 <div className="grid grid-cols-1 gap-4 pt-10">
                     <a
-                        href="#/orders"
+                        href="/orders"
                         className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-[#2d2a26] transition-colors"
                     >
                         <Package className="w-4 h-4" />

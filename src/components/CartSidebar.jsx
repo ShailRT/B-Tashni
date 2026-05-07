@@ -165,7 +165,7 @@ export default function CartSidebar() {
                           </div>
                           {isAtStockLimit && (
                             <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-semibold">
-                              Only {stockLimit} in stock — you have the maximum amount in cart.
+                              Only {stockLimit} in stock
                             </p>
                           )}
                         </div>
