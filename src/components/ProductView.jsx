@@ -22,7 +22,9 @@ export default function ProductView({ product }) {
       image: images[0],
       color: product.color,
       selectedSize: selectedSize,
+      slug: product.slug || product.handle || id,
       handle: product.id,
+      stock: product.stock,
       quantity: 1,
     });
   };

@@ -73,7 +73,9 @@ export default function Page() {
       image: images[0],
       color: product.color,
       selectedSize: selectedSize,
+      slug: product.slug || slug,
       handle: product.id,
+      stock: product.stock,
       quantity: 1,
     });
   };
