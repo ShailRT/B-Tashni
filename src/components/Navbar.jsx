@@ -190,7 +190,12 @@ export default function Navbar() {
         className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
-        <div className="flex justify-end p-6">
+        <div className="flex justify-between items-center p-6 pt-12 pb-6 border-b border-gray-200">
+          <img
+            src="/logo.png"
+            alt="B-Tashni"
+            className="h-8 w-auto object-contain"
+          />
           <button
             onClick={toggleMobileMenu}
             className="text-[#2d2a26] text-2xl"

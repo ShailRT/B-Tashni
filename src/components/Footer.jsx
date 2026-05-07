@@ -55,12 +55,12 @@ export default function Footer() {
   // Handle deep linking to orders
   useEffect(() => {
     const checkHash = () => {
-      if (window.location.hash === "#/orders") {
+      if (window.location.hash === "/orders") {
         if (!isLoaded) return;
         if (isSignedIn) {
           setIsProfileOpen(true);
         } else {
-          openSignIn({ forceRedirectUrl: "/#orders" });
+          openSignIn({ forceRedirectUrl: "/orders" });
         }
       }
     };

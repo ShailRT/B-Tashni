@@ -11,12 +11,14 @@ import {
   CreditCard,
   MapPin,
 } from "lucide-react";
+import Link from "next/link";
 import { fetchUserOrdersAction } from "../app/actions/orders";
 
 // Module-level cache — survives component unmount/remount cycles
 // (Clerk's UserButton fully unmounts profile pages on dropdown close)
 let _cachedOrders = null;
 let _isFetching = false;
+let _selectedOrder = null;
 
 export default function UserOrders() {
   const [orders, setOrders] = useState(_cachedOrders || []);
@@ -27,9 +29,13 @@ export default function UserOrders() {
     if (_cachedOrders !== null) {
       setOrders(_cachedOrders);
       setLoading(false);
+      return; // Don't fetch if we have cached data
     }
 
     const loadOrders = async () => {
+      if (_isFetching) return; // Prevent duplicate fetches
+      _isFetching = true;
+      
       try {
         const result = await fetchUserOrdersAction();
         const fetched = result.orders || [];
@@ -42,13 +48,19 @@ export default function UserOrders() {
         setError(e.message);
       } finally {
         setLoading(false);
+        _isFetching = false;
       }
     };
     
     loadOrders();
   }, []);
 
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrderState] = useState(_selectedOrder);
+
+  const setSelectedOrder = (order) => {
+    _selectedOrder = order;
+    setSelectedOrderState(order);
+  };
 
   const getStatusStyles = (status) => {
     switch (status) {
@@ -113,7 +125,15 @@ export default function UserOrders() {
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="text-xs font-bold text-[#11181C] uppercase tracking-tight">{item.product?.name || "Product"}</p>
+                    <button 
+                      onClick={() => {
+                        setSelectedOrder(null);
+                        window.location.href = `/product/${item.product?.slug || ""}`;
+                      }}
+                      className="hover:underline text-left"
+                    >
+                      <p className="text-xs font-bold text-[#11181C] uppercase tracking-tight">{item.product?.name || "Product"}</p>
+                    </button>
                     <p className="text-[10px] text-gray-500 font-medium">
                       Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}
                     </p>

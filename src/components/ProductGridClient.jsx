@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export default function ProductGridClient({ products, title }) {
     const { addToCart } = useCart();
+    const [activeSizeProductId, setActiveSizeProductId] = useState(null);
 
     if (!products || products.length === 0) {
         return (
@@ -42,24 +44,54 @@ export default function ProductGridClient({ products, title }) {
                                         Sale
                                     </span>
                                 )}
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        if (product.stock <= 0) return;
-                                        addToCart({
-                                            id: product.id,
-                                            originalId: product.id,
-                                            name: product.name || product.title,
-                                            price: product.price,
-                                            image: product.imageUrls?.[0] || product.images?.[0] || product.image,
-                                            slug: product.slug,
-                                        });
-                                    }}
-                                    disabled={product.stock <= 0}
-                                    className={`absolute bottom-0 left-0 right-0 bg-white/90 py-3 text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${product.stock <= 0 ? "opacity-80 cursor-not-allowed text-gray-500" : "hover:bg-black hover:text-white"}`}
-                                >
-                                    {product.stock <= 0 ? "Out of Stock" : "Quick Add"}
-                                </button>
+                                {activeSizeProductId === (product.id || product.slug) ? (
+                                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 py-3 px-2 flex justify-center gap-2 items-center transition-transform duration-300 z-10">
+                                        {(product.sizes && product.sizes.length > 0 ? product.sizes : ["S", "M", "L", "XL"]).map(size => (
+                                            <button
+                                                key={size}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    addToCart({
+                                                        id: `${product.id || product.slug}-${size}`,
+                                                        originalId: product.id || product.slug,
+                                                        name: product.name || product.title,
+                                                        price: product.price,
+                                                        image: product.imageUrls?.[0] || product.images?.[0] || product.image,
+                                                        slug: product.slug,
+                                                        stock: product.stock,
+                                                        selectedSize: size,
+                                                        quantity: 1,
+                                                    });
+                                                    setActiveSizeProductId(null);
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center border border-black/20 hover:border-black text-[10px] font-bold uppercase transition-all bg-white text-black hover:bg-black hover:text-white"
+                                            >
+                                                {size}
+                                            </button>
+                                        ))}
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setActiveSizeProductId(null);
+                                            }}
+                                            className="ml-1 w-5 h-5 flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-500 hover:text-white text-[10px] font-bold transition"
+                                        >
+                                            X
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            if (product.stock <= 0) return;
+                                            setActiveSizeProductId(product.id || product.slug);
+                                        }}
+                                        disabled={product.stock <= 0}
+                                        className={`absolute bottom-0 left-0 right-0 bg-white/90 py-3 text-xs font-bold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 ${product.stock <= 0 ? "opacity-80 cursor-not-allowed text-gray-500" : "hover:bg-black hover:text-white"}`}
+                                    >
+                                        {product.stock <= 0 ? "Out of Stock" : "Quick Add"}
+                                    </button>
+                                )}
                             </div>
 
                             <div className="space-y-1">

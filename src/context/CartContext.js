@@ -36,13 +36,25 @@ export function CartProvider({ children }) {
   const addToCart = useCallback((product) => {
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
+      const stockLimit = Number(product.stock ?? product.available ?? Infinity);
+      const maxQuantity = Number.isFinite(stockLimit) ? Math.max(0, stockLimit) : Infinity;
+
       if (existingItem) {
+        if (existingItem.quantity >= maxQuantity) {
+          return prevCart;
+        }
+
         return prevCart.map((item) =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min(item.quantity + 1, maxQuantity) }
             : item,
         );
       }
+
+      if (maxQuantity < 1) {
+        return prevCart;
+      }
+
       return [...prevCart, { ...product, quantity: 1 }];
     });
     setIsCartOpen(true);
@@ -53,17 +65,20 @@ export function CartProvider({ children }) {
   }, []);
 
   const updateQuantity = useCallback((productId, quantity) => {
-    console.log(quantity)
     if (quantity < 1) {
       removeFromCart(productId);
       return;
     }
     setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === productId ? { ...item, quantity } : item,
-      ),
+      prevCart.map((item) => {
+        if (item.id !== productId) return item;
+        const stockLimit = Number(item.stock ?? item.available ?? Infinity);
+        const maxQuantity = Number.isFinite(stockLimit) ? Math.max(0, stockLimit) : Infinity;
+        const updatedQuantity = Math.min(quantity, maxQuantity);
+        return { ...item, quantity: updatedQuantity };
+      }),
     );
-  }, []);
+  }, [removeFromCart]);
 
   const clearCart = useCallback(() => {
     setCart([]);

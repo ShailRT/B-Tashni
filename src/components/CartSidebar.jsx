@@ -125,77 +125,86 @@ export default function CartSidebar() {
             </div>
           ) : (
             <div className="space-y-6">
-              {cart.map((item) => (
-                <div
-                  key={`${item.id}-${item.selectedSize || "nosize"}`}
-                  className="group flex gap-5 border-b border-gray-100 pb-6 last:border-0"
-                >
-                  <div className="w-[110px] aspect-[3/4] bg-gray-50 relative overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="flex-1 flex flex-col justify-between py-1">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="space-y-1.5">
-                        <Link
-                          href={`/product/${item.handle || "#"}`}
-                          onClick={() => setIsCartOpen(false)}
-                        >
-                          <h3 className="text-[13px] font-bold uppercase tracking-wider text-[#1c1c1c] hover:underline cursor-pointer leading-tight">
-                            {item.name}
-                          </h3>
-                        </Link>
-                        <div className="flex flex-col gap-0.5 text-[11px] text-gray-500 uppercase tracking-widest font-medium">
-                          {item.color && <span>{item.color}</span>}
-                          {item.selectedSize && (
-                            <span>Size: {item.selectedSize}</span>
+              {cart.map((item) => {
+                const stockLimit = Number(item.stock ?? item.available ?? Infinity);
+                const isAtStockLimit = Number.isFinite(stockLimit) && item.quantity >= stockLimit;
+                return (
+                  <div
+                    key={`${item.id}-${item.selectedSize || "nosize"}`}
+                    className="group flex gap-5 border-b border-gray-100 pb-6 last:border-0"
+                  >
+                    <div className="w-[110px] aspect-[3/4] bg-gray-50 relative overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="flex-1 flex flex-col justify-between py-1">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="space-y-1.5">
+                          {item.slug ? (
+                            <Link
+                              href={`/product/${item.slug}`}
+                              onClick={() => setIsCartOpen(false)}
+                            >
+                              <h3 className="text-[13px] font-bold uppercase tracking-wider text-[#1c1c1c] hover:underline cursor-pointer leading-tight">
+                                {item.name}
+                              </h3>
+                            </Link>
+                          ) : (
+                            <h3 className="text-[13px] font-bold uppercase tracking-wider text-[#1c1c1c] leading-tight">
+                              {item.name}
+                            </h3>
+                          )}
+                          <div className="flex flex-col gap-0.5 text-[11px] text-gray-500 uppercase tracking-widest font-medium">
+                            {item.color && <span>{item.color}</span>}
+                            {item.selectedSize && (
+                              <span>Size: {item.selectedSize}</span>
+                            )}
+                          </div>
+                          {isAtStockLimit && (
+                            <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-semibold">
+                              Only {stockLimit} in stock
+                            </p>
                           )}
                         </div>
+                        <p className="text-[13px] font-medium tracking-wide text-[#1c1c1c]">
+                          INR {typeof item.price === 'number' ? item.price.toLocaleString('en-IN') : item.price}
+                        </p>
                       </div>
-                      <p className="text-[13px] font-medium tracking-wide text-[#1c1c1c]">
-                        INR {typeof item.price === 'number' ? item.price.toLocaleString('en-IN') : item.price}
-                      </p>
-                    </div>
-                    <div className="flex justify-between items-end mt-4">
-                      <div className="flex items-center border border-gray-200 h-8">
-                        <button
-                          onClick={() => {
-                            console.log(item.quantity - 1)
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
-                          }
-                          className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
+                      <div className="flex justify-between items-end mt-4">
+                        <div className="flex items-center border border-gray-200 h-8">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-[11px] font-bold w-8 text-center bg-transparent">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => !isAtStockLimit && updateQuantity(item.id, item.quantity + 1)}
+                            disabled={isAtStockLimit}
+                            className={`w-8 h-full flex items-center justify-center transition-colors ${isAtStockLimit ? "text-gray-300 cursor-not-allowed" : "hover:bg-gray-50 text-gray-600 cursor-pointer"}`}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
 
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="text-[11px] font-bold w-8 text-center bg-transparent">
-                          {item.quantity}
-                        </span>
                         <button
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
-                          className="w-8 h-full flex items-center justify-center hover:bg-gray-50 transition-colors text-gray-600 cursor-pointer"
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                          aria-label="Remove item"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-gray-400 hover:text-red-600 transition-colors p-1"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

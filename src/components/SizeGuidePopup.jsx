@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 export default function SizeGuidePopup({ isOpen, onClose }) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [hasPositioned, setHasPositioned] = useState(false);
   const [unit, setUnit] = useState('IN'); // 'IN' or 'CM'
   const popupRef = useRef(null);
   const isDragging = useRef(false);
@@ -14,6 +15,9 @@ export default function SizeGuidePopup({ isOpen, onClose }) {
       const x = window.innerWidth - rect.width - 24; // 24px from right edge
       const y = window.innerHeight - rect.height - 24; // 24px from bottom edge
       setPosition({ x, y });
+      setHasPositioned(true);
+    } else {
+      setHasPositioned(false);
     }
   }, [isOpen]);
 
@@ -90,7 +94,9 @@ export default function SizeGuidePopup({ isOpen, onClose }) {
         left: `${position.x}px`,
         top: `${position.y}px`,
         touchAction: 'none',
-        zIndex: 9999
+        zIndex: 9999,
+        opacity: hasPositioned ? 1 : 0,
+        transition: 'opacity 0.2s ease-in-out'
       }}
       className="w-[340px] md:w-[420px] bg-[#f0f0f0] rounded-2xl shadow-2xl flex flex-col cursor-grab active:cursor-grabbing p-5 border border-white/40 backdrop-blur-md"
     >
