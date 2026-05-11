@@ -48,13 +48,13 @@ function SuccessContent() {
                 )}
 
                 <div className="grid grid-cols-1 gap-4 pt-10">
-                    <a
-                        href="/orders"
-                        className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-[#2d2a26] transition-colors"
+                    <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('btashni-open-orders'))}
+                        className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-[#2d2a26] transition-colors cursor-pointer"
                     >
                         <Package className="w-4 h-4" />
                         Track My Order
-                    </a>
+                    </button>
                     <Link
                         href="/"
                         className="w-full border border-gray-200 text-[#1c1c1c] py-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
