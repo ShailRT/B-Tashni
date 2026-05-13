@@ -1,5 +1,5 @@
 import { useUser, SignInButton, UserProfile, useClerk } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 
@@ -52,10 +52,34 @@ export default function Footer() {
     }
   };
   
-  // Handle deep linking to orders
+  // Keep refs up-to-date so the event listener never reads stale closure values
+  const isSignedInRef = useRef(isSignedIn);
+  const isLoadedRef = useRef(isLoaded);
+  const openSignInRef = useRef(openSignIn);
+  useEffect(() => { isSignedInRef.current = isSignedIn; }, [isSignedIn]);
+  useEffect(() => { isLoadedRef.current = isLoaded; }, [isLoaded]);
+  useEffect(() => { openSignInRef.current = openSignIn; }, [openSignIn]);
+
+  // Handle deep linking to orders via custom event (e.g. from order-success page)
+  // Registered once — reads latest values via refs, avoiding stale-closure issues
+  useEffect(() => {
+    const handleOpenOrders = () => {
+      if (!isLoadedRef.current) return;
+      if (isSignedInRef.current) {
+        window.location.hash = "/orders";
+        setIsProfileOpen(true);
+      } else {
+        openSignInRef.current();
+      }
+    };
+    window.addEventListener('btashni-open-orders', handleOpenOrders);
+    return () => window.removeEventListener('btashni-open-orders', handleOpenOrders);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle deep linking to orders via hash (e.g. footer Track Order link)
   useEffect(() => {
     const checkHash = () => {
-      if (window.location.hash === "/orders") {
+      if (window.location.hash === "#/orders") {
         if (!isLoaded) return;
         if (isSignedIn) {
           setIsProfileOpen(true);
