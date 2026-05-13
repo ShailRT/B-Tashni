@@ -449,6 +449,39 @@ export async function updateOrderStatusByRazorpayId(razorpayOrderId, updateData)
 }
 
 /**
+ * Update order with Shiprocket data
+ * @param {string} orderId - Database Order ID
+ * @param {object} shiprocketData - Data from Shiprocket (order_id, shipment_id)
+ */
+export async function updateOrderShiprocketData(orderId, shiprocketData) {
+    const { shiprocketOrderId, shipmentId } = shiprocketData;
+
+    return await prisma.order.update({
+        where: { id: orderId },
+        data: {
+            shiprocketOrderId: String(shiprocketOrderId),
+            shipmentId: String(shipmentId),
+        },
+    });
+}
+
+/**
+ * Update order status based on Shiprocket Order ID
+ * @param {string} shiprocketOrderId - Shiprocket Order ID
+ * @param {string} status - New OrderStatus
+ * @param {string} trackingNumber - Optional tracking number
+ */
+export async function updateOrderStatusByShiprocketId(shiprocketOrderId, status, trackingNumber = null) {
+    return await prisma.order.update({
+        where: { shiprocketOrderId: String(shiprocketOrderId) },
+        data: {
+            status,
+            ...(trackingNumber && { trackingNumber }),
+        },
+    });
+}
+
+/**
  * Update order address based on Razorpay Order ID (for Magic Checkout)
  * @param {string} razorpayOrderId - Razorpay Order ID
  * @param {object} addressData - Detailed address data

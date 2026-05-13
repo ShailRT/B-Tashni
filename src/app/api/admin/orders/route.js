@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllOrders } from '@/lib/prisma-queries';
+import { fetchAllOrders } from '@/app/actions/orders';
 
 // NOTE: For MVP/dev purposes auth check is relaxed here.
 // Add proper admin role check before going to production.
@@ -10,7 +10,7 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get('limit') || '20');
         const status = searchParams.get('status') || null;
 
-        const result = await getAllOrders({ page, limit, status });
+        const result = await fetchAllOrders({ page, limit, status });
         return NextResponse.json(result);
     } catch (error) {
         console.error('[API /api/admin/orders] Error:', error.message);

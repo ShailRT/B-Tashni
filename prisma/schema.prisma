@@ -61,6 +61,8 @@ model Order {
   updatedAt         DateTime      @updatedAt
   razorpayOrderId   String?       @unique
   razorpayPaymentId String?
+  shiprocketOrderId String?       @unique
+  shipmentId        String?       @unique
   refundId          String?
   refundStatus      String?
   user              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)

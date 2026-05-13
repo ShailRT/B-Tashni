@@ -1,7 +1,7 @@
 'use server';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { updateOrderStatusByRazorpayId, createOrder, updateOrderRefund } from '@/lib/prisma-queries';
+import { updateOrderStatusByRazorpayId, createOrder, updateOrderRefund, updateOrderShiprocketData } from '@/lib/prisma-queries';
 import { auth } from '@clerk/nextjs/server';
 import { sendOrderConfirmationEmail } from '@/lib/email';
 import { getShiprocketToken, createShiprocketOrder } from '@/lib/shiprocket';
@@ -64,23 +64,32 @@ export async function verifyAndCompleteOrder(paymentData) {
                 paymentId: razorpay_payment_id,
             });
 
-            // Send confirmation email
+            // Send confirmation email and sync to Shiprocket (non-blocking)
             if (order) {
-                // We don't await this to avoid blocking the response, 
-                // but we could if we want to ensure it's sent.
-                // For now, let's fire and forget or await for reliability.
-                const token = await getShiprocketToken();
-                if (token) {
-                    const shiprocketResult = await createShiprocketOrder(order, token);
-                    if (shiprocketResult.success) {
-                        console.log("Order synced to Shiprocket:", shiprocketResult.shiprocketOrderId);
-                    } else {
-                        console.error("Shiprocket sync failed but order was completed:", shiprocketResult.error);
+                try {
+                    const token = await getShiprocketToken();
+                    if (token) {
+                        const shiprocketResult = await createShiprocketOrder(order, token);
+                        if (shiprocketResult.success) {
+                            console.log("Order synced to Shiprocket:", shiprocketResult.shiprocketOrderId);
+                            // Save Shiprocket IDs to our DB
+                            await updateOrderShiprocketData(order.id, {
+                                shiprocketOrderId: shiprocketResult.shiprocketOrderId,
+                                shipmentId: shiprocketResult.shipmentId,
+                            });
+                        } else {
+                            console.error("Shiprocket sync failed:", shiprocketResult.error);
+                        }
                     }
+                } catch (shiprocketError) {
+                    console.error("Non-critical Shiprocket Sync Error:", shiprocketError);
                 }
-                sendOrderConfirmationEmail(order);
 
-                // Sync to Shiprocket
+                try {
+                    sendOrderConfirmationEmail(order);
+                } catch (emailError) {
+                    console.error("Email sending error:", emailError);
+                }
             }
 
             return { success: true };

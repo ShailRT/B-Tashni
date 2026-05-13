@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { updateOrderAdmin } from "@/app/actions/orders";
+import { updateOrderAdmin, syncOrderWithShiprocket } from "@/app/actions/orders";
 import { processRefund } from "@/app/actions/checkout";
 import {
     Package,
@@ -15,7 +15,9 @@ import {
     MoreVertical,
     ChevronLeft,
     ChevronRight,
-    Loader2
+    Loader2,
+    CheckCircle2,
+    AlertCircle
 } from "lucide-react";
 
 export default function AdminOrdersPage() {
@@ -26,6 +28,12 @@ export default function AdminOrdersPage() {
     const [page, setPage] = useState(1);
     const [status, setStatus] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [notification, setNotification] = useState(null);
+
+    const showNotification = (message, type = 'success') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 4000);
+    };
 
     const loadOrders = async () => {
         setLoading(true);
@@ -43,6 +51,13 @@ export default function AdminOrdersPage() {
             } else {
                 setOrders(result.orders || []);
                 setTotal(result.total || 0);
+                if (result.syncedCount > 0) {
+                    showNotification(`Auto-synced ${result.syncedCount} orders with Shiprocket`);
+                } else if (result.syncedCount === 0) {
+                    showNotification("Order statuses are up to date", "success");
+                } else if (result.syncedCount === -1) {
+                    showNotification("Shiprocket sync check failed", "error");
+                }
             }
         } catch (e) {
             setError(e.message);
@@ -90,7 +105,8 @@ export default function AdminOrdersPage() {
     };
 
     return (
-        <div className="space-y-6">
+        <>
+            <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -339,6 +355,24 @@ export default function AdminOrdersPage() {
                                                 <RefreshCcw className="w-4 h-4" /> Issue Full Refund
                                             </button>
                                         )}
+
+                                        {selectedOrder.shiprocketOrderId && (
+                                            <button
+                                                onClick={async () => {
+                                                    const result = await syncOrderWithShiprocket(selectedOrder.id);
+                                                    if (result.success) {
+                                                        alert(`Status synced: ${result.status}`);
+                                                        loadOrders();
+                                                        setSelectedOrder(prev => ({ ...prev, status: result.status }));
+                                                    } else {
+                                                        alert(result.error);
+                                                    }
+                                                }}
+                                                className="w-full flex items-center justify-center gap-2 p-3 bg-indigo-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] hover:bg-indigo-700 transition-colors"
+                                            >
+                                                <RefreshCcw className="w-4 h-4" /> Sync Shiprocket
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -347,5 +381,33 @@ export default function AdminOrdersPage() {
                 </div>
             )}
         </div>
+
+        {/* Sync Notification Toast */}
+        {notification && (
+            <div className={`fixed top-8 right-8 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border animate-in slide-in-from-top-5 duration-300 ${
+                notification.type === 'success' 
+                    ? 'bg-white border-green-100 text-green-800' 
+                    : 'bg-white border-red-100 text-red-800'
+            }`}>
+                {notification.type === 'success' ? (
+                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                ) : (
+                    <AlertCircle className="w-5 h-5 text-red-500" />
+                )}
+                <div className="flex flex-col">
+                    <p className="text-xs font-bold uppercase tracking-wider">
+                        {notification.type === 'success' ? 'Sync Complete' : 'Attention'}
+                    </p>
+                    <p className="text-sm font-medium text-gray-600">{notification.message}</p>
+                </div>
+                <button 
+                    onClick={() => setNotification(null)}
+                    className="ml-4 p-1 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                    <XCircle className="w-4 h-4 text-gray-400" />
+                </button>
+            </div>
+        )}
+        </>
     );
 }

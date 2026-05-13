@@ -71,3 +71,27 @@ export async function createShiprocketOrder(orderData, token) {
         return { success: false, error: error.message };
     }
 }
+
+export async function getShiprocketOrderStatus(shiprocketOrderId, token) {
+    try {
+        const response = await fetch(`https://apiv2.shiprocket.in/v1/external/orders/show/${shiprocketOrderId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Failed to fetch Shiprocket order status");
+
+        return {
+            success: true,
+            status: data.data.status,
+            statusCode: data.data.status_code,
+            trackingNumber: data.data.shipments?.[0]?.awb_code || null,
+        };
+    } catch (error) {
+        console.error("Shiprocket Status Fetch Error:", error);
+        return { success: false, error: error.message };
+    }
+}
