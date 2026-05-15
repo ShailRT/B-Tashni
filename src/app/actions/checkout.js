@@ -1,9 +1,9 @@
 'use server';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { updateOrderStatusByRazorpayId, createOrder, updateOrderRefund, updateOrderShiprocketData } from '@/lib/prisma-queries';
+import { updateOrderStatusByRazorpayId, createOrder, updateOrderRefund, updateOrderShiprocketData, getOrderById } from '@/lib/prisma-queries';
 import { auth } from '@clerk/nextjs/server';
-import { sendOrderConfirmationEmail } from '@/lib/email';
+import { sendOrderConfirmationEmail, sendRefundEmail } from '@/lib/email';
 import { getShiprocketToken, createShiprocketOrder } from '@/lib/shiprocket';
 
 const razorpay = new Razorpay({
@@ -158,6 +158,16 @@ export async function processRefund(orderId, razorpayPaymentId, amount = null) {
             refundStatus: amount ? 'PARTIAL' : 'FULL',
             status: amount ? undefined : 'REFUNDED',
         });
+
+        // Send refund confirmation email
+        try {
+            const order = await getOrderById(orderId);
+            if (order) {
+                await sendRefundEmail(order);
+            }
+        } catch (emailError) {
+            console.error("Refund email notification failed:", emailError);
+        }
 
         return { success: true, refundId: refund.id };
     } catch (error) {

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
-import { getOrderConfirmationHtml, getSubscriptionWelcomeHtml } from './email-templates';
+import path from 'path';
+import { getOrderConfirmationHtml, getSubscriptionWelcomeHtml, getRefundConfirmationHtml } from './email-templates';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "sandbox.smtp.mailtrap.io",
@@ -19,7 +20,7 @@ const transporter = nodemailer.createTransport({
  * @param {string} [options.html] HTML version of the email (optional)
  * @returns {Promise<boolean>} True if sent successfully, false otherwise
  */
-export async function sendEmail({ to, subject, text, html }) {
+export async function sendEmail({ to, subject, text, html, attachments }) {
   try {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM_EMAIL || '"B-Tashni Store" <noreply@btashni.in>',
@@ -27,6 +28,7 @@ export async function sendEmail({ to, subject, text, html }) {
       subject,
       text,
       html: html || text,
+      attachments,
     });
 
     console.log("Message sent: %s", info.messageId);
@@ -54,12 +56,18 @@ export async function sendOrderConfirmationEmail(order) {
 
   const subject = `B-TASHNI | Order Confirmed - ${orderNumber}`;
   const html = getOrderConfirmationHtml(order);
+  const logoPath = path.join(process.cwd(), 'public', 'email_logo.png');
 
   return await sendEmail({
     to: recipientEmail,
     subject,
     text: `Order ${orderNumber} confirmed. Total: ₹${totalAmount}`,
-    html
+    html,
+    attachments: [{
+      filename: 'logo.png',
+      path: logoPath,
+      cid: 'logo'
+    }]
   });
 }
 
@@ -70,12 +78,49 @@ export async function sendOrderConfirmationEmail(order) {
 export async function sendSubscriptionWelcomeEmail(email) {
   const subject = 'B-TASHNI | Welcome to the Circle! 🎉';
   const html = getSubscriptionWelcomeHtml();
-  console.log("in")
+  const logoPath = path.join(process.cwd(), 'public', 'email_logo.png');
+
   return await sendEmail({
     to: email,
     subject,
     text: "You've successfully joined the BTASHNI emailer. Get ready for early access to new drops, limited releases, and exclusive updates.",
-    html
+    html,
+    attachments: [{
+      filename: 'logo.png',
+      path: logoPath,
+      cid: 'logo'
+    }]
+  });
+}
+
+/**
+ * Sends a refund confirmation email to the customer
+ * @param {Object} order The order object
+ */
+export async function sendRefundEmail(order) {
+  const { user, totalAmount, orderNumber, shippingAddress } = order;
+
+  const recipientEmail = user?.email || shippingAddress?.email;
+
+  if (!recipientEmail) {
+    console.error("No email address found for refund notification:", orderNumber);
+    return false;
+  }
+
+  const subject = `B-TASHNI | Refund Processed - ${orderNumber}`;
+  const html = getRefundConfirmationHtml(order);
+  const logoPath = path.join(process.cwd(), 'public', 'email_logo.png');
+
+  return await sendEmail({
+    to: recipientEmail,
+    subject,
+    text: `Your refund for order ${orderNumber} has been processed. Amount: ₹${totalAmount}`,
+    html,
+    attachments: [{
+      filename: 'logo.png',
+      path: logoPath,
+      cid: 'logo'
+    }]
   });
 }
 

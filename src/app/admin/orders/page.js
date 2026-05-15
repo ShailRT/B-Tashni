@@ -86,6 +86,7 @@ export default function AdminOrdersPage() {
         const result = await processRefund(order.id, order.razorpayPaymentId);
         if (result.success) {
             alert("Refund processed successfully!");
+            setSelectedOrder(null);
             loadOrders();
         } else {
             alert(result.error);

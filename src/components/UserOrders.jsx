@@ -17,7 +17,7 @@ import { fetchUserOrdersAction } from "../app/actions/orders";
 // Module-level cache — survives component unmount/remount cycles
 // (Clerk's UserButton fully unmounts profile pages on dropdown close)
 let _cachedOrders = null;
-let _isFetching = false;
+let _fetchPromise = null; // shared promise so remounts await the same in-flight fetch
 let _selectedOrder = null;
 
 export default function UserOrders() {
@@ -29,29 +29,35 @@ export default function UserOrders() {
     if (_cachedOrders !== null) {
       setOrders(_cachedOrders);
       setLoading(false);
-      return; // Don't fetch if we have cached data
+      return;
     }
 
     const loadOrders = async () => {
-      if (_isFetching) return; // Prevent duplicate fetches
-      _isFetching = true;
-      
+      // Reuse an in-flight fetch if one already exists (handles Clerk remount race)
+      if (!_fetchPromise) {
+        _fetchPromise = fetchUserOrdersAction()
+          .then((result) => {
+            const fetched = result.orders || [];
+            _cachedOrders = fetched;
+            return { fetched, error: result.error || null };
+          })
+          .catch((e) => {
+            _fetchPromise = null; // allow retry on hard error
+            throw e;
+          });
+      }
+
       try {
-        const result = await fetchUserOrdersAction();
-        const fetched = result.orders || [];
-        _cachedOrders = fetched; // Update cache
+        const { fetched, error: fetchError } = await _fetchPromise;
         setOrders(fetched);
-        if (result.error && fetched.length === 0) {
-          setError(result.error);
-        }
+        if (fetchError && fetched.length === 0) setError(fetchError);
       } catch (e) {
         setError(e.message);
       } finally {
         setLoading(false);
-        _isFetching = false;
       }
     };
-    
+
     loadOrders();
   }, []);
 

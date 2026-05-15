@@ -68,7 +68,7 @@ export default function Footer() {
       if (isSignedInRef.current) {
         window.location.hash = "/orders";
         setIsProfileOpen(true);
-      } else {
+      } else {  
         openSignInRef.current();
       }
     };

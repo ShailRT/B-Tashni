@@ -18,7 +18,7 @@ export default function CheckoutPage() {
         email: "",
         firstName: "",
         lastName: "",
-        phone: "",
+        phone: "+91",
         address: "",
         apartment: "",
         city: "",
@@ -40,10 +40,12 @@ export default function CheckoutPage() {
             case 'email':
                 if (!value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = 'Invalid email address.';
                 break;
-            case 'phone':
+            case 'phone': {
+                // Strip everything except digits, then check we have country code (91) + 10 digits = 12
                 const phoneDigits = value.replace(/\D/g, '');
-                if (!value || phoneDigits.length !== 10) error = 'Phone number must be exactly 10 digits.';
+                if (!value || phoneDigits.length !== 12) error = 'Enter a valid 10-digit number after +91.';
                 break;
+            }
             case 'address':
                 if (!value || value.trim().length < 5) error = 'Please enter a valid address.';
                 break;
@@ -66,7 +68,8 @@ export default function CheckoutPage() {
     const handleBlur = (e) => {
         const { name, value } = e.target;
         setTouchedFields(prev => ({ ...prev, [name]: true }));
-        validateField(name, value);
+        const valueToValidate = name === 'phone' ? '+91' + value : value;
+        validateField(name, valueToValidate);
     };
 
     useEffect(() => {
@@ -87,8 +90,9 @@ export default function CheckoutPage() {
         const { name, value } = e.target;
         
         if (name === 'phone') {
-            // Only allow numbers and + sign
-            const cleaned = value.replace(/[^0-9+]/g, '');
+            // Input only contains digits (the +91 box is a static UI element)
+            const digits = value.replace(/\D/g, '').slice(0, 10);
+            const cleaned = '+91' + digits;
             setFormData((prev) => ({ ...prev, [name]: cleaned }));
             if (touchedFields[name]) {
                 validateField(name, cleaned);
@@ -184,12 +188,11 @@ export default function CheckoutPage() {
                 prefill: {
                     name: `${formData.firstName} ${formData.lastName}`,
                     email: formData.email,
-                    contact: formData.phone,
+                    contact: formData.phone.replace(/^\+91/, ''),
                 },
                 theme: {
                     color: "#000000",
                 },
-                magic: true,
             };
 
             let paymentFailed = false;
@@ -294,16 +297,21 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Phone Number *</label>
-                                        <input
-                                            required
-                                            type="tel"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleInputChange}
-                                            onBlur={handleBlur}
-                                            placeholder="+91"
-                                            className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.phone ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
-                                        />
+                                        <div className={`flex border transition-colors bg-gray-50/30 ${fieldErrors.phone ? 'border-red-500 bg-red-50/10' : 'border-gray-200'} focus-within:border-black`}>
+                                            <span className="flex items-center px-3 bg-gray-100 border-r border-gray-200 text-sm font-semibold text-gray-600 select-none whitespace-nowrap shrink-0">
+                                                +91
+                                            </span>
+                                            <input
+                                                required
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone.replace(/^\+91/, '')}
+                                                onChange={handleInputChange}
+                                                onBlur={handleBlur}
+                                                placeholder="XXXXXXXXXX"
+                                                className="flex-1 px-4 py-3 text-sm outline-none bg-transparent"
+                                            />
+                                        </div>
                                         {fieldErrors.phone && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.phone}</p>}
                                     </div>
                                 </div>
