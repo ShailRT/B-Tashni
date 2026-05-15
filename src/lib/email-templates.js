@@ -24,9 +24,13 @@ export function getOrderConfirmationHtml(order) {
   return `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <!-- Header -->
-      <div style="background-color: #ffffff; padding: 40px 20px; text-align: center; border-top: 4px solid #000000; border-bottom: 1px solid #eeeeee;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL || 'https://btashni.in'}/logo.png" alt="B-TASHNI" style="height: 60px; width: auto; display: block; margin: 0 auto;">
-      </div>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff !important;">
+        <tr>
+          <td align="center" bgcolor="#ffffff" style="background-color: #ffffff !important; padding: 40px 20px; text-align: center; border-top: 4px solid #000000; border-bottom: 1px solid #eeeeee;">
+            <img src="cid:logo" alt="B-TASHNI" style="width: 120px; height: 120px; display: block; margin: 0 auto; background-color: #ffffff !important; object-fit: contain;">
+          </td>
+        </tr>
+      </table>
 
       <div style="padding: 40px;">
         <h2 style="color: #1a1a1a; margin-top: 0; font-size: 22px; font-weight: 600;">Order Confirmed</h2>
@@ -95,9 +99,13 @@ export function getSubscriptionWelcomeHtml() {
   return `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
       <!-- Header -->
-      <div style="background-color: #ffffff; padding: 40px 20px; text-align: center; border-top: 4px solid #000000; border-bottom: 1px solid #eeeeee;">
-        <img src="${process.env.NEXT_PUBLIC_APP_URL || 'https://btashni.in'}/logo.png" alt="B-TASHNI" style="height: 60px; width: auto; display: block; margin: 0 auto;">
-      </div>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff !important;">
+        <tr>
+          <td align="center" bgcolor="#ffffff" style="background-color: #ffffff !important; padding: 40px 20px; text-align: center; border-top: 4px solid #000000; border-bottom: 1px solid #eeeeee;">
+            <img src="cid:logo" alt="B-TASHNI" style="width: 120px; height: 120px; display: block; margin: 0 auto; background-color: #ffffff !important; object-fit: contain;">
+          </td>
+        </tr>
+      </table>
 
       <div style="padding: 40px;">
         <h2 style="color: #1a1a1a; margin-top: 0; font-size: 22px; font-weight: 600;">Welcome to the Circle</h2>
@@ -121,6 +129,79 @@ export function getSubscriptionWelcomeHtml() {
         <div style="margin-top: 40px; border-top: 1px solid #eeeeee; padding-top: 30px;">
           <p style="margin: 0; color: #000; font-weight: 600; font-size: 16px;">The B-TASHNI Team</p>
           <p style="margin: 5px 0 0 0; color: #999; font-size: 14px;">Curating Modern Elegance</p>
+        </div>
+      </div>
+      
+      <div style="background-color: #fcfcfc; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+        <p style="font-size: 11px; color: #aaa; margin: 0; letter-spacing: 1px; text-transform: uppercase;">
+          © ${new Date().getFullYear()} B-TASHNI. All Rights Reserved.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Generates the HTML for a refund confirmation email
+ * @param {Object} order The order object
+ * @returns {string} HTML content
+ */
+export function getRefundConfirmationHtml(order) {
+  const { user, items, totalAmount, orderNumber, shippingAddress } = order;
+
+  const itemsHtml = items.map(item => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        ${item.product.name} (x${item.quantity})
+      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">
+        ₹${item.price.toLocaleString()}
+      </td>
+    </tr>
+  `).join('');
+
+  return `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <!-- Header -->
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff !important;">
+        <tr>
+          <td align="center" bgcolor="#ffffff" style="background-color: #ffffff !important; padding: 40px 20px; text-align: center; border-top: 4px solid #000000; border-bottom: 1px solid #eeeeee;">
+            <img src="cid:logo" alt="B-TASHNI" style="width: 120px; height: 120px; display: block; margin: 0 auto; background-color: #ffffff !important; object-fit: contain;">
+          </td>
+        </tr>
+      </table>
+
+      <div style="padding: 40px;">
+        <h2 style="color: #1a1a1a; margin-top: 0; font-size: 22px; font-weight: 600;">Refund Processed</h2>
+        <p style="color: #666666; font-size: 16px; line-height: 1.5;">
+          Hello ${user?.firstName || shippingAddress?.firstName || 'Customer'},<br>
+          We've processed a refund for your order <span style="color: #000; font-weight: 600;">${orderNumber}</span>.
+        </p>
+        
+        <!-- Refund Amount Box -->
+        <div style="margin: 30px 0; padding: 25px; background-color: #f8f8f8; border-radius: 4px; text-align: center; border: 1px dashed #ddd;">
+          <p style="margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #666;">Total Amount Refunded</p>
+          <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: 700; color: #000;">₹${totalAmount.toLocaleString()}</p>
+        </div>
+
+        <h3 style="text-transform: uppercase; font-size: 12px; letter-spacing: 1px; color: #999; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">Order Details</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+          <tbody>
+            ${itemsHtml}
+          </tbody>
+        </table>
+        
+        <p style="color: #666666; font-size: 14px; line-height: 1.6;">
+          The refund has been issued back to your original payment method. Please note that it may take 5-7 business days for the amount to reflect in your account, depending on your bank's processing times.
+        </p>
+
+        <div style="margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 30px;">
+          <p style="font-size: 14px; color: #999;">
+            If you have any questions or didn't expect this refund, please contact our support team.
+          </p>
+          <p style="margin-top: 20px; font-size: 12px; color: #bbb;">
+            Thank you for your patience and for shopping with <strong style="color: #000;">B-TASHNI</strong>.
+          </p>
         </div>
       </div>
       
