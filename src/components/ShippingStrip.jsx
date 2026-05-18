@@ -9,7 +9,7 @@ export default function ShippingStrip() {
         {/* First Marquee Set */}
         <div className="animate-marquee flex whitespace-nowrap">
           {Array(10)
-            .fill("SHIPPING WORLDWIDE")
+            .fill("FREE SHIPPING ACROSS INDIA")
             .map((text, i) => (
               <span
                 key={i}
@@ -23,7 +23,7 @@ export default function ShippingStrip() {
         {/* Second Marquee Set (for seamless looping) */}
         <div className="animate-marquee2 absolute top-0 flex whitespace-nowrap">
           {Array(10)
-            .fill("SHIPPING WORLDWIDE")
+            .fill("FREE SHIPPING ACROSS INDIA")
             .map((text, i) => (
               <span
                 key={i + 10}

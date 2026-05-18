@@ -41,9 +41,17 @@ export default function TrendingCategories({ products = [], useStatic = true }) 
       }));
 
   return (
-    <section className="w-full mt-6">
+    <section className="w-full mt-10 md:mt-16 mb-6 px-4 md:px-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter mb-2">
+          DROP 01 - NOW LIVE
+        </h2>
+        <p className="text-sm md:text-base text-gray-600 font-medium">
+          Four Pieces. One Language. Yours.
+        </p>
+      </div>
       <div className="w-full">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 w-full">
           {displayItems.map((item, index) => (
             <Link
               key={index}

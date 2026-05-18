@@ -40,9 +40,9 @@ export default function Navbar() {
   // ... (keep existing announcement logic)
 
   const ANNOUNCEMENTS = [
-    "FREE SHIPPING ON ALL DOMESTIC ORDERS",
-    "Wear What Words Can’t Say- BTASHNI NEW DROP – NOW LIVE",
-    "WORLDWIDE SHIPPING AVAILABLE",
+    "DROP 01 IS LIVE",
+    "FREE SHIPPING ACROSS INDIA",
+    "NO MINIMUM. NO EXCUSES",
   ];
 
   useEffect(() => {
@@ -68,15 +68,15 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || !isHomePage
-          ? "bg-white text-[#2d2a26] shadow-sm"
-          : "bg-transparent text-[#2d2a26] lg:text-white"
+        ? "bg-white text-[#2d2a26] shadow-sm"
+        : "bg-transparent text-[#2d2a26] lg:text-white"
         }`}
     >
       <div className="bg-black text-white text-[10px] font-bold text-center tracking-widest uppercase w-full overflow-hidden h-8 relative z-50">
         <div
           className={`flex flex-col transition-transform ease-out ${isAnimating
-              ? "duration-700 -translate-y-1/2"
-              : "duration-0 translate-y-0"
+            ? "duration-700 -translate-y-1/2"
+            : "duration-0 translate-y-0"
             }`}
         >
           <div className="h-8 flex items-center justify-center w-full">
@@ -118,10 +118,10 @@ export default function Navbar() {
           {[
             { label: "NEW", href: "/collections/new" }, // Direct link for demo
             { label: "BESTSELLERS", href: "/collections/bestsellers" },
-            { label: "SHAPEWEAR", href: "/collections/shapewear" },
+            { label: "OVERSIZED", href: "/collections/oversized" },
             { label: "UNDERWEAR", href: "/collections/underwear" },
-            { label: "LOUNGE", href: "/collections/lounge" },
-            { label: "CLOTHING", href: "/collections/clothing" },
+
+            { label: "ALL DROPS3", href: "/collections/all" },
           ].map((item) => (
             <Link
               key={item.label}
@@ -207,10 +207,9 @@ export default function Navbar() {
           {[
             { label: "NEW", href: "/collections/new" },
             { label: "BESTSELLERS", href: "/collections/bestsellers" },
-            { label: "SHAPEWEAR", href: "/collections/shapewear" },
+            { label: "OVERSIZED", href: "/collections/oversized" },
             { label: "UNDERWEAR", href: "/collections/underwear" },
-            { label: "LOUNGE", href: "/collections/lounge" },
-            { label: "CLOTHING", href: "/collections/clothing" },
+            { label: "ALL DROPS3", href: "/collections/all" },
           ].map((item) => (
             <li key={item.label}>
               <Link
