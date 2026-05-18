@@ -3,8 +3,8 @@ import Link from "next/link";
 const categories = [
   {
     id: 1,
-    name: "SHAPEWEAR",
-    slug: "shapewear",
+    name: "OVERSIZED",
+    slug: "oversized",
     image:
       "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?q=80&w=1000&auto=format&fit=crop",
     description: "Sculpt & Smooth",

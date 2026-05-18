@@ -51,7 +51,7 @@ export default function Footer() {
       setSubStatus({ loading: false, message: res.error, type: "error" });
     }
   };
-  
+
   // Keep refs up-to-date so the event listener never reads stale closure values
   const isSignedInRef = useRef(isSignedIn);
   const isLoadedRef = useRef(isLoaded);
@@ -68,7 +68,7 @@ export default function Footer() {
       if (isSignedInRef.current) {
         window.location.hash = "/orders";
         setIsProfileOpen(true);
-      } else {  
+      } else {
         openSignInRef.current();
       }
     };
@@ -114,11 +114,10 @@ export default function Footer() {
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
             <div className="w-full md:w-[50%] md:max-w-md mx-auto order-1 md:order-2 flex flex-col items-center text-center mb-10 md:mb-0">
               <h2 className="font-extrabold text-lg md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">
-                JOIN THE BTASHNI CIRCLE
+                DON'T MISS DROP 02.
               </h2>
               <p className="text-[14px] md:text-[13px] mb-5 text-[#4a4a4a] font-medium leading-relaxed">
-                Be the first to experience new drops, limited releases, and
-                everything happening inside BTASHNI.
+                New drops. Early access. Things we only tell our people. First come, first served.
               </p>
               <div className="w-full flex mb-2 border border-[#191919] h-12">
                 <input

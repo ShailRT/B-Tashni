@@ -1,4 +1,5 @@
 "use client";
+import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -20,25 +21,18 @@ export default function Hero() {
       {/* Content Overlay */}
       <div className="absolute bottom-10 left-6 md:bottom-20 md:left-12 text-white z-10 max-w-lg">
         <h2 className="text-xl md:text-2xl font-medium tracking-wide mb-2 uppercase">
-          NEW ARRIVALS
+          BTASHNI - DROP 01
         </h2>
         <h1 className="text-5xl md:text-7xl font-black tracking-tighter mb-6 uppercase">
-          LOUNGE ESSENTIALS
+          NO EXPLANATION NEEDED
         </h1>
         <div className="flex gap-6">
           <a
             href="#"
             onClick={(e) => e.preventDefault()}
-            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase cursor-pointer"
+            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase cursor-pointer flex items-center gap-1.5"
           >
-            SIGNATURE OVERSIZED
-          </a>
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            className="border-b border-white pb-1 text-sm font-semibold tracking-widest hover:opacity-75 transition-opacity uppercase cursor-pointer"
-          >
-            SHOP THE COLLECTION
+            SHOP DROP 01 <ArrowRight className="w-4 h-4" />
           </a>
         </div>
       </div>
