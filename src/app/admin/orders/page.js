@@ -316,11 +316,16 @@ export default function AdminOrdersPage() {
     <dt className="text-gray-500 font-medium">Address</dt>
     <dd className="text-gray-700">
       <address className="not-italic">
-        {selectedOrder.shippingAddress?.street}<br/>{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.zip}<br/>{selectedOrder.shippingAddress?.country}
+        {selectedOrder.shippingAddress?.address || selectedOrder.shippingAddress?.street || selectedOrder.shippingAddress?.addressLine1 || selectedOrder.shippingAddress?.line1 || '—'}<br />
+        {selectedOrder.shippingAddress?.apartment || selectedOrder.shippingAddress?.address2 || selectedOrder.shippingAddress?.addressLine2 || selectedOrder.shippingAddress?.line2 ? (
+          <>{selectedOrder.shippingAddress?.apartment || selectedOrder.shippingAddress?.address2 || selectedOrder.shippingAddress?.addressLine2 || selectedOrder.shippingAddress?.line2}<br /></>
+        ) : null}
+        {selectedOrder.shippingAddress?.city || '—'}, {selectedOrder.shippingAddress?.state || selectedOrder.shippingAddress?.province || '—'} {selectedOrder.shippingAddress?.pincode || selectedOrder.shippingAddress?.zip || selectedOrder.shippingAddress?.postal_code || selectedOrder.shippingAddress?.postalCode || ''}<br />
+        {selectedOrder.shippingAddress?.country || '—'}
       </address>
     </dd>
   </dl>
-</div> 
+</div>
 
                             {/* Status Controls */}
                             <div className="grid grid-cols-2 gap-8 pt-4 border-t border-gray-100">

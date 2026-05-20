@@ -24,12 +24,12 @@ export async function POST(req) {
             fullName: `${shippingAddress.first_name || ''} ${shippingAddress.last_name || ''}`.trim(),
             email: shippingAddress.email,
             phone: shippingAddress.contact,
-            addressLine1: shippingAddress.line1,
-            addressLine2: shippingAddress.line2,
+            addressLine1: shippingAddress.line1 ?? shippingAddress.area ?? shippingAddress.address ?? shippingAddress.address1 ?? shippingAddress.street ?? shippingAddress.street1 ?? '',
+            addressLine2: shippingAddress.line2 ?? shippingAddress.address2 ?? shippingAddress.area2 ?? shippingAddress.street2 ?? '',
             city: shippingAddress.city,
             state: shippingAddress.state,
             country: shippingAddress.country,
-            pincode: shippingAddress.pincode,
+            pincode: shippingAddress.pincode ?? shippingAddress.postal_code ?? shippingAddress.zip ?? shippingAddress.pin ?? '',
             type: shippingAddress.type, // e.g., 'home', 'work'
         };
 

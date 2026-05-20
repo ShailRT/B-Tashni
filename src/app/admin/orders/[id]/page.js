@@ -4,57 +4,79 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Truck, MapPin, Package as PackageIcon, User } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { getOrderByIdAction } from '@/app/actions/orders';
 
 export default function OrderDetailsPage() {
     const params = useParams();
-    const orderId = params?.id ?? 'unknown';
+    const orderId = params?.id ?? null;
     console.log('OrderDetailsPage params:', params);
 
+    const [order, setOrder] = useState(null);
+    const [loadingOrder, setLoadingOrder] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
     const [showCustomerModal, setShowCustomerModal] = useState(false);
+
     useEffect(() => {
         const onKey = (e) => { if (e.key === 'Escape') setShowCustomerModal(false); };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
     }, []);
 
-    // Mock data - normally would fetch based on ID
+    useEffect(() => {
+        if (!orderId) {
+            setLoadingOrder(false);
+            setFetchError('Invalid order ID');
+            return;
+        }
 
-    // Mock data - normally would fetch based on ID
-    const order = {
-        id: orderId,
-        customer: {
-            name: 'Liam Johnson',
-        },
-        email: 'liam@example.com',
-        phone: '+1 (555) 0123-4567',
-        status: 'Processing',
-        date: '2024-02-04',
-        shippingAddress: {
-            street: '123 Main St, Apt 4B',
-            city: 'New York',
-            state: 'NY',
-            zip: '10001',
-            country: 'USA'
-        },
-        items: [
-            { id: 1, name: 'Premium Cotton T-Shirt', quantity: 2, price: '₹45.00', total: '₹90.00' },
-            { id: 2, name: 'Slim Fit Jeans', quantity: 1, price: '₹120.00', total: '₹120.00' },
-        ],
-        subtotal: '₹210.00',
-        shipping: '₹15.00',
-        tax: '₹25.00',
-        total: '₹250.00'
-    };
+        setLoadingOrder(true);
+        getOrderByIdAction(orderId)
+            .then(result => {
+                if (result.success) {
+                    setOrder(result.order);
+                    setFetchError(null);
+                } else {
+                    setOrder(null);
+                    setFetchError(result.error || 'Order not found');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching order:', error);
+                setOrder(null);
+                setFetchError(error?.message || 'Failed to load order');
+            })
+            .finally(() => setLoadingOrder(false));
+    }, [orderId]);
+
+    if (loadingOrder) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <p className="text-base text-gray-500">Loading order details...</p>
+            </div>
+        );
+    }
+
+    if (fetchError || !order) {
+        return (
+            <div className="min-h-screen flex items-center justify-center px-4">
+                <div className="max-w-xl text-center">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-3">Unable to load order</h1>
+                    <p className="text-sm text-gray-500">{fetchError || 'Order not found.'}</p>
+                </div>
+            </div>
+        );
+    }
 
     // Resolve shipping address fields from possible variants in real data
     const rawAddr = order.shippingAddress || {};
     console.log('OrderDetailsPage shippingAddress raw:', rawAddr);
-    let addrLine1 = rawAddr.street ?? rawAddr.address1 ?? rawAddr.line1 ?? rawAddr.address_line1 ?? rawAddr.addressLine1 ?? rawAddr.street1 ?? '';
-    let addrLine2 = rawAddr.address2 ?? rawAddr.line2 ?? rawAddr.address_line2 ?? rawAddr.addressLine2 ?? '';
-    const city = rawAddr.city ?? '';
-    const state = rawAddr.state ?? rawAddr.province ?? '';
-    let zip = rawAddr.zip ?? rawAddr.postcode ?? rawAddr.postal_code ?? rawAddr.pin ?? rawAddr.pin_code ?? rawAddr.postalCode ?? '';
+    let addrLine1 = rawAddr.address ?? rawAddr.street ?? rawAddr.address1 ?? rawAddr.line1 ?? rawAddr['line_1'] ?? rawAddr.address_line1 ?? rawAddr['address_line_1'] ?? rawAddr.addressLine1 ?? rawAddr.street1 ?? '';
+    let addrLine2 = rawAddr.apartment ?? rawAddr.address2 ?? rawAddr.line2 ?? rawAddr['line_2'] ?? rawAddr.address_line2 ?? rawAddr['address_line_2'] ?? rawAddr.addressLine2 ?? '';
+    let city = rawAddr.city ?? '';
+    let state = rawAddr.state ?? rawAddr.province ?? '';
+    let zip = rawAddr.pincode ?? rawAddr.zip ?? rawAddr.postcode ?? rawAddr.postal_code ?? rawAddr.pin ?? rawAddr.pin_code ?? rawAddr.postalCode ?? '';
     const country = rawAddr.country ?? rawAddr.country_code ?? '';
+    console.log('OrderDetailsPage shippingAddress resolved:', { addrLine1, addrLine2, city, state, zip, country });
 
     // If address is a single string (e.g. rawAddr.address or rawAddr.address_full), try to parse it
     const singleAddress = rawAddr.address ?? rawAddr.address_full ?? rawAddr.full_address ?? rawAddr.addressLine ?? rawAddr.addressString ?? '';
@@ -274,10 +296,6 @@ export default function OrderDetailsPage() {
                                         <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Pin / Zip</td>
                                         <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{zip || '—'}</td>
                                     </tr>
-                                    <tr>
-                                        <td style={{padding: '0.5rem 0.5rem'}} className="text-gray-500">Country</td>
-                                        <td style={{padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{country || '—'}</td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -293,9 +311,10 @@ export default function OrderDetailsPage() {
                         </div>
                         <div className="p-6">
                             <address className="not-italic text-sm text-gray-700 leading-relaxed">
-                                {order.shippingAddress.street}<br />
-                                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}<br />
-                                {order.shippingAddress.country}
+                                {addrLine1 || '—'}<br />
+                                {addrLine2 ? `${addrLine2}<br />` : null}
+                                {city || '—'}, {state || '—'} {zip || ''}<br />
+                                {country || '—'}
                             </address>
                         </div>
                     </div>
