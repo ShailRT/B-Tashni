@@ -136,6 +136,23 @@ export async function fetchAllOrders(params) {
     }
 }
 
+export async function getOrderByIdAction(id) {
+    try {
+        const { userId } = await auth();
+        if (!userId) throw new Error("Unauthorized");
+
+        const order = await getOrderById(id);
+        if (!order) {
+            return { success: false, error: "Order not found" };
+        }
+
+        return { success: true, order };
+    } catch (error) {
+        console.error("[getOrderByIdAction] Error:", error);
+        return { success: false, error: error.message };
+    }
+}
+
 /**
  * Sync order status with Shiprocket manually
  */

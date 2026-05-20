@@ -119,9 +119,8 @@ export default function Navbar() {
             { label: "NEW", href: "/collections/new" }, // Direct link for demo
             { label: "BESTSELLERS", href: "/collections/bestsellers" },
             { label: "OVERSIZED", href: "/collections/oversized" },
-            { label: "UNDERWEAR", href: "/collections/underwear" },
 
-            { label: "ALL DROPS3", href: "/collections/all" },
+            { label: "ALL DROPS", href: "/collections/all" },
           ].map((item) => (
             <Link
               key={item.label}
@@ -208,7 +207,6 @@ export default function Navbar() {
             { label: "NEW", href: "/collections/new" },
             { label: "BESTSELLERS", href: "/collections/bestsellers" },
             { label: "OVERSIZED", href: "/collections/oversized" },
-            { label: "UNDERWEAR", href: "/collections/underwear" },
             { label: "ALL DROPS3", href: "/collections/all" },
           ].map((item) => (
             <li key={item.label}>

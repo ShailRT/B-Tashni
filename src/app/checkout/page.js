@@ -125,12 +125,11 @@ export default function CheckoutPage() {
             Object.keys(errors).forEach(key => touched[key] = true);
             setTouchedFields(touched);
             
-            // Scroll to the first error
+            // Focus the first error without scrolling
             const firstErrorField = Object.keys(errors)[0];
             const element = document.getElementsByName(firstErrorField)[0];
             if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.focus();
+                element.focus({ preventScroll: true });
             }
             return;
         }
@@ -251,10 +250,10 @@ export default function CheckoutPage() {
                             <h2 className="text-sm font-bold uppercase tracking-widest mb-8 flex items-center gap-2 border-b border-gray-100 pb-4">
                                 <Truck className="w-4 h-4" /> Shipping Information
                             </h2>
-                            <form id="checkout-form" onSubmit={handlePayment} className="space-y-6">
+                            <form id="checkout-form" onSubmit={handlePayment} className="space-y-2">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">First Name *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">First Name *</label>
                                         <input
                                             required
                                             type="text"
@@ -264,10 +263,10 @@ export default function CheckoutPage() {
                                             onBlur={handleBlur}
                                             className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.firstName ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
-                                        {fieldErrors.firstName && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.firstName}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.firstName ? 'visible' : 'invisible'}`}>{fieldErrors.firstName || 'Error'}</p>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Last Name *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">Last Name *</label>
                                         <input
                                             required
                                             type="text"
@@ -277,13 +276,13 @@ export default function CheckoutPage() {
                                             onBlur={handleBlur}
                                             className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.lastName ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
-                                        {fieldErrors.lastName && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.lastName}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.lastName ? 'visible' : 'invisible'}`}>{fieldErrors.lastName || 'Error'}</p>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Email Address *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">Email Address *</label>
                                         <input
                                             required
                                             type="email"
@@ -293,10 +292,10 @@ export default function CheckoutPage() {
                                             onBlur={handleBlur}
                                             className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.email ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
-                                        {fieldErrors.email && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.email}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.email ? 'visible' : 'invisible'}`}>{fieldErrors.email || 'Error'}</p>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Phone Number *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">Phone Number *</label>
                                         <div className={`flex border transition-colors bg-gray-50/30 ${fieldErrors.phone ? 'border-red-500 bg-red-50/10' : 'border-gray-200'} focus-within:border-black`}>
                                             <span className="flex items-center px-3 bg-gray-100 border-r border-gray-200 text-sm font-semibold text-gray-600 select-none whitespace-nowrap shrink-0">
                                                 +91
@@ -312,12 +311,12 @@ export default function CheckoutPage() {
                                                 className="flex-1 px-4 py-3 text-sm outline-none bg-transparent"
                                             />
                                         </div>
-                                        {fieldErrors.phone && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.phone}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.phone ? 'visible' : 'invisible'}`}>{fieldErrors.phone || 'Error'}</p>
                                     </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Address *</label>
+                                <div className="flex flex-col">
+                                    <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">Address *</label>
                                     <input
                                         required
                                         type="text"
@@ -328,11 +327,11 @@ export default function CheckoutPage() {
                                         placeholder="Street address"
                                         className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.address ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                     />
-                                    {fieldErrors.address && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.address}</p>}
+                                    <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.address ? 'visible' : 'invisible'}`}>{fieldErrors.address || 'Error'}</p>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Apartment, suite, etc. (optional)</label>
+                                <div className="flex flex-col">
+                                    <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">Apartment, suite, etc. (optional)</label>
                                     <input
                                         type="text"
                                         name="apartment"
@@ -340,11 +339,12 @@ export default function CheckoutPage() {
                                         onChange={handleInputChange}
                                         className="w-full border border-gray-200 px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30"
                                     />
+                                    <div className="min-h-[14px] mt-1"></div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">City *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">City *</label>
                                         <input
                                             required
                                             type="text"
@@ -354,10 +354,10 @@ export default function CheckoutPage() {
                                             onBlur={handleBlur}
                                             className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.city ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
-                                        {fieldErrors.city && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.city}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.city ? 'visible' : 'invisible'}`}>{fieldErrors.city || 'Error'}</p>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">State *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">State *</label>
                                         <input
                                             required
                                             type="text"
@@ -367,10 +367,10 @@ export default function CheckoutPage() {
                                             onBlur={handleBlur}
                                             className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.state ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
-                                        {fieldErrors.state && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.state}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.state ? 'visible' : 'invisible'}`}>{fieldErrors.state || 'Error'}</p>
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500">Pincode *</label>
+                                    <div className="flex flex-col">
+                                        <label className="text-[10px] uppercase font-bold tracking-wider text-gray-500 mb-1.5">Pincode *</label>
                                         <input
                                             required
                                             type="text"
@@ -380,7 +380,7 @@ export default function CheckoutPage() {
                                             onBlur={handleBlur}
                                             className={`w-full border px-4 py-3 text-sm focus:border-black transition-colors outline-none bg-gray-50/30 ${fieldErrors.pincode ? 'border-red-500 bg-red-50/10' : 'border-gray-200'}`}
                                         />
-                                        {fieldErrors.pincode && <p className="text-[10px] text-red-500 font-bold uppercase tracking-tight">{fieldErrors.pincode}</p>}
+                                        <p className={`text-[10px] text-red-500 font-bold uppercase tracking-tight mt-1 min-h-[14px] ${fieldErrors.pincode ? 'visible' : 'invisible'}`}>{fieldErrors.pincode || 'Error'}</p>
                                     </div>
                                 </div>
                             </form>

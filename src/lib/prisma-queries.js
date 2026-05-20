@@ -132,8 +132,10 @@ export async function createProduct(data) {
             stock: parseInt(data.stock),
             imageUrls: data.imageUrls,
             videoUrl: data.videoUrl,
+            isActive: data.isActive,
             trendingSection: data.trendingSection || false,
             homeVideoSection: data.homeVideoSection || false,
+            sku: data.sku || null,
         },
     });
 }
@@ -165,23 +167,31 @@ export async function getProductById(id) {
  * Update existing product (admin only)
  */
 export async function updateProduct(id, data) {
-    return await prisma.product.update({
-        where: { id },
-        data: {
-            name: data.name,
-            slug: data.slug,
-            description: data.description,
-            price: parseFloat(data.price),
-            compareAtPrice: data.compareAtPrice ? parseFloat(data.compareAtPrice) : null,
-            sizes: data.sizes || [],
-            stock: parseInt(data.stock),
-            imageUrls: data.imageUrls,
-            videoUrl: data.videoUrl,
-            isActive: data.isActive,
-            trendingSection: data.trendingSection,
-            homeVideoSection: data.homeVideoSection,
-        },
-    });
+    try {
+        return await prisma.product.update({
+            where: { id },
+            data: {
+                name: data.name,
+                slug: data.slug,
+                description: data.description,
+                price: parseFloat(data.price),
+                compareAtPrice: data.compareAtPrice ? parseFloat(data.compareAtPrice) : null,
+                sizes: data.sizes || [],
+                stock: parseInt(data.stock),
+                imageUrls: data.imageUrls,
+                videoUrl: data.videoUrl,
+                isActive: data.isActive,
+                trendingSection: data.trendingSection,
+                homeVideoSection: data.homeVideoSection,
+                sku: data.sku || null,
+            },
+        });
+    } catch (error) {
+        if (error?.code === 'P2025') {
+            throw new Error(`Product not found with id ${id}`);
+        }
+        throw error;
+    }
 }
 
 /**
@@ -305,6 +315,8 @@ export async function createOrder(userId, orderData) {
                 ...(userId && { user: { connect: { id: userId } } }),
                 shippingAddress: orderData.shippingAddress,
                 billingAddress: orderData.billingAddress,
+                phone: orderData.phone,
+                email: orderData.email,
                 razorpayOrderId: orderData.razorpayOrderId,
                 razorpayPaymentId: orderData.razorpayPaymentId,
                 paymentMethod: orderData.paymentMethod,

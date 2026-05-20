@@ -217,7 +217,8 @@ export default function CreateProductPage() {
                 homeVideoSection: formData.get('homeVideoSection') === 'true',
                 imageUrls,
                 videoUrl: finalVideoUrl,
-                status: formData.get('status')
+                status: formData.get('status'),
+                sku: formData.get('sku')
             };
 
             const result = await createProductAction(productData);

@@ -10,14 +10,6 @@ const categories = [
     description: "Sculpt & Smooth",
   },
   {
-    id: 2,
-    name: "UNDERWEAR",
-    slug: "underwear",
-    image:
-      "https://images.unsplash.com/photo-1596755094514-f87e34c85b67?q=80&w=1000&auto=format&fit=crop",
-    description: "Everyday Essentials",
-  },
-  {
     id: 3,
     name: "LOUNGEWEAR",
     slug: "lounge",
