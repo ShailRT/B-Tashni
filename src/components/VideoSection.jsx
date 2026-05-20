@@ -63,6 +63,21 @@ export default function VideoSection({ products = [] }) {
 
   return (
     <section className="w-full bg-white pt-12 pb-0 overflow-hidden">
+      <div className="text-center mb-12 md:mb-16 space-y-2 md:space-y-3">
+        <span className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-gray-400 uppercase block">
+          Campaign Looks
+        </span>
+        <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-gray-900 leading-tight">
+          PIECES IN MOTION
+        </h2>
+        <div className="flex items-center justify-center gap-3 mt-1">
+          <span className="h-[1px] w-6 md:w-10 bg-gray-300"></span>
+          <p className="text-xs md:text-sm text-gray-500 uppercase tracking-widest font-semibold whitespace-nowrap">
+            Watch the flow. Feel the weight.
+          </p>
+          <span className="h-[1px] w-6 md:w-10 bg-gray-300"></span>
+        </div>
+      </div>
       <div className="w-full">
         <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-6">
           {displayProducts.map((product) => (

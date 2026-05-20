@@ -39,9 +39,7 @@ export default function CreateProductPage() {
             case 'sizes':
                 if (!value || value.trim().length === 0) error = 'At least one size is required.';
                 break;
-            case 'sku':
-                if (!value || value.trim().length === 0) error = 'SKU is required.';
-                break;
+
             case 'images':
                 if (selectedImages.length === 0) error = 'At least one product image is required.';
                 break;
@@ -158,14 +156,12 @@ export default function CreateProductPage() {
             const price = formData.get('price');
             const stock = formData.get('stock');
             const sizes = formData.get('sizes');
-            const sku = formData.get('sku');
 
             if (!name || name.trim().length < 3) errors.name = 'Product name must be at least 3 characters.';
             if (!description || description.trim().length < 10) errors.description = 'Description must be at least 10 characters.';
             if (!price || parseFloat(price) <= 0) errors.price = 'Price must be a positive number.';
             if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) errors.stock = 'Stock cannot be negative.';
             if (!sizes || sizes.trim().length === 0) errors.sizes = 'At least one size is required (e.g. S, M, L).';
-            if (!sku || sku.trim().length === 0) errors.sku = 'SKU is required.';
             if (selectedImages.length === 0) errors.images = 'At least one product image is required.';
 
             if (Object.keys(errors).length > 0) {
@@ -217,8 +213,7 @@ export default function CreateProductPage() {
                 homeVideoSection: formData.get('homeVideoSection') === 'true',
                 imageUrls,
                 videoUrl: finalVideoUrl,
-                status: formData.get('status'),
-                sku: formData.get('sku')
+                status: formData.get('status')
             };
 
             const result = await createProductAction(productData);
@@ -418,22 +413,7 @@ export default function CreateProductPage() {
                                 </select>
                             </div>
 
-                            <div>
-                                <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
-                                    SKU <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="sku"
-                                    name="sku"
-                                    required
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.sku ? 'border-red-500' : 'border-gray-300'}`}
-                                    placeholder="SKU-12345"
-                                />
-                                {fieldErrors.sku && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sku}</p>}
-                            </div>
+
 
                         </div>
                     </div>

@@ -144,47 +144,47 @@ export default function OrderDetailsPage() {
                                 <button onClick={() => setShowCustomerModal(false)} className="text-sm text-gray-600 hover:text-gray-900">Close</button>
                             </div>
                             <div className="p-6">
-                                <table style={{border: '1px solid #e5e7eb', borderCollapse: 'collapse', width: '100%'}} className="min-w-full w-full table-fixed text-sm">
+                                <table style={{ border: '1px solid #e5e7eb', borderCollapse: 'collapse', width: '100%' }} className="min-w-full w-full table-fixed text-sm">
                                     <tbody>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500 w-32">Name</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.customer?.name ?? '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500 w-32">Name</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.customer?.name ?? '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">Email</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.email ?? '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">Email</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.email ?? '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">Phone</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.phone ?? '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">Phone</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.phone ?? '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">Status</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.status ?? '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">Status</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.status ?? '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">Address (line 1)</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{addrLine1 || '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">Address (line 1)</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{addrLine1 || '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">Address (line 2)</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{addrLine2 || '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">Address (line 2)</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{addrLine2 || '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">City</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{city || '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">City</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{city || '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">State</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{state || '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">State</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{state || '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="text-gray-500">Pin / Zip</td>
-                                            <td style={{borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{zip || '—'}</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="text-gray-500">Pin / Zip</td>
+                                            <td style={{ borderBottom: '1px solid #e5e7eb', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{zip || '—'}</td>
                                         </tr>
                                         <tr>
-                                            <td style={{padding: '0.5rem 0.5rem'}} className="text-gray-500">Country</td>
-                                            <td style={{padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{country || '—'}</td>
+                                            <td style={{ padding: '0.5rem 0.5rem' }} className="text-gray-500">Country</td>
+                                            <td style={{ padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{country || '—'}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -258,43 +258,43 @@ export default function OrderDetailsPage() {
                             </button>
                         </div>
                         <div className="p-6">
-                            <table style={{border: '1px solid #e5e7eb', borderCollapse: 'collapse', width: '100%'}} className="min-w-full w-full table-fixed text-sm">
+                            <table style={{ border: '1px solid #e5e7eb', borderCollapse: 'collapse', width: '100%' }} className="min-w-full w-full table-fixed text-sm">
                                 <tbody>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500 w-32">Name</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.customer?.name ?? '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500 w-32">Name</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.customer?.name ?? '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Email</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.email ?? '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">Email</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.email ?? '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Phone</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.phone ?? '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">Phone</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.phone ?? '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Status</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{order.status ?? '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">Status</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{order.status ?? '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Address (line 1)</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{addrLine1 || '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">Address (line 1)</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{addrLine1 || '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Address (line 2)</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{addrLine2 || '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">Address (line 2)</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{addrLine2 || '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">City</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{city || '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">City</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{city || '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">State</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{state || '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">State</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{state || '—'}</td>
                                     </tr>
                                     <tr>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="text-gray-500">Pin / Zip</td>
-                                        <td style={{borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem'}} className="font-medium text-gray-900">{zip || '—'}</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="text-gray-500">Pin / Zip</td>
+                                        <td style={{ borderBottom: '1px solid #000000', padding: '0.5rem 0.5rem' }} className="font-medium text-gray-900">{zip || '—'}</td>
                                     </tr>
                                 </tbody>
                             </table>

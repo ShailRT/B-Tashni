@@ -8,24 +8,24 @@ export default function SecondaryBanner() {
       <div className="relative w-full h-[60vh] md:h-[85vh]">
         {/* Background Image */}
         <img
-          src="/secondary-image.jpg"
+          src="/banner-new.PNG"
           alt="Just in at B-Tashni"
           className="w-full h-full object-cover object-top"
         />
         {/* Content - Bottom Left to match Skims style */}
-        <div className="absolute inset-0 bg-black/10" />{" "}
-        {/* Slight overlay for text readability if needed */}
-        <div className="absolute bottom-6 left-5 md:bottom-12 md:left-10 text-white z-10">
+        {/* Little black offset gradient for readability */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-black/70 via-black/20 to-transparent" />
+        <div className="absolute bottom-6 left-5 md:bottom-12 md:left-10 text-white z-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
           <p className="text-base md:text-xl mb-1 font-normal">
             DROP 01
           </p>
           <h2 className="text-5xl md:text-7xl font-black tracking-tighter mb-2 uppercase">
             THE STREETS
-          <br />
+            <br />
             HAVE  A
-          <br />
+            <br />
             NEW
-          <br />
+            <br />
             LANGUAGE.
           </h2>
           <p className="text-base md:text-xl font-normal">

@@ -17,17 +17,6 @@ export default async function Home() {
       <Hero />
       <TrendingCategories products={trendingProducts} useStatic={useStatic} />
       <VideoBanner />
-      <section className="w-full mt-20 md:mt-16 px-4 md:px-6">
-  <div className="text-center mb-1">
-    <p className="text-sm md:text-base text-gray-600 font-medium">
-      DROP 01 - NOW LIVE
-    </p>
-    <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter mb-1">
-      Four Pieces. One Language. Yours.
-    </h2>
-  
-  </div>
-</section>
       <VideoSection products={videoProducts} />
       <SecondaryBanner />
     </main>

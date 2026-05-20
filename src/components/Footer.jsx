@@ -113,14 +113,14 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-start md:gap-4 lg:gap-8">
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
             <div className="w-full md:w-[50%] md:max-w-md mx-auto order-1 md:order-2 flex flex-col items-center text-center mb-10 md:mb-0">
-              <h2 className="font-extrabold text-xl md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">
+              <h2 className="font-extrabold text-xl md:text-[17px] tracking-widest mb-2 uppercase text-[#191919]">
                 DON'T MISS DROP 02.
               </h2>
               <p className="text-[14px] md:text-[13px] mb-5 text-[#4a4a4a] font-medium leading-relaxed">
                 New drops. Early access. Things we only tell our people. First come, first served. Be the first to experience new drops, limited releases, and
                 everything happening inside BTASHNI.
               </p>
-              <div className="w-full flex mb-2 border border-[#191919] h-12">
+              <div className="w-full flex mb-4 border border-[#191919] h-12">
                 <input
                   type="email"
                   value={email}

@@ -37,6 +37,32 @@ export async function getProductsAction(params = {}) {
     }
 }
 
+async function generateUniqueSku(name) {
+    const cleanName = name ? name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase() : 'PROD';
+    let sku = '';
+    let isUnique = false;
+    let attempts = 0;
+
+    while (!isUnique && attempts < 15) {
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        const randomSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
+        sku = `${cleanName}-${randomNum}-${randomSuffix}`;
+
+        const existing = await prisma.product.findUnique({
+            where: { sku }
+        });
+        if (!existing) {
+            isUnique = true;
+        }
+        attempts++;
+    }
+
+    if (!isUnique) {
+        sku = `${cleanName}-${Date.now()}`;
+    }
+    return sku;
+}
+
 export async function createProductAction(data) {
     try {
         const {
@@ -49,8 +75,7 @@ export async function createProductAction(data) {
             homeVideoSection,
             imageUrls,
             videoUrl,
-            status,
-            sku
+            status
         } = data;
 
         const sizes = sizesStr ? sizesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -72,6 +97,7 @@ export async function createProductAction(data) {
 
         const isActive = status === 'Active';
         const slug = await generateUniqueSlug(name);
+        const finalSku = await generateUniqueSku(name);
 
         const product = await createProduct({
             name,
@@ -85,7 +111,7 @@ export async function createProductAction(data) {
             isActive,
             trendingSection,
             homeVideoSection,
-            sku
+            sku: finalSku
         });
 
         revalidatePath('/admin/products');

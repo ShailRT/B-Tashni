@@ -49,9 +49,7 @@ export default function ProductDetailsPage() {
             case 'sizes':
                 if (!value || value.trim().length === 0) error = 'At least one size is required.';
                 break;
-            case 'sku':
-                if (!value || value.trim().length === 0) error = 'SKU is required.';
-                break;
+
             case 'images':
                 if (existingImageUrls.length === 0 && newSelectedImages.length === 0) error = 'At least one product image is required.';
                 break;
@@ -83,7 +81,7 @@ export default function ProductDetailsPage() {
         if (files.length > 0) {
             // Clear image error if any
             setFieldErrors(prev => ({ ...prev, images: null }));
-            
+
             const newImages = files.map(file => Object.assign(file, {
                 preview: URL.createObjectURL(file)
             }));
@@ -191,7 +189,6 @@ export default function ProductDetailsPage() {
             if (!price || parseFloat(price) <= 0) errors.price = 'Price must be a positive number.';
             if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) errors.stock = 'Stock cannot be negative.';
             if (!sizes || sizes.trim().length === 0) errors.sizes = 'At least one size is required.';
-            if (!sku || sku.trim().length === 0) errors.sku = 'SKU is required.';
             if (existingImageUrls.length === 0 && newSelectedImages.length === 0) errors.images = 'At least one product image is required.';
 
             if (Object.keys(errors).length > 0) {
@@ -430,19 +427,16 @@ export default function ProductDetailsPage() {
 
                             <div>
                                 <label htmlFor="sku" className="block text-sm font-medium text-gray-700">
-                                    SKU <span className="text-red-500">*</span>
+                                    SKU
                                 </label>
                                 <input
                                     type="text"
                                     id="sku"
                                     name="sku"
-                                    required
-                                    onBlur={handleBlur}
-                                    onChange={handleChange}
-                                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${fieldErrors.sku ? 'border-red-500' : 'border-gray-300'}`}
+                                    readOnly
+                                    className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-gray-50 rounded-md shadow-sm text-gray-500 sm:text-sm cursor-not-allowed"
                                     defaultValue={product.sku || ''}
                                 />
-                                {fieldErrors.sku && <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.sku}</p>}
                             </div>
 
                             <div>
@@ -716,9 +710,9 @@ export default function ProductDetailsPage() {
                             <p className="text-sm font-bold">Success!</p>
                             <p className="text-xs text-gray-400">{successMessage}</p>
                         </div>
-                        <button 
+                        <button
                             type="button"
-                            onClick={() => setShowSuccess(false)} 
+                            onClick={() => setShowSuccess(false)}
                             className="ml-4 text-gray-500 hover:text-white transition-colors"
                         >
                             <X className="h-4 w-4" />

@@ -53,8 +53,6 @@ model Order {
   totalAmount       Float
   shippingAddress   Json
   billingAddress    Json?
-  phone             String?
-  email             String?
   paymentStatus     PaymentStatus @default(PENDING)
   paymentMethod     String?
   trackingNumber    String?
@@ -67,6 +65,8 @@ model Order {
   refundStatus      String?
   shipmentId        String?       @unique
   shiprocketOrderId String?       @unique
+  email             String?
+  phone             String?
   user              User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
   items             OrderItem[]
 
