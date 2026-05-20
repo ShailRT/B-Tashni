@@ -49,7 +49,8 @@ export async function createProductAction(data) {
             homeVideoSection,
             imageUrls,
             videoUrl,
-            status
+            status,
+            sku
         } = data;
 
         const sizes = sizesStr ? sizesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -83,7 +84,8 @@ export async function createProductAction(data) {
             videoUrl,
             isActive,
             trendingSection,
-            homeVideoSection
+            homeVideoSection,
+            sku
         });
 
         revalidatePath('/admin/products');
@@ -107,7 +109,8 @@ export async function updateProductAction(id, data) {
             imageUrls,
             videoUrl,
             status,
-            slug: existingSlug
+            slug: existingSlug,
+            sku
         } = data;
 
         const sizes = sizesStr ? sizesStr.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -151,7 +154,8 @@ export async function updateProductAction(id, data) {
             videoUrl,
             isActive,
             trendingSection,
-            homeVideoSection
+            homeVideoSection,
+            sku
         });
 
         revalidatePath('/admin/products');

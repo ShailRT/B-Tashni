@@ -193,7 +193,7 @@ export default function AdminOrdersPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-semibold text-gray-900">{order.user?.firstName || "Guest"} {order.user?.lastName || ""}</span>
-                                                <span className="text-sm text-gray-500">{order.user?.email || "No Email"}</span>
+                                                <span className="text-sm text-gray-500">{order.email || order.user?.email || "No Email"}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
@@ -304,6 +304,24 @@ export default function AdminOrdersPage() {
                                 </div>
                             </div>
 
+<div className="space-y-4">
+  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">User Details</h3>
+  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+    <dt className="text-gray-500 font-medium">Name</dt>
+    <dd className="text-gray-900">{selectedOrder.user?.firstName ? `${selectedOrder.user.firstName} ${selectedOrder.user.lastName || ''}`.trim() : (selectedOrder.email || 'Guest')}</dd>
+    <dt className="text-gray-500 font-medium">Email</dt>
+    <dd className="text-gray-900">{selectedOrder.email || selectedOrder.user?.email || 'N/A'}</dd>
+    <dt className="text-gray-500 font-medium">Phone</dt>
+    <dd className="text-gray-900">{selectedOrder.phone || 'N/A'}</dd>
+    <dt className="text-gray-500 font-medium">Address</dt>
+    <dd className="text-gray-700">
+      <address className="not-italic">
+        {selectedOrder.shippingAddress?.street}<br/>{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.zip}<br/>{selectedOrder.shippingAddress?.country}
+      </address>
+    </dd>
+  </dl>
+</div> 
+
                             {/* Status Controls */}
                             <div className="grid grid-cols-2 gap-8 pt-4 border-t border-gray-100">
                                 <div className="space-y-4">
@@ -337,7 +355,13 @@ export default function AdminOrdersPage() {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Payments</h3>
+                                    
+
+
+{/* Payments */}
+<h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">Payments</h3>
+
+<div className="space-y-2">
                                     <div className="space-y-2">
                                         <p className="text-[10px] text-gray-500 uppercase tracking-widest">
                                             Status: <span className="font-bold text-black">{selectedOrder.paymentStatus}</span>
@@ -380,6 +404,7 @@ export default function AdminOrdersPage() {
                         </div>
                     </div>
                 </div>
+            </div>
             )}
         </div>
 

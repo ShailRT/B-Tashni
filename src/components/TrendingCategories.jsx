@@ -42,7 +42,7 @@ export default function TrendingCategories({ products = [], useStatic = true }) 
 
   return (
     <section className="w-full mt-10 md:mt-16 mb-6 px-4 md:px-6">
-      <div className="text-center mb-8">
+      <div className="text-center mt-20 mb-10">
         <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter mb-2">
           DROP 01 - NOW LIVE
         </h2>

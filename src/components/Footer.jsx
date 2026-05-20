@@ -113,11 +113,12 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-start md:gap-4 lg:gap-8">
             {/* Center Section: STAY IN THE KNOW (Order 1 on Mobile, Center on Desktop) */}
             <div className="w-full md:w-[50%] md:max-w-md mx-auto order-1 md:order-2 flex flex-col items-center text-center mb-10 md:mb-0">
-              <h2 className="font-extrabold text-lg md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">
+              <h2 className="font-extrabold text-xl md:text-[17px] tracking-widest mb-4 uppercase text-[#191919]">
                 DON'T MISS DROP 02.
               </h2>
               <p className="text-[14px] md:text-[13px] mb-5 text-[#4a4a4a] font-medium leading-relaxed">
-                New drops. Early access. Things we only tell our people. First come, first served.
+                New drops. Early access. Things we only tell our people. First come, first served. Be the first to experience new drops, limited releases, and
+                everything happening inside BTASHNI.
               </p>
               <div className="w-full flex mb-2 border border-[#191919] h-12">
                 <input
@@ -128,11 +129,13 @@ export default function Footer() {
                   placeholder="Enter your email for early access"
                   className="flex-1 px-4 placeholder-gray-400 focus:outline-none text-[13px] disabled:bg-gray-100"
                   disabled={subStatus.loading}
+                  suppressHydrationWarning
                 />
                 <button
                   onClick={handleSubscribe}
                   disabled={subStatus.loading}
                   className="bg-[#292621] text-white px-5 flex items-center justify-center hover:bg-black transition-colors disabled:bg-gray-400 cursor-pointer"
+                  suppressHydrationWarning
                 >
                   {subStatus.loading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
